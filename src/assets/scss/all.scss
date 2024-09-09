@@ -1,0 +1,14 @@
+// @import 'bootstrap';
+// Required
+@import 'bootstrap/scss/functions';
+
+// Default variable overrides
+$body-color: #111;
+$primary: red;
+
+// Required
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/root';
+@import 'bootstrap';
