@@ -1,0 +1,9 @@
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+.review-btn.active {
+  background-color: $info;
+  color: $primary;
+  border-color: $primary;
+}

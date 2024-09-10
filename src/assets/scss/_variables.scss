@@ -384,7 +384,7 @@ $enable-negative-margins: false !default;
 $enable-deprecation-messages: true !default;
 $enable-important-utilities: true !default;
 
-$enable-dark-mode: true !default;
+$enable-dark-mode: false; //true !default;
 $color-mode-type: data !default; // `data` or `media-query`
 
 // Prefix for :root CSS variables
@@ -1788,5 +1788,4 @@ $kbd-bg: var(--#{$prefix}body-color) !default;
 $nested-kbd-font-weight: null !default; // Deprecated in v5.2.0, removing in v6
 
 $pre-color: null !default;
-
-@import 'variables-dark'; // TODO: can be removed safely in v6, only here to avoid breaking changes in v5.3
+// TODO: can be removed safely in v6, only here to avoid breaking changes in v5.3
