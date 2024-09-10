@@ -2,6 +2,7 @@
 
 <template>
   <div class="container">
+    {{ newData }}
     <div class="bg-secondary p-3 mb-4 rounded-5">
       <h2 class="fs-5">
         <a href="#" class="pe-3">開南食品</a>
