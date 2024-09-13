@@ -1,8 +1,8 @@
 <script setup>
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
-const apiKey = 'AIzaSyBr-bbKd1cu4MUObdbGCl57zlFaIIRXqBI'
-const sheetId = '1y9NMnMTddxrrWsuVxKt0qRbgRoBABAPkpLaw6mhPy0o'
+const apiKey = import.meta.env.VITE_APP_APIKEY
+const sheetId = import.meta.env.VITE_APP_SHEETID
 // Sheets API 的 URL
 const range = '飲料廠商!A1:H10'
 const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
@@ -13,11 +13,11 @@ async function getSheetData() {
     const values = response.data.values
     convertToObjects(values)
     hotpot.value = convertToObjects(values)
-    console.log('轉換後的資料:', hotpot.value)
     hotpot.value.forEach((item) => {
       keys.value = Object.keys(item)
       keys.value.shift()
     })
+    getType(keys.value[0])
   } catch (error) {
     console.error('Error fetching values:', error)
   }
@@ -78,7 +78,6 @@ onMounted(() => {
 </script>
 <template>
   <div class="container">
-    {{ keys }}
     <div class="row mb-3">
       <div class="col">
         <h3 class="fs-6">行業</h3>
@@ -145,7 +144,7 @@ onMounted(() => {
     </div>
     <div class="row mb-3">
       <div class="col">
-        <h3 class="fs-6">種類 {{ selected }}</h3>
+        <h3 class="fs-6">種類</h3>
         <ul class="d-flex flex-wrap fs-3">
           <li v-for="item in filterType" :key="item">
             <a
