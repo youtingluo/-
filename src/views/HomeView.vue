@@ -2,7 +2,6 @@
 
 <template>
   <div class="container">
-    {{ newData }}
     <div class="bg-secondary p-3 mb-4 rounded-5">
       <h2 class="fs-5">
         <a href="#" class="pe-3">開南食品</a>
@@ -92,7 +91,7 @@
     </div>
 
     <div>
-      <a href="#" class="btn btn-info rounded-5 me-3">同意評價數</a>
+      <a href="#" class="btn btn-info rounded-5 me-3">同意評價</a>
       <RouterLink class="btn btn-info rounded-5" to="/">回到首頁</RouterLink>
     </div>
   </div>
