@@ -1,15 +1,19 @@
 <script setup>
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/css/index.css'
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
 async function getSheetData(industry = '火鍋') {
+  isLoading.value = true
   selectedindustry.value = industry
   const range = `${industry}!A1:O50`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
     const response = await axios.get(url)
+    isLoading.value = false
     const values = response.data.values
     keys.value = values[0].slice(1, -1)
     hotpot.value = convertToObjects(values)
@@ -32,6 +36,7 @@ function convertToObjects(array) {
   }
   return result
 }
+const isLoading = ref(false)
 const hotpot = ref([])
 // 取得物件 KEY
 const keys = ref([])
@@ -64,6 +69,9 @@ onMounted(() => {
 })
 </script>
 <template>
+  <Loading v-model:active="isLoading">
+    <div class="loader"></div>
+  </Loading>
   <div class="container">
     <h3 class="fs-6">行業</h3>
     <ul class="d-flex fs-3 mb-3">
@@ -172,3 +180,17 @@ onMounted(() => {
     </div>
   </div>
 </template>
+<style>
+.loader {
+  width: 120px;
+  height: 20px;
+  border-radius: 20px;
+  background: linear-gradient(orange 0 0) 0/0% no-repeat lightblue;
+  animation: l2 2s infinite steps(10);
+}
+@keyframes l2 {
+  100% {
+    background-size: 110%;
+  }
+}
+</style>

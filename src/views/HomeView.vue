@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
   <div class="container">
     <div class="bg-secondary p-3 mb-4 rounded-5">
@@ -96,5 +94,3 @@
     </div>
   </div>
 </template>
-
-<style scoped></style>
