@@ -20,6 +20,7 @@ async function getSheetData(industry = '火鍋') {
     console.log(hotpot.value)
     getType(keys.value[0])
   } catch (error) {
+    isLoading.value = false
     console.error('Error fetching values:', error)
   }
 }
@@ -95,7 +96,7 @@ onMounted(() => {
           火鍋店
         </button>
       </li>
-      <li>
+      <!-- <li>
         <button
           type="button"
           class="btn btn-outline-primary border-0"
@@ -114,7 +115,7 @@ onMounted(() => {
         >
           挫冰店
         </button>
-      </li>
+      </li> -->
     </ul>
 
     <div class="row mb-3">
@@ -168,7 +169,7 @@ onMounted(() => {
                 v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
               >
                 <div class="text-center px-2">
-                  <button type="button" class="btn btn-primary rounded-pill mb-3">
+                  <button type="button" class="btn btn-primary text-secondary rounded-pill mb-3">
                     {{ value }}
                   </button>
                 </div>
