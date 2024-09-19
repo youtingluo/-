@@ -10,14 +10,21 @@ async function getSheetData(industry = '火鍋') {
   isLoading.value = true
   selectedindustry.value = industry
   const range = `${industry}!A1:O50`
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
+  let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
+  if (import.meta.env.DEV) {
+    url = 'db.json'
+  }
   try {
     const response = await axios.get(url)
+    console.log(response)
     isLoading.value = false
-    const values = response.data.values
+    const values = response.data
+    console.log(values)
     keys.value = values[0].slice(1, -1)
     hotpot.value = convertToObjects(values)
-    console.log(hotpot.value)
+    hotpot.value.forEach((item) => {
+      console.log(item['肉類'])
+    })
     getType(keys.value[0])
   } catch (error) {
     isLoading.value = false
@@ -45,17 +52,30 @@ const keys = ref([])
 // 篩選廠商
 const selectedindustry = ref('')
 const selectedType = ref('')
-const selected = ref('')
+const selected = ref([])
 const filterType = ref([])
 const filterCompany = computed(() => {
-  if (!selected.value) {
+  if (!selected.value.length) {
     return hotpot.value.filter((item) => item[selectedType.value])
   }
-  return hotpot.value.filter((item) => item[selectedType.value].toString().includes(selected.value))
+
+  return hotpot.value.filter((item) =>
+    selected.value.every((value) => item[selectedType.value].includes(value))
+  )
 })
+
+const addMultipleItem = (item) => {
+  const index = selected.value.indexOf(item)
+  if (index > -1) {
+    selected.value.splice(index, 1)
+  } else {
+    selected.value.push(item)
+  }
+}
 // 合併陣列
 const getType = (objKey) => {
-  selected.value = ''
+  //selected.value = ''
+  selected.value = []
   const type = []
   selectedType.value = objKey
   hotpot.value.forEach((item) => {
@@ -154,8 +174,8 @@ onMounted(() => {
             <a
               href="#"
               class="btn btn-outline-primary border-0"
-              :class="{ active: selected === item }"
-              @click.prevent="selected = item"
+              :class="{ active: selected.includes(item) }"
+              @click.prevent="addMultipleItem(item)"
               >{{ item }}</a
             >
           </li>
