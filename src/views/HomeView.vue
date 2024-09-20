@@ -6,11 +6,11 @@ import 'vue-loading-overlay/dist/css/index.css'
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
-async function getSheetData(industry = '火鍋') {
+async function getSheetData(industry = '飲料') {
   isLoading.value = true
   MultipleTypeArray.value = []
   selectedindustry.value = industry
-  const range = `${industry}!A1:O50`
+  const range = `${industry}!A1:O30`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   // if (import.meta.env.DEV) {
   //   url = 'db.json'
@@ -159,18 +159,18 @@ onMounted(() => {
         <button
           type="button"
           class="btn btn-outline-primary border-0"
-          :class="{ active: selectedindustry === '挫冰店' }"
-          @click="selectedindustry = '挫冰店'"
+          :class="{ active: selectedindustry === '剉冰' }"
+          @click="getSheetData('剉冰')"
         >
-          挫冰店
+          剉冰店
         </button>
       </li>
-      <!-- <li>
+      <li>
         <button
           type="button"
           class="btn btn-outline-primary border-0"
-          :class="{ active: selectedindustry === '燒烤店' }"
-          @click="selectedindustry = '燒烤店'"
+          :class="{ active: selectedindustry === '燒烤' }"
+          @click="getSheetData('燒烤')"
         >
           燒烤店
         </button>
@@ -179,17 +179,16 @@ onMounted(() => {
         <button
           type="button"
           class="btn btn-outline-primary border-0"
-          :class="{ active: selectedindustry === '挫冰店' }"
-          @click="selectedindustry = '挫冰店'"
+          :class="{ active: selectedindustry === '烘焙' }"
+          @click="getSheetData('烘焙')"
         >
-          挫冰店
+          烘焙店
         </button>
-      </li> -->
+      </li>
     </ul>
 
     <div class="row mb-3">
       <div class="col">
-        {{ MultipleTypeArray }}
         <h3 class="fs-6">類型</h3>
         <ul class="d-flex fs-3 flex-wrap">
           <li class="me-2" v-for="objKey in keys" :key="objKey">
@@ -220,7 +219,7 @@ onMounted(() => {
           <button
             type="button"
             class="btn btn-info py-1"
-            v-if="filterType.length > 10"
+            v-if="filterType.length > 15"
             @click="showAll = !showAll"
           >
             {{ showAll ? '收起－' : '展開＋' }}
@@ -232,7 +231,7 @@ onMounted(() => {
 
     <div class="row" v-if="searchContent.trim()">
       <h4>
-        以下為 {{ searchContent }} 的搜尋結果
+        以下為 <span class="text-danger">{{ searchContent }} </span> 的搜尋結果
         <button type="button" class="btn btn-sm btn-danger" @click="searchContent = ''">Ｘ</button>
       </h4>
       <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
