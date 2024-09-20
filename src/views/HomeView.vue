@@ -8,19 +8,19 @@ const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
 async function getSheetData(industry = '火鍋') {
   isLoading.value = true
+  MultipleTypeArray.value = []
   selectedindustry.value = industry
   const range = `${industry}!A1:O50`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
-  if (import.meta.env.DEV) {
-    url = 'db.json'
-  }
+  // if (import.meta.env.DEV) {
+  //   url = 'db.json'
+  // }
   try {
     const response = await axios.get(url)
     isLoading.value = false
-    const values = response.data
+    const values = response.data.values
     keys.value = values[0].slice(1, -1)
     hotpot.value = convertToObjects(values)
-    console.log(hotpot.value)
     getType(keys.value[0])
   } catch (error) {
     isLoading.value = false
@@ -68,6 +68,13 @@ const filterCompany = computed(() => {
     })
   }
 })
+const searchContent = ref('')
+const searchCompany = computed(() => {
+  return hotpot.value.filter((item) => {
+    const regex = new RegExp(searchContent.value.split('').join('.*'), 'i')
+    return keys.value.some((key) => regex.test(item[key]))
+  })
+})
 // 多選種類
 const addMultipleItem = (item) => {
   const index = selected.value.indexOf(item)
@@ -111,6 +118,16 @@ onMounted(() => {
     <div class="loader"></div>
   </Loading>
   <div class="container">
+    <div class="mb-3">
+      <label for="search" class="form-label">搜尋</label>
+      <input
+        type="text"
+        class="form-control"
+        id="search"
+        placeholder="輸入關鍵字搜尋"
+        v-model="searchContent"
+      />
+    </div>
     <h3 class="fs-6">行業</h3>
     <ul class="d-flex fs-3 mb-3">
       <li>
@@ -167,10 +184,10 @@ onMounted(() => {
 
     <div class="row mb-3">
       <div class="col">
-        <h3 class="fs-6">類型</h3>
         {{ MultipleTypeArray }}
+        <h3 class="fs-6">類型</h3>
         <ul class="d-flex fs-3 flex-wrap">
-          <li v-for="objKey in keys" :key="objKey">
+          <li class="me-2" v-for="objKey in keys" :key="objKey">
             <a
               href="#"
               class="btn btn-outline-primary border-0"
@@ -182,10 +199,9 @@ onMounted(() => {
         </ul>
       </div>
     </div>
-    <div class="row mb-3">
+    <div class="row mb-3" v-if="MultipleTypeArray.length">
       <div class="col">
         <h3 class="fs-6">種類</h3>
-        {{ selected }}
         <ul class="d-flex flex-wrap fs-3">
           <li v-for="item in filterType" :key="item">
             <a
@@ -200,7 +216,48 @@ onMounted(() => {
       </div>
     </div>
     <h3 class="fs-6">廠商</h3>
-    <div class="row">
+
+    <div class="row" v-if="searchContent.trim()">
+      <h4>
+        以下為 {{ searchContent }} 的搜尋結果
+        <button type="button" class="btn btn-sm btn-danger" @click="searchContent = ''">Ｘ</button>
+      </h4>
+      <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
+        <div class="bg-secondary py-3 rounded-5 h-100">
+          <div class="d-flex justify-content-between px-4 mb-3">
+            <div>
+              <a :href="company['網址']" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
+            </div>
+            <div>
+              <a href="#"><i class="bi bi-heart"></i></a>
+            </div>
+          </div>
+          <div class="row justify-content-between">
+            <template v-for="value in Object.keys(company)" :key="value">
+              <div
+                class="col-6"
+                v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
+              >
+                <div class="text-center px-2">
+                  <button
+                    type="button"
+                    class="btn btn-primary text-secondary rounded-pill mb-3"
+                    :class="[
+                      { 'bg-warning': MultipleTypeArray.includes(value) },
+                      { 'text-dark': MultipleTypeArray.includes(value) }
+                    ]"
+                  >
+                    {{ value }}
+                  </button>
+                </div>
+              </div></template
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" v-else>
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
         <div class="bg-secondary py-3 rounded-5 h-100">
           <div class="d-flex justify-content-between px-4 mb-3">
