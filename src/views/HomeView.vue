@@ -48,7 +48,7 @@ const keys = ref([])
 // 篩選廠商
 const selectedindustry = ref('')
 const selected = ref([])
-const filterType = ref([])
+
 const filterCompany = computed(() => {
   if (!selected.value.length) {
     return hotpot.value.filter((item) => {
@@ -96,6 +96,8 @@ const addMultipleType = (item) => {
   getType()
 }
 // 合併陣列
+const filterType = ref([])
+const showAll = ref(false)
 const getType = () => {
   const type = []
   hotpot.value.forEach((item) => {
@@ -108,6 +110,9 @@ const getType = () => {
   // 移除重複陣列資料
   filterType.value = [...new Set(type.filter(Boolean).join().split(','))]
 }
+const displayedType = computed(() => {
+  return showAll.value ? filterType.value : filterType.value.slice(0, 15)
+})
 // -------- end -------
 onMounted(() => {
   getSheetData()
@@ -203,7 +208,7 @@ onMounted(() => {
       <div class="col">
         <h3 class="fs-6">種類</h3>
         <ul class="d-flex flex-wrap fs-3">
-          <li v-for="item in filterType" :key="item">
+          <li v-for="item in displayedType" :key="item">
             <a
               href="#"
               class="btn btn-outline-primary border-0"
@@ -212,6 +217,14 @@ onMounted(() => {
               >{{ item }}</a
             >
           </li>
+          <button
+            type="button"
+            class="btn btn-info py-1"
+            v-if="filterType.length > 10"
+            @click="showAll = !showAll"
+          >
+            {{ showAll ? '收起－' : '展開＋' }}
+          </button>
         </ul>
       </div>
     </div>
