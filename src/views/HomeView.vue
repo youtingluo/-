@@ -16,15 +16,11 @@ async function getSheetData(industry = '火鍋') {
   }
   try {
     const response = await axios.get(url)
-    console.log(response)
     isLoading.value = false
     const values = response.data
-    console.log(values)
     keys.value = values[0].slice(1, -1)
     hotpot.value = convertToObjects(values)
-    hotpot.value.forEach((item) => {
-      console.log(item['肉類'])
-    })
+    console.log(hotpot.value)
     getType(keys.value[0])
   } catch (error) {
     isLoading.value = false
@@ -51,19 +47,28 @@ const hotpot = ref([])
 const keys = ref([])
 // 篩選廠商
 const selectedindustry = ref('')
-const selectedType = ref('')
 const selected = ref([])
 const filterType = ref([])
 const filterCompany = computed(() => {
   if (!selected.value.length) {
-    return hotpot.value.filter((item) => item[selectedType.value])
+    return hotpot.value.filter((item) => {
+      return MultipleTypeArray.value.every((type) => item[type])
+    })
+  } else {
+    return hotpot.value.filter((item) => {
+      // 檢查所有指定的 key 是否有值
+      const hasAllKeysWithValue = MultipleTypeArray.value.every(
+        (key) => item[key] && item[key].length > 0
+      )
+      // 檢查指定的 key 是否包含所有指定的 value
+      const hasAllValues = MultipleTypeArray.value.some((key) =>
+        selected.value.every((value) => item[key] && item[key].includes(value))
+      )
+      return hasAllKeysWithValue && hasAllValues
+    })
   }
-
-  return hotpot.value.filter((item) =>
-    selected.value.every((value) => item[selectedType.value].includes(value))
-  )
 })
-
+// 多選種類
 const addMultipleItem = (item) => {
   const index = selected.value.indexOf(item)
   if (index > -1) {
@@ -72,16 +77,27 @@ const addMultipleItem = (item) => {
     selected.value.push(item)
   }
 }
+// 多選類型
+const MultipleTypeArray = ref([])
+const addMultipleType = (item) => {
+  const index = MultipleTypeArray.value.indexOf(item)
+  if (index > -1) {
+    MultipleTypeArray.value.splice(index, 1)
+  } else {
+    MultipleTypeArray.value.push(item)
+  }
+  getType()
+}
 // 合併陣列
-const getType = (objKey) => {
-  //selected.value = ''
-  selected.value = []
+const getType = () => {
   const type = []
-  selectedType.value = objKey
   hotpot.value.forEach((item) => {
-    // 要合併每個物件的陣列
-    type.push(item[selectedType.value])
+    MultipleTypeArray.value.forEach((industryItem) => {
+      // 要合併每個物件的陣列
+      type.push(item[industryItem])
+    })
   })
+  selected.value = []
   // 移除重複陣列資料
   filterType.value = [...new Set(type.filter(Boolean).join().split(','))]
 }
@@ -152,13 +168,14 @@ onMounted(() => {
     <div class="row mb-3">
       <div class="col">
         <h3 class="fs-6">類型</h3>
+        {{ MultipleTypeArray }}
         <ul class="d-flex fs-3 flex-wrap">
           <li v-for="objKey in keys" :key="objKey">
             <a
               href="#"
               class="btn btn-outline-primary border-0"
-              :class="{ active: selectedType === objKey }"
-              @click.prevent="getType(objKey)"
+              :class="{ active: MultipleTypeArray.includes(objKey) }"
+              @click.prevent="addMultipleType(objKey)"
               >{{ objKey }}</a
             >
           </li>
@@ -205,8 +222,8 @@ onMounted(() => {
                     type="button"
                     class="btn btn-primary text-secondary rounded-pill mb-3"
                     :class="[
-                      { 'bg-warning': value === selectedType },
-                      { 'text-dark': value === selectedType }
+                      { 'bg-warning': MultipleTypeArray.includes(value) },
+                      { 'text-dark': MultipleTypeArray.includes(value) }
                     ]"
                   >
                     {{ value }}
