@@ -13,14 +13,14 @@ async function getSheetData(industry = '全部') {
   selectedindustry.value = industry
   const range = `${industry}!A1:R10`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
-  if (import.meta.env.DEV) {
-    url = 'db.json'
-  }
+  // if (import.meta.env.DEV) {
+  //   url = 'db.json'
+  // }
   try {
     const response = await axios.get(url)
     isLoading.value = false
     // values 為正式資料
-    const values = response.data
+    const values = response.data.values
     console.log(response)
 
     keys.value = values[0].slice(1, -1)
@@ -305,7 +305,7 @@ onMounted(() => {
     </div>
     <h3 class="fs-6 text-black text-opacity-50">廠商</h3>
     <!-- 搜尋結果 -->
-    <div class="row g-2" v-if="searchContent.trim()">
+    <div class="row" v-if="searchContent.trim()">
       <h4>
         以下為 <span class="text-danger">{{ searchContent }} </span> 的搜尋結果
         <button type="button" class="btn btn-sm btn-danger" @click="searchContent = ''">Ｘ</button>
@@ -341,7 +341,7 @@ onMounted(() => {
       </div>
     </div>
     <!-- end -->
-    <div class="row g-2 flex-nowrap overflow-auto" v-else>
+    <div class="row" v-else>
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
         <RouterLink :to="`company/${company['編號']}`">
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
