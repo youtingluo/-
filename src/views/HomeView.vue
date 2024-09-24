@@ -6,7 +6,6 @@ import 'vue-loading-overlay/dist/css/index.css'
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
-const input = ref(null)
 
 async function getSheetData(industry = '全部') {
   isLoading.value = true
@@ -76,6 +75,7 @@ const filterCompany = computed(() => {
 })
 const isSearched = ref(false)
 const searchContent = ref('')
+const input = ref(null)
 const showInput = () => {
   isSearched.value = true
   nextTick(() => {
@@ -176,116 +176,131 @@ onMounted(() => {
     </div>
   </nav>
   <div class="container">
-    <div class="mb-4">
-      <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
-      <ul class="d-flex fs-3 mb-3 flex-wrap">
-        <li>
-          <button
-            type="button"
-            class="btn btn-custom border-0"
-            :class="{ active: selectedindustry === '全部' }"
-            @click="getSheetData('全部')"
-          >
-            全部
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="btn btn-custom border-0"
-            :class="{ active: selectedindustry === '飲料' }"
-            @click="getSheetData('飲料')"
-          >
-            飲料
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="btn btn-custom border-0"
-            :class="{ active: selectedindustry === '火鍋' }"
-            @click="getSheetData('火鍋')"
-          >
-            火鍋
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="btn btn-custom border-0"
-            :class="{ active: selectedindustry === '剉冰' }"
-            @click="getSheetData('剉冰')"
-          >
-            剉冰
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="btn btn-custom border-0"
-            :class="{ active: selectedindustry === '燒烤' }"
-            @click="getSheetData('燒烤')"
-          >
-            燒烤
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="btn btn-custom border-0"
-            :class="{ active: selectedindustry === '烘焙' }"
-            @click="getSheetData('烘焙')"
-          >
-            烘焙
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <div class="row mb-4">
-      <div class="col">
-        <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
-        <ul class="d-flex fs-3 flex-wrap">
-          <li class="me-2">
-            <a href="#" class="btn btn-custom border-0">全部</a>
-          </li>
-          <li class="me-2" v-for="objKey in keys" :key="objKey">
-            <a
-              href="#"
+    <div class="border-bottom border-2 mb-4">
+      <div class="mb-4">
+        <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
+        <ul class="d-flex fs-3 mb-3 flex-wrap">
+          <li>
+            <button
+              type="button"
               class="btn btn-custom border-0"
-              :class="{ active: MultipleTypeArray.includes(objKey) }"
-              @click.prevent="addMultipleType(objKey)"
-              >{{ objKey }}</a
+              :class="{ active: selectedindustry === '全部' }"
+              @click="getSheetData('全部')"
             >
+              全部
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="btn btn-custom border-0"
+              :class="{ active: selectedindustry === '飲料' }"
+              @click="getSheetData('飲料')"
+            >
+              飲料
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="btn btn-custom border-0"
+              :class="{ active: selectedindustry === '火鍋' }"
+              @click="getSheetData('火鍋')"
+            >
+              火鍋
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="btn btn-custom border-0"
+              :class="{ active: selectedindustry === '剉冰' }"
+              @click="getSheetData('剉冰')"
+            >
+              剉冰
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="btn btn-custom border-0"
+              :class="{ active: selectedindustry === '燒烤' }"
+              @click="getSheetData('燒烤')"
+            >
+              燒烤
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="btn btn-custom border-0"
+              :class="{ active: selectedindustry === '烘焙' }"
+              @click="getSheetData('烘焙')"
+            >
+              烘焙
+            </button>
           </li>
         </ul>
       </div>
-    </div>
-    <div class="row mb-4" v-if="MultipleTypeArray.length">
-      <div class="col">
-        <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
-        <ul class="d-flex flex-wrap fs-3">
-          <li class="me-2">
-            <a href="#" class="btn btn-custom border-0">全部</a>
-          </li>
-          <li v-for="item in displayedType" :key="item">
-            <a
-              href="#"
-              class="btn btn-custom border-0"
-              :class="{ active: selected.includes(item) }"
-              @click.prevent="addMultipleItem(item)"
-              >{{ item }}</a
-            >
-          </li>
-          <button
-            type="button"
-            class="btn btn-outline-primary border-0 py-1"
-            v-if="filterType.length > 8"
-            @click="showAll = !showAll"
-          >
-            {{ showAll ? '收起－' : '更多' }}
-          </button>
-        </ul>
+      <div class="row mb-4" v-if="!(selectedindustry === '全部')">
+        <div class="col">
+          <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
+          <ul class="d-flex fs-3 flex-wrap">
+            <li class="me-2">
+              <a
+                href="#"
+                class="btn btn-custom border-0"
+                :class="{ active: !MultipleTypeArray.length }"
+                @click="MultipleTypeArray = []"
+                >全部</a
+              >
+            </li>
+            <li class="me-2" v-for="objKey in keys" :key="objKey">
+              <a
+                href="#"
+                class="btn btn-custom border-0"
+                :class="{ active: MultipleTypeArray.includes(objKey) }"
+                @click.prevent="addMultipleType(objKey)"
+                >{{ objKey }}</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row mb-4" v-if="MultipleTypeArray.length">
+        <div class="col">
+          <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
+          <ul class="d-flex flex-wrap fs-3">
+            <li class="me-2">
+              <a
+                href="#"
+                class="btn btn-custom border-0"
+                :class="{ active: !selected.length }"
+                @click="selected = []"
+                >全部</a
+              >
+            </li>
+            <li v-for="item in displayedType" :key="item">
+              <a
+                href="#"
+                class="btn btn-custom border-0"
+                :class="{ active: selected.includes(item) }"
+                @click.prevent="addMultipleItem(item)"
+                >{{ item }}</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="btn btn-outline-primary border-0"
+                v-if="filterType.length > 8"
+                @click.prevent="showAll = !showAll"
+              >
+                {{ showAll ? '收起－' : '更多' }}
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
     <h3 class="fs-6 text-black text-opacity-50">廠商</h3>
@@ -296,7 +311,7 @@ onMounted(() => {
         <button type="button" class="btn btn-sm btn-danger" @click="searchContent = ''">Ｘ</button>
       </h4>
       <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
-        <div class="p-3 rounded-5 h-100 shadow-lg">
+        <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
           <div class="d-flex justify-content-between mb-3">
             <div>
               <a :href="company['網址']" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
@@ -326,10 +341,10 @@ onMounted(() => {
       </div>
     </div>
     <!-- end -->
-    <div class="row g-2" v-else>
+    <div class="row g-2 flex-nowrap overflow-auto" v-else>
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
         <RouterLink :to="`company/${company['編號']}`">
-          <div class="p-3 rounded-5 h-100 shadow-lg">
+          <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
             <div class="d-flex justify-content-between mb-3">
               <div>
                 <a :href="company['網址']" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
