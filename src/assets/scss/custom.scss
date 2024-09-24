@@ -21,3 +21,9 @@ ul {
     color: $secondary;
   }
 }
+.link-gray {
+  color: #7d7d7d;
+  &:hover {
+    color: $info;
+  }
+}

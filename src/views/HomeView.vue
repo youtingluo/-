@@ -1,26 +1,32 @@
 <script setup>
 import axios from 'axios'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/css/index.css'
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
-async function getSheetData(industry = '飲料') {
+const input = ref(null)
+
+async function getSheetData(industry = '全部') {
   isLoading.value = true
   MultipleTypeArray.value = []
   selectedindustry.value = industry
-  const range = `${industry}!A1:O30`
+  const range = `${industry}!A1:R10`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
-  // if (import.meta.env.DEV) {
-  //   url = 'db.json'
-  // }
+  if (import.meta.env.DEV) {
+    url = 'db.json'
+  }
   try {
     const response = await axios.get(url)
     isLoading.value = false
-    const values = response.data.values
+    // values 為正式資料
+    const values = response.data
+    console.log(response)
+
     keys.value = values[0].slice(1, -1)
     hotpot.value = convertToObjects(values)
+    console.log(hotpot.value)
     getType(keys.value[0])
   } catch (error) {
     isLoading.value = false
@@ -48,7 +54,7 @@ const keys = ref([])
 // 篩選廠商
 const selectedindustry = ref('')
 const selected = ref([])
-
+const isLiked = ref(false)
 const filterCompany = computed(() => {
   if (!selected.value.length) {
     return hotpot.value.filter((item) => {
@@ -70,6 +76,12 @@ const filterCompany = computed(() => {
 })
 const isSearched = ref(false)
 const searchContent = ref('')
+const showInput = () => {
+  isSearched.value = true
+  nextTick(() => {
+    input.value.focus()
+  })
+}
 const searchCompany = computed(() => {
   return hotpot.value.filter((item) => {
     const regex = new RegExp(searchContent.value.split('').join('.*'), 'i')
@@ -123,7 +135,7 @@ onMounted(() => {
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
-  <nav class="navbar bg-body-tertiary">
+  <nav class="navbar bg-white shadow-sm mb-4 sticky-top">
     <div class="container">
       <div class="d-flex w-100" v-if="!isSearched">
         <div>
@@ -132,7 +144,7 @@ onMounted(() => {
           </RouterLink>
         </div>
         <div class="ms-auto">
-          <button class="btn" type="button" @click="isSearched = true">
+          <button class="btn" type="button" @click="showInput">
             <i class="bi bi-search"></i>
           </button>
         </div>
@@ -151,6 +163,7 @@ onMounted(() => {
           <i class="bi bi-chevron-left"></i>
         </button>
         <input
+          ref="input"
           type="text"
           class="form-control border-0"
           placeholder="搜尋"
@@ -163,71 +176,73 @@ onMounted(() => {
     </div>
   </nav>
   <div class="container">
-    <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
-    <ul class="d-flex fs-3 mb-3">
-      <li>
-        <button
-          type="button"
-          class="btn btn-custom border-0"
-          :class="{ active: selectedindustry === '全部' }"
-          @click="getSheetData('全部')"
-        >
-          全部
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          class="btn btn-custom border-0"
-          :class="{ active: selectedindustry === '飲料' }"
-          @click="getSheetData('飲料')"
-        >
-          飲料店
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          class="btn btn-custom border-0"
-          :class="{ active: selectedindustry === '火鍋' }"
-          @click="getSheetData('火鍋')"
-        >
-          火鍋店
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          class="btn btn-custom border-0"
-          :class="{ active: selectedindustry === '剉冰' }"
-          @click="getSheetData('剉冰')"
-        >
-          剉冰店
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          class="btn btn-custom border-0"
-          :class="{ active: selectedindustry === '燒烤' }"
-          @click="getSheetData('燒烤')"
-        >
-          燒烤店
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          class="btn btn-custom border-0"
-          :class="{ active: selectedindustry === '烘焙' }"
-          @click="getSheetData('烘焙')"
-        >
-          烘焙店
-        </button>
-      </li>
-    </ul>
+    <div class="mb-4">
+      <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
+      <ul class="d-flex fs-3 mb-3 flex-wrap">
+        <li>
+          <button
+            type="button"
+            class="btn btn-custom border-0"
+            :class="{ active: selectedindustry === '全部' }"
+            @click="getSheetData('全部')"
+          >
+            全部
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            class="btn btn-custom border-0"
+            :class="{ active: selectedindustry === '飲料' }"
+            @click="getSheetData('飲料')"
+          >
+            飲料
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            class="btn btn-custom border-0"
+            :class="{ active: selectedindustry === '火鍋' }"
+            @click="getSheetData('火鍋')"
+          >
+            火鍋
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            class="btn btn-custom border-0"
+            :class="{ active: selectedindustry === '剉冰' }"
+            @click="getSheetData('剉冰')"
+          >
+            剉冰
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            class="btn btn-custom border-0"
+            :class="{ active: selectedindustry === '燒烤' }"
+            @click="getSheetData('燒烤')"
+          >
+            燒烤
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            class="btn btn-custom border-0"
+            :class="{ active: selectedindustry === '烘焙' }"
+            @click="getSheetData('烘焙')"
+          >
+            烘焙
+          </button>
+        </li>
+      </ul>
+    </div>
 
-    <div class="row mb-3">
+    <div class="row mb-4">
       <div class="col">
         <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
         <ul class="d-flex fs-3 flex-wrap">
@@ -246,7 +261,7 @@ onMounted(() => {
         </ul>
       </div>
     </div>
-    <div class="row mb-3" v-if="MultipleTypeArray.length">
+    <div class="row mb-4" v-if="MultipleTypeArray.length">
       <div class="col">
         <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
         <ul class="d-flex flex-wrap fs-3">
@@ -264,7 +279,7 @@ onMounted(() => {
           </li>
           <button
             type="button"
-            class="btn text-primary py-1"
+            class="btn btn-outline-primary border-0 py-1"
             v-if="filterType.length > 8"
             @click="showAll = !showAll"
           >
@@ -313,33 +328,44 @@ onMounted(() => {
     <!-- end -->
     <div class="row g-2" v-else>
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
-        <div class="p-3 rounded-5 h-100 shadow-lg">
-          <div class="d-flex justify-content-between mb-3">
-            <div>
-              <a :href="company['網址']" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
+        <RouterLink :to="`company/${company['編號']}`">
+          <div class="p-3 rounded-5 h-100 shadow-lg">
+            <div class="d-flex justify-content-between mb-3">
+              <div>
+                <a :href="company['網址']" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
+              </div>
+              <div>
+                <i
+                  v-if="isLiked"
+                  class="bi bi-heart-fill fs-3 link-info"
+                  @click.prevent="isLiked = !isLiked"
+                ></i>
+                <i
+                  v-else
+                  class="bi bi-heart fs-3 link-gray"
+                  @click.prevent="isLiked = !isLiked"
+                ></i>
+              </div>
             </div>
-            <div>
-              <a href="#"><i class="bi bi-heart"></i></a>
-            </div>
-          </div>
-          <div class="d-flex flex-wrap">
-            <template v-for="value in Object.keys(company)" :key="value">
-              <div
-                v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
-              >
-                <span
-                  class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                  :class="[
-                    { 'bg-warning': MultipleTypeArray.includes(value) },
-                    { 'text-dark': MultipleTypeArray.includes(value) }
-                  ]"
+            <div class="d-flex flex-wrap">
+              <template v-for="value in Object.keys(company)" :key="value">
+                <div
+                  v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
                 >
-                  {{ value }}
-                </span>
-              </div></template
-            >
-          </div>
-        </div>
+                  <span
+                    class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                    :class="[
+                      { 'bg-warning': MultipleTypeArray.includes(value) },
+                      { 'text-dark': MultipleTypeArray.includes(value) }
+                    ]"
+                  >
+                    {{ value }}
+                  </span>
+                </div></template
+              >
+            </div>
+          </div></RouterLink
+        >
       </div>
     </div>
   </div>
