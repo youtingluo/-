@@ -6,27 +6,28 @@ import 'vue-loading-overlay/dist/css/index.css'
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
-
+const selectedindustry = ref('')
 async function getSheetData(industry = '全部') {
   isLoading.value = true
   MultipleTypeArray.value = []
   selectedindustry.value = industry
-  const range = `${industry}!A1:R10`
+  const range = `${industry}!A1:R30`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   // if (import.meta.env.DEV) {
   //   url = 'db.json'
   // }
+
   try {
     const response = await axios.get(url)
     isLoading.value = false
     // values 為正式資料
     const values = response.data.values
-    console.log(response)
 
     keys.value = values[0].slice(1, -1)
     hotpot.value = convertToObjects(values)
     console.log(hotpot.value)
-    getType(keys.value[0])
+    convertToObjects(hotpot.value)
+    getType()
   } catch (error) {
     isLoading.value = false
     console.error('Error fetching values:', error)
@@ -43,15 +44,39 @@ function convertToObjects(array) {
     }
     result.push(obj)
   }
+  if (selectedindustry.value === '全部') {
+    covertAllObjects(hotpot.value)
+  }
   return result
 }
+// 全部的資料
+const allIndustryData = ref({})
+function covertAllObjects(array) {
+  const categorizedData = array.reduce((acc, item) => {
+    const filteredItem = Object.fromEntries(
+      Object.entries(item).filter(([, value]) => value !== undefined || '')
+    )
 
+    if (!acc[item.類別]) {
+      acc[item.類別] = []
+    }
+    acc[item.類別].push(filteredItem)
+    return acc
+  }, {})
+  console.log(categorizedData)
+  const data = []
+  for (const key in categorizedData) {
+    data.push({ [key]: categorizedData[key] })
+  }
+  console.log('data', data)
+
+  allIndustryData.value = data
+}
 const isLoading = ref(false)
 const hotpot = ref([])
 // 取得物件 KEY
 const keys = ref([])
 // 篩選廠商
-const selectedindustry = ref('')
 const selected = ref([])
 const isLiked = ref(false)
 const filterCompany = computed(() => {
@@ -376,11 +401,32 @@ onMounted(() => {
                   >
                     {{ value }}
                   </span>
-                </div></template
-              >
+                </div>
+              </template>
             </div>
           </div></RouterLink
         >
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6 col-lg-3 mb-3" v-for="industry in allIndustryData" :key="industry['編號']">
+        {{ Object.keys(industry) }}
+        <div v-for="company in industry[Object.keys(industry)]" :key="company['編號']">
+          <template v-for="value in Object.keys(company)" :key="value">
+            <div v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'">
+              <span
+                class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                :class="[
+                  { 'bg-warning': MultipleTypeArray.includes(value) },
+                  { 'text-dark': MultipleTypeArray.includes(value) }
+                ]"
+              >
+                {{ value }}
+              </span>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
   </div>
