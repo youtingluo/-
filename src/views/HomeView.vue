@@ -366,7 +366,7 @@ onMounted(() => {
       </div>
     </div>
     <!-- end -->
-    <div class="row" v-else>
+    <div class="row" v-else-if="selectedindustry !== '全部'">
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
         <RouterLink :to="`company/${company['編號']}`">
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
@@ -408,27 +408,61 @@ onMounted(() => {
         >
       </div>
     </div>
-
-    <div class="row">
-      <div class="col-6 col-lg-3 mb-3" v-for="industry in allIndustryData" :key="industry['編號']">
-        {{ Object.keys(industry) }}
-        <div v-for="company in industry[Object.keys(industry)]" :key="company['編號']">
-          <template v-for="value in Object.keys(company)" :key="value">
-            <div v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'">
-              <span
-                class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                :class="[
-                  { 'bg-warning': MultipleTypeArray.includes(value) },
-                  { 'text-dark': MultipleTypeArray.includes(value) }
-                ]"
-              >
-                {{ value }}
-              </span>
+    <template v-if="selectedindustry === '全部'">
+      <div v-for="industry in allIndustryData" :key="industry['編號']">
+        <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
+        <div class="row">
+          <div
+            class="col-6 mb-3"
+            v-for="company in industry[Object.keys(industry)]"
+            :key="company['編號']"
+          >
+            <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+              <div class="d-flex justify-content-between mb-3">
+                <div>
+                  <a href="#" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
+                </div>
+                <div>
+                  <i
+                    v-if="isLiked"
+                    class="bi bi-heart-fill fs-3 link-info"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                  <i
+                    v-else
+                    class="bi bi-heart fs-3 link-gray"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                </div>
+              </div>
+              <div class="d-flex flex-wrap">
+                <template v-for="value in Object.keys(company)" :key="value">
+                  <div
+                    v-if="
+                      company[value] &&
+                      value !== '編號' &&
+                      value !== '廠商' &&
+                      value !== '網址' &&
+                      value !== '類別'
+                    "
+                  >
+                    <span
+                      class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                      :class="[
+                        { 'bg-warning': MultipleTypeArray.includes(value) },
+                        { 'text-dark': MultipleTypeArray.includes(value) }
+                      ]"
+                    >
+                      {{ value }}
+                    </span>
+                  </div>
+                </template>
+              </div>
             </div>
-          </template>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 <style>
