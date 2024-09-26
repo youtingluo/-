@@ -46,11 +46,12 @@ function convertToObjects(array) {
   }
   if (selectedindustry.value === '全部') {
     covertAllObjects(hotpot.value)
+    return result
   }
   return result
 }
 // 全部的資料
-const allIndustryData = ref({})
+const allIndustryData = ref([])
 function covertAllObjects(array) {
   const categorizedData = array.reduce((acc, item) => {
     const filteredItem = Object.fromEntries(
@@ -63,12 +64,10 @@ function covertAllObjects(array) {
     acc[item.類別].push(filteredItem)
     return acc
   }, {})
-  console.log(categorizedData)
   const data = []
   for (const key in categorizedData) {
     data.push({ [key]: categorizedData[key] })
   }
-  console.log('data', data)
 
   allIndustryData.value = data
 }
@@ -165,7 +164,7 @@ onMounted(() => {
       <div class="d-flex w-100" v-if="!isSearched">
         <div>
           <RouterLink class="navbar-brand" to="#">
-            <img src="../../public/LOGO.png" alt="LOGO" />
+            <img src="../assets/LOGO.png" alt="LOGO" />
           </RouterLink>
         </div>
         <div class="ms-auto">
@@ -267,7 +266,7 @@ onMounted(() => {
           </li>
         </ul>
       </div>
-      <div class="row mb-4" v-if="!(selectedindustry === '全部')">
+      <div class="row gx-2 mb-4" v-if="!(selectedindustry === '全部')">
         <div class="col">
           <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
           <ul class="d-flex fs-3 flex-wrap">
@@ -348,7 +347,13 @@ onMounted(() => {
           <div class="d-flex flex-wrap">
             <template v-for="value in Object.keys(company)" :key="value">
               <div
-                v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
+                v-if="
+                  company[value] &&
+                  value !== '編號' &&
+                  value !== '廠商' &&
+                  value !== '網址' &&
+                  value !== '類別'
+                "
               >
                 <span
                   class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
@@ -408,7 +413,7 @@ onMounted(() => {
         >
       </div>
     </div>
-    <template v-if="selectedindustry === '全部'">
+    <template v-if="selectedindustry === '全部' && !searchContent">
       <div v-for="industry in allIndustryData" :key="industry['編號']">
         <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
         <div class="row">
@@ -420,7 +425,7 @@ onMounted(() => {
             <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
               <div class="d-flex justify-content-between mb-3">
                 <div>
-                  <a href="#" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
+                  <h2 class="fs-6">{{ company['廠商'] }}</h2>
                 </div>
                 <div>
                   <i
