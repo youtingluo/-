@@ -11,7 +11,7 @@ async function getSheetData(industry = '全部') {
   isLoading.value = true
   MultipleTypeArray.value = []
   selectedindustry.value = industry
-  const range = `${industry}!A1:R30`
+  const range = `${industry}!A1:Z70`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   // if (import.meta.env.DEV) {
   //   url = 'db.json'
@@ -22,8 +22,9 @@ async function getSheetData(industry = '全部') {
     isLoading.value = false
     // values 為正式資料
     const values = response.data.values
+    console.log(values)
 
-    keys.value = values[0].slice(1, -1)
+    keys.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
     console.log(hotpot.value)
     convertToObjects(hotpot.value)
@@ -101,13 +102,23 @@ const scrollbox = ref(null)
 const toScroll = () => {
   nextTick(() => {
     if (scrollbox.value) {
-      setTimeout(() => {
-        scrollbox.value.scrollIntoView(true)
-      }, 500)
+      const offset = 82 // 偏移量，與導航欄高度一致
+      const bodyRect = document.body.getBoundingClientRect().top
+      const elementRect = scrollbox.value.getBoundingClientRect().top
+      const offsetPosition = elementRect - bodyRect - offset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
     }
   })
 }
-
+const scrollToTop = () => {
+  window.scrollTo(0, 0)
+  isSearched.value = false
+  searchContent.value = ''
+}
 const isSearched = ref(false)
 const searchContent = ref('')
 const input = ref(null)
@@ -164,7 +175,6 @@ const displayedType = computed(() => {
 // -------- end -------
 onMounted(() => {
   getSheetData()
-  console.log(scrollbox.value)
 })
 </script>
 <template>
@@ -186,16 +196,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="input-group" v-else>
-        <button
-          class="btn"
-          type="button"
-          @click="
-            () => {
-              isSearched = false
-              searchContent = ''
-            }
-          "
-        >
+        <button class="btn" type="button" @click="scrollToTop">
           <i class="bi bi-chevron-left"></i>
         </button>
         <input
@@ -329,7 +330,7 @@ onMounted(() => {
             <li>
               <a
                 href="#"
-                class="btn btn-outline-primary border-0"
+                class="btn text-primary border-0"
                 v-if="filterType.length > 8"
                 @click.prevent="showAll = !showAll"
               >
@@ -340,13 +341,16 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <h3 ref="scrollbox" class="fs-6 text-black text-opacity-50">廠商</h3>
+    <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
     <!-- 搜尋結果 -->
-    <div class="row" v-if="searchContent.trim()">
+    <div class="row gx-2" v-if="searchContent.trim()" ref="scrollbox">
       <h4>
         以下為 <span class="text-danger">{{ searchContent }} </span> 的搜尋結果
-        <button type="button" class="btn btn-sm btn-danger" @click="searchContent = ''">Ｘ</button>
+        <button type="button" class="btn btn-sm btn-danger" @click="scrollToTop">Ｘ</button>
       </h4>
+      <div class="text-center py-5" v-if="!searchCompany.length">
+        <img src="../assets/Empty.png" alt="無資料" />
+      </div>
       <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
         <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
           <div class="d-flex justify-content-between mb-3">
@@ -384,7 +388,8 @@ onMounted(() => {
       </div>
     </div>
     <!-- end -->
-    <div class="row" v-else-if="selectedindustry !== '全部'">
+
+    <div class="row gx-2" v-else-if="selectedindustry !== '全部'">
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
         <RouterLink :to="`company/${company['編號']}`">
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
@@ -429,7 +434,7 @@ onMounted(() => {
     <template v-if="selectedindustry === '全部' && !searchContent">
       <div v-for="industry in allIndustryData" :key="industry['編號']">
         <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
-        <div class="row">
+        <div class="row gx-2">
           <div
             class="col-6 mb-3"
             v-for="company in industry[Object.keys(industry)]"

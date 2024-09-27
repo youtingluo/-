@@ -16,11 +16,14 @@ ul {
     color: $primary;
     background-color: $secondary;
   }
-  &:hover {
+}
+@media (any-hover: hover) {
+  .btn-custom:hover {
     background-color: $primary;
     color: $secondary;
   }
 }
+
 .link-gray {
   color: #7d7d7d;
   &:hover {

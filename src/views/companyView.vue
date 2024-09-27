@@ -15,8 +15,8 @@
       <div class="d-flex justify-content-between">
         <h2 class="fs-3">開南食品</h2>
         <div>
-          <a href="#" class="fs-3 me-5 text-dark"><i class="bi bi-globe"></i></a>
-          <a href="#" class="fs-3 text-dark"><i class="bi bi-heart"></i></a>
+          <a class="fs-3 me-5 text-dark"><i class="bi bi-globe"></i></a>
+          <a class="fs-3 text-dark"><i class="bi bi-heart"></i></a>
         </div>
       </div>
 
@@ -77,10 +77,10 @@
           ><small class="text-muted">345</small></span
         >
 
-        <a href="#" class="btn btn-outline-primary">
+        <button type="button" class="btn btn-outline-primary" disabled>
           <i class="bi bi-hand-thumbs-up"></i>
           同意評價
-        </a>
+        </button>
       </div>
     </div>
     <div class="p-3 mb-3 rounded-5 bg-light">
@@ -120,10 +120,10 @@
           ><small class="text-muted">345</small></span
         >
 
-        <a href="#" class="btn btn-outline-primary">
+        <button type="button" class="btn btn-outline-primary">
           <i class="bi bi-hand-thumbs-up"></i>
           同意評價
-        </a>
+        </button>
       </div>
     </div>
   </div>
