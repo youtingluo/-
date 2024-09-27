@@ -4,7 +4,7 @@
       <div class="d-flex w-100">
         <div>
           <RouterLink class="navbar-brand" to="/">
-            <img src="../../public/LOGO.png" alt="LOGO" />
+            <img src="../assets/LOGO.png" alt="LOGO" />
           </RouterLink>
         </div>
       </div>

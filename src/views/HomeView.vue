@@ -97,6 +97,17 @@ const filterCompany = computed(() => {
     })
   }
 })
+const scrollbox = ref(null)
+const toScroll = () => {
+  nextTick(() => {
+    if (scrollbox.value) {
+      setTimeout(() => {
+        scrollbox.value.scrollIntoView(true)
+      }, 500)
+    }
+  })
+}
+
 const isSearched = ref(false)
 const searchContent = ref('')
 const input = ref(null)
@@ -153,6 +164,7 @@ const displayedType = computed(() => {
 // -------- end -------
 onMounted(() => {
   getSheetData()
+  console.log(scrollbox.value)
 })
 </script>
 <template>
@@ -187,6 +199,7 @@ onMounted(() => {
           <i class="bi bi-chevron-left"></i>
         </button>
         <input
+          @input="toScroll"
           ref="input"
           type="text"
           class="form-control border-0"
@@ -327,7 +340,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <h3 class="fs-6 text-black text-opacity-50">廠商</h3>
+    <h3 ref="scrollbox" class="fs-6 text-black text-opacity-50">廠商</h3>
     <!-- 搜尋結果 -->
     <div class="row" v-if="searchContent.trim()">
       <h4>
