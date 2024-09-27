@@ -13,20 +13,13 @@ async function getSheetData(industry = '全部') {
   selectedindustry.value = industry
   const range = `${industry}!A1:Z70`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
-  // if (import.meta.env.DEV) {
-  //   url = 'db.json'
-  // }
-
   try {
     const response = await axios.get(url)
     isLoading.value = false
     // values 為正式資料
     const values = response.data.values
-    console.log(values)
-
     keys.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
-    console.log(hotpot.value)
     convertToObjects(hotpot.value)
     getType()
   } catch (error) {
@@ -352,50 +345,52 @@ onMounted(() => {
         <img src="../assets/Empty.png" alt="無資料" />
       </div>
       <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
-        <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-          <div class="d-flex justify-content-between mb-3">
-            <div>
-              <a :href="company['網址']" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
-            </div>
-            <div>
-              <a href="#"><i class="bi bi-heart"></i></a>
-            </div>
-          </div>
-          <div class="d-flex flex-wrap">
-            <template v-for="value in Object.keys(company)" :key="value">
-              <div
-                v-if="
-                  company[value] &&
-                  value !== '編號' &&
-                  value !== '廠商' &&
-                  value !== '網址' &&
-                  value !== '類別'
-                "
-              >
-                <span
-                  class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                  :class="[
-                    { 'bg-warning': MultipleTypeArray.includes(value) },
-                    { 'text-dark': MultipleTypeArray.includes(value) }
-                  ]"
-                >
-                  {{ value }}
-                </span>
-              </div></template
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- end -->
-
-    <div class="row gx-2" v-else-if="selectedindustry !== '全部'">
-      <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
-        <RouterLink :to="`company/${company['編號']}`">
+        <RouterLink class="text-decoration-none text-dark" :to="`company/${company['編號']}`">
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
             <div class="d-flex justify-content-between mb-3">
               <div>
-                <a :href="company['網址']" target="_blank" class="pe-3">{{ company['廠商'] }}</a>
+                <h2 class="fs-6">{{ company['廠商'] }}</h2>
+              </div>
+              <div>
+                <a href="#"><i class="bi bi-heart"></i></a>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap">
+              <template v-for="value in Object.keys(company)" :key="value">
+                <div
+                  v-if="
+                    company[value] &&
+                    value !== '編號' &&
+                    value !== '廠商' &&
+                    value !== '網址' &&
+                    value !== '類別'
+                  "
+                >
+                  <span
+                    class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                    :class="[
+                      { 'bg-warning': MultipleTypeArray.includes(value) },
+                      { 'text-dark': MultipleTypeArray.includes(value) }
+                    ]"
+                  >
+                    {{ value }}
+                  </span>
+                </div></template
+              >
+            </div>
+          </div>
+        </RouterLink>
+      </div>
+    </div>
+    <!-- end -->
+    <!-- 單獨廠商 -->
+    <div class="row gx-2" v-else-if="selectedindustry !== '全部'">
+      <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
+        <RouterLink class="text-decoration-none text-dark" :to="`company/${company['編號']}`">
+          <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+            <div class="d-flex justify-content-between mb-3">
+              <div>
+                <h2 class="fs-6">{{ company['廠商'] }}</h2>
               </div>
               <div>
                 <i
@@ -431,8 +426,9 @@ onMounted(() => {
         >
       </div>
     </div>
+    <!-- 全部廠商 -->
     <template v-if="selectedindustry === '全部' && !searchContent">
-      <div v-for="industry in allIndustryData" :key="industry['編號']">
+      <div class="mb-4" v-for="industry in allIndustryData" :key="industry['編號']">
         <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
         <div class="row gx-2">
           <div
@@ -440,48 +436,50 @@ onMounted(() => {
             v-for="company in industry[Object.keys(industry)]"
             :key="company['編號']"
           >
-            <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-              <div class="d-flex justify-content-between mb-3">
-                <div>
-                  <h2 class="fs-6">{{ company['廠商'] }}</h2>
-                </div>
-                <div>
-                  <i
-                    v-if="isLiked"
-                    class="bi bi-heart-fill fs-3 link-info"
-                    @click.prevent="isLiked = !isLiked"
-                  ></i>
-                  <i
-                    v-else
-                    class="bi bi-heart fs-3 link-gray"
-                    @click.prevent="isLiked = !isLiked"
-                  ></i>
-                </div>
-              </div>
-              <div class="d-flex flex-wrap">
-                <template v-for="value in Object.keys(company)" :key="value">
-                  <div
-                    v-if="
-                      company[value] &&
-                      value !== '編號' &&
-                      value !== '廠商' &&
-                      value !== '網址' &&
-                      value !== '類別'
-                    "
-                  >
-                    <span
-                      class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                      :class="[
-                        { 'bg-warning': MultipleTypeArray.includes(value) },
-                        { 'text-dark': MultipleTypeArray.includes(value) }
-                      ]"
-                    >
-                      {{ value }}
-                    </span>
+            <RouterLink class="text-decoration-none text-dark" :to="`company/${company['編號']}`">
+              <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+                <div class="d-flex justify-content-between mb-3">
+                  <div>
+                    <h2 class="fs-6">{{ company['廠商'] }}</h2>
                   </div>
-                </template>
+                  <div>
+                    <i
+                      v-if="isLiked"
+                      class="bi bi-heart-fill fs-3 link-info"
+                      @click.prevent="isLiked = !isLiked"
+                    ></i>
+                    <i
+                      v-else
+                      class="bi bi-heart fs-3 link-gray"
+                      @click.prevent="isLiked = !isLiked"
+                    ></i>
+                  </div>
+                </div>
+                <div class="d-flex flex-wrap">
+                  <template v-for="value in Object.keys(company)" :key="value">
+                    <div
+                      v-if="
+                        company[value] &&
+                        value !== '編號' &&
+                        value !== '廠商' &&
+                        value !== '網址' &&
+                        value !== '類別'
+                      "
+                    >
+                      <span
+                        class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                        :class="[
+                          { 'bg-warning': MultipleTypeArray.includes(value) },
+                          { 'text-dark': MultipleTypeArray.includes(value) }
+                        ]"
+                      >
+                        {{ value }}
+                      </span>
+                    </div>
+                  </template>
+                </div>
               </div>
-            </div>
+            </RouterLink>
           </div>
         </div>
       </div>
