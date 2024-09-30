@@ -275,6 +275,7 @@ onMounted(() => {
       </div>
       <div class="row gx-2 mb-4" v-if="!(selectedindustry === '全部')">
         <div class="col">
+          {{ MultipleTypeArray }}
           <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
           <ul class="d-flex fs-3 flex-wrap">
             <li class="me-2">
@@ -282,7 +283,12 @@ onMounted(() => {
                 href="#"
                 class="btn btn-custom border-0"
                 :class="{ active: !MultipleTypeArray.length }"
-                @click="MultipleTypeArray = []"
+                @click="
+                  () => {
+                    MultipleTypeArray = []
+                    selected = []
+                  }
+                "
                 >全部</a
               >
             </li>
@@ -300,6 +306,7 @@ onMounted(() => {
       </div>
       <div class="row mb-4" v-if="MultipleTypeArray.length">
         <div class="col">
+          {{ selected }}
           <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
           <ul class="d-flex flex-wrap fs-3">
             <li class="me-2">
