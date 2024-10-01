@@ -10,7 +10,7 @@ const router = createRouter({
     },
     {
       path: '/company/:id',
-      component: () => import('../views/CompanyView.vue')
+      component: () => import('../views/companyView.vue')
     },
     {
       path: '/:pathMatch(.*)*',

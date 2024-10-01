@@ -11,7 +11,7 @@ async function getSheetData(industry = '全部') {
   isLoading.value = true
   MultipleTypeArray.value = []
   selectedindustry.value = industry
-  const range = `${industry}!A1:Z70`
+  const range = `${industry}!A1:AA70`
   let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
     const response = await axios.get(url)
@@ -127,15 +127,6 @@ const searchCompany = computed(() => {
     return keys.value.some((key) => regex.test(item[key]))
   })
 })
-// 多選種類
-const addMultipleItem = (item) => {
-  const index = selected.value.indexOf(item)
-  if (index > -1) {
-    selected.value.splice(index, 1)
-  } else {
-    selected.value.push(item)
-  }
-}
 // 多選類型
 const MultipleTypeArray = ref([])
 const addMultipleType = (item) => {
@@ -146,6 +137,15 @@ const addMultipleType = (item) => {
     MultipleTypeArray.value.push(item)
   }
   getType()
+}
+// 多選種類
+const addMultipleItem = (item) => {
+  const index = selected.value.indexOf(item)
+  if (index > -1) {
+    selected.value.splice(index, 1)
+  } else {
+    selected.value.push(item)
+  }
 }
 // 合併陣列
 const filterType = ref([])
@@ -350,85 +350,77 @@ onMounted(() => {
         <img src="../assets/Empty.png" alt="無資料" />
       </div>
       <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
-        <RouterLink class="text-decoration-none text-dark" :to="`company/${company['編號']}`">
-          <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-            <div class="d-flex justify-content-between mb-3">
-              <div>
-                <h2 class="fs-6">{{ company['廠商'] }}</h2>
-              </div>
-              <div>
-                <a href="#"><i class="bi bi-heart"></i></a>
-              </div>
+        <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+          <div class="d-flex justify-content-between mb-3">
+            <div>
+              <a :href="company['網址']" target="_blank" class="fs-6">{{ company['廠商'] }}</a>
             </div>
-            <div class="d-flex flex-wrap">
-              <template v-for="value in Object.keys(company)" :key="value">
-                <div
-                  v-if="
-                    company[value] &&
-                    value !== '編號' &&
-                    value !== '廠商' &&
-                    value !== '網址' &&
-                    value !== '類別'
-                  "
-                >
-                  <span
-                    class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                    :class="[
-                      { 'bg-warning': MultipleTypeArray.includes(value) },
-                      { 'text-dark': MultipleTypeArray.includes(value) }
-                    ]"
-                  >
-                    {{ value }}
-                  </span>
-                </div></template
-              >
+            <div>
+              <a href="#"><i class="bi bi-heart"></i></a>
             </div>
           </div>
-        </RouterLink>
+          <div class="d-flex flex-wrap">
+            <template v-for="value in Object.keys(company)" :key="value">
+              <div
+                v-if="
+                  company[value] &&
+                  value !== '編號' &&
+                  value !== '廠商' &&
+                  value !== '網址' &&
+                  value !== '類別'
+                "
+              >
+                <span
+                  class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                  :class="[
+                    { 'bg-warning': MultipleTypeArray.includes(value) },
+                    { 'text-dark': MultipleTypeArray.includes(value) }
+                  ]"
+                >
+                  {{ value }}
+                </span>
+              </div></template
+            >
+          </div>
+        </div>
       </div>
     </div>
     <!-- end -->
     <!-- 單獨廠商 -->
     <div class="row gx-2" v-else-if="selectedindustry !== '全部'">
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
-        <RouterLink class="text-decoration-none text-dark" :to="`company/${company['編號']}`">
-          <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-            <div class="d-flex justify-content-between mb-3">
-              <div>
-                <h2 class="fs-6">{{ company['廠商'] }}</h2>
-              </div>
-              <div>
-                <i
-                  v-if="isLiked"
-                  class="bi bi-heart-fill fs-3 link-info"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-                <i
-                  v-else
-                  class="bi bi-heart fs-3 link-gray"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-              </div>
+        <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+          <div class="d-flex justify-content-between mb-3">
+            <div>
+              <a :href="company['網址']" target="_blank" class="fs-6">{{ company['廠商'] }}</a>
             </div>
-            <div class="d-flex flex-wrap">
-              <template v-for="value in Object.keys(company)" :key="value">
-                <div
-                  v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
+            <div>
+              <i
+                v-if="isLiked"
+                class="bi bi-heart-fill fs-3 link-info"
+                @click.prevent="isLiked = !isLiked"
+              ></i>
+              <i v-else class="bi bi-heart fs-3 link-gray" @click.prevent="isLiked = !isLiked"></i>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap">
+            <template v-for="value in Object.keys(company)" :key="value">
+              <div
+                v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
+              >
+                <span
+                  class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                  :class="[
+                    { 'bg-warning': MultipleTypeArray.includes(value) },
+                    { 'text-dark': MultipleTypeArray.includes(value) }
+                  ]"
                 >
-                  <span
-                    class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                    :class="[
-                      { 'bg-warning': MultipleTypeArray.includes(value) },
-                      { 'text-dark': MultipleTypeArray.includes(value) }
-                    ]"
-                  >
-                    {{ value }}
-                  </span>
-                </div>
-              </template>
-            </div>
-          </div></RouterLink
-        >
+                  {{ value }}
+                </span>
+              </div>
+            </template>
+          </div>
+        </div>
       </div>
     </div>
     <!-- 全部廠商 -->
@@ -441,50 +433,39 @@ onMounted(() => {
             v-for="company in industry[Object.keys(industry)]"
             :key="company['編號']"
           >
-            <RouterLink class="text-decoration-none text-dark" :to="`company/${company['編號']}`">
-              <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-                <div class="d-flex justify-content-between mb-3">
-                  <div>
-                    <h2 class="fs-6">{{ company['廠商'] }}</h2>
-                  </div>
-                  <div>
-                    <i
-                      v-if="isLiked"
-                      class="bi bi-heart-fill fs-3 link-info"
-                      @click.prevent="isLiked = !isLiked"
-                    ></i>
-                    <i
-                      v-else
-                      class="bi bi-heart fs-3 link-gray"
-                      @click.prevent="isLiked = !isLiked"
-                    ></i>
-                  </div>
+            <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+              <div class="d-flex justify-content-between mb-3">
+                <div>
+                  <a :href="company['網址']" target="_blank" class="fs-6">{{ company['廠商'] }}</a>
                 </div>
-                <div class="d-flex flex-wrap">
-                  <template v-for="value in Object.keys(company)" :key="value">
-                    <div
-                      v-if="
-                        company[value] &&
-                        value !== '編號' &&
-                        value !== '廠商' &&
-                        value !== '網址' &&
-                        value !== '類別'
-                      "
-                    >
-                      <span
-                        class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                        :class="[
-                          { 'bg-warning': MultipleTypeArray.includes(value) },
-                          { 'text-dark': MultipleTypeArray.includes(value) }
-                        ]"
-                      >
-                        {{ value }}
-                      </span>
-                    </div>
-                  </template>
+                <div>
+                  <i
+                    v-if="isLiked"
+                    class="bi bi-heart-fill fs-3 link-info"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                  <i
+                    v-else
+                    class="bi bi-heart fs-3 link-gray"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
                 </div>
               </div>
-            </RouterLink>
+              <div class="d-flex flex-wrap">
+                <template v-for="value in Object.keys(company)" :key="value">
+                  <div
+                    v-if="
+                      company[value] &&
+                      !['編號', '廠商', '網址', '類別', '公司簡介'].includes(value)
+                    "
+                  >
+                    <span class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2">
+                      {{ value }}
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div>
           </div>
         </div>
       </div>
