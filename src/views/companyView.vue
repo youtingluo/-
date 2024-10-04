@@ -2,27 +2,33 @@
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+
 const route = useRoute()
 const company = ref({})
 function getCompany() {
+  console.log(route)
+
   const id = route.params.id
   const filter = hotpot.value.filter((item) => item['編號'] === id)
-
   company.value = filter[0]
+  isLoading.value = false
 }
 
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 const hotpot = ref([])
+const isLoading = ref(false)
 async function getSheetData() {
+  isLoading.value = true
   const range = `全部!A1:AA70`
-  let url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
     const response = await axios.get(url)
     const values = response.data.values
     hotpot.value = convertToObjects(values)
     getCompany()
   } catch (error) {
+    isLoading.value = false
     console.error('Error fetching values:', error)
   }
 }
@@ -57,9 +63,11 @@ onMounted(() => {
   <div class="container">
     <div class="mb-5">
       <div class="d-flex justify-content-between">
-        <h2 class="fs-3" v-if="company">{{ company['廠商'] }}</h2>
+        <h2 class="fs-3 placeholder-glow" v-if="company">
+          <span :class="{ placeholder: isLoading }">{{ company['廠商'] }}</span>
+        </h2>
         <div>
-          <a v-if="company" :href="company['網址']" target="_blank" class="fs-3 me-3 link-info"
+          <a v-if="company" :href="company['網址']" target="_blank" class="fs-3 me-3 link-dark"
             ><i class="bi bi-globe"></i
           ></a>
           <a class="fs-3 text-dark"><i class="bi bi-heart"></i></a>
@@ -68,12 +76,12 @@ onMounted(() => {
 
       <div>
         <h3 class="mt-3 fs-6">公司介紹</h3>
-        <p v-if="company">
-          {{ company['公司簡介'] }}
+        <p v-if="company" class="placeholder-glow">
+          <span :class="{ placeholder: isLoading }">{{ company['公司簡介'] }}</span>
         </p>
       </div>
     </div>
     <p class="fs-6 mb-2">實際評測</p>
-    <p class="fs-3 text-danger">規劃中 ...</p>
+    <p class="fs-3 text-danger">規劃中，陸續更新，敬請期待！</p>
   </div>
 </template>
