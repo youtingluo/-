@@ -2,7 +2,6 @@
 import axios from 'axios'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import Loading from 'vue-loading-overlay'
-import 'vue-loading-overlay/dist/css/index.css'
 import { useRoute } from 'vue-router'
 const route = useRoute()
 const apiKey = import.meta.env.VITE_APP_APIKEY
@@ -190,19 +189,19 @@ onMounted(() => {
     <div class="container">
       <div class="d-flex w-100" v-if="!isSearched">
         <div>
-          <RouterLink class="navbar-brand" to="#">
+          <RouterLink class="navbar-brand" to="/">
             <img src="../assets/LOGO.png" alt="LOGO" />
           </RouterLink>
         </div>
         <div class="ms-auto">
           <button class="btn" type="button" @click="showInput">
-            <i class="bi bi-search"></i>
+            <span class="material-symbols-outlined"> search </span>
           </button>
         </div>
       </div>
       <div class="input-group" v-else>
         <button class="btn" type="button" @click="scrollToTop">
-          <i class="bi bi-chevron-left"></i>
+          <span class="material-symbols-outlined"> chevron_backward </span>
         </button>
         <input
           @input="toScroll"
@@ -212,8 +211,8 @@ onMounted(() => {
           placeholder="搜尋"
           v-model="searchContent"
         />
-        <button class="btn" type="button" @click="searchContent = ''">
-          <i class="bi bi-x-lg"></i>
+        <button v-if="searchContent" class="btn" type="button" @click="searchContent = ''">
+          <span class="material-symbols-outlined"> close </span>
         </button>
       </div>
     </div>
@@ -371,12 +370,12 @@ onMounted(() => {
               <div>
                 <i
                   v-if="isLiked"
-                  class="bi bi-heart-fill fs-3 link-info"
+                  class="bi bi-heart-fill fs-4 link-info"
                   @click.prevent="isLiked = !isLiked"
                 ></i>
                 <i
                   v-else
-                  class="bi bi-heart fs-3 link-gray"
+                  class="bi bi-heart fs-4 link-gray"
                   @click.prevent="isLiked = !isLiked"
                 ></i>
               </div>
@@ -426,12 +425,12 @@ onMounted(() => {
               <div>
                 <i
                   v-if="isLiked"
-                  class="bi bi-heart-fill fs-3 link-info"
+                  class="bi bi-heart-fill fs-4 link-info"
                   @click.prevent="isLiked = !isLiked"
                 ></i>
                 <i
                   v-else
-                  class="bi bi-heart fs-3 link-gray"
+                  class="bi bi-heart fs-4 link-gray"
                   @click.prevent="isLiked = !isLiked"
                 ></i>
               </div>
@@ -472,7 +471,6 @@ onMounted(() => {
               :to="{
                 path: `/company/${company['編號']}`
               }"
-              replace=""
             >
               <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
                 <div class="d-flex justify-content-between mb-3">
@@ -484,12 +482,12 @@ onMounted(() => {
                   <div>
                     <i
                       v-if="isLiked"
-                      class="bi bi-heart-fill fs-3 link-info"
+                      class="bi bi-heart-fill fs-4 link-info"
                       @click.prevent="isLiked = !isLiked"
                     ></i>
                     <i
                       v-else
-                      class="bi bi-heart fs-3 link-gray"
+                      class="bi bi-heart fs-4 link-gray"
                       @click.prevent="isLiked = !isLiked"
                     ></i>
                   </div>
@@ -516,18 +514,3 @@ onMounted(() => {
     </template>
   </div>
 </template>
-<style>
-.loader {
-  width: 120px;
-  height: 20px;
-  border-radius: 20px;
-  background: linear-gradient(orange 0 0) 0/0% no-repeat lightblue;
-  animation: l2 2s infinite steps(10);
-}
-
-@keyframes l2 {
-  100% {
-    background-size: 110%;
-  }
-}
-</style>

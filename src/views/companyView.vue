@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-
+import Loading from 'vue-loading-overlay'
 const route = useRoute()
 const company = ref({})
 function getCompany() {
@@ -49,6 +49,9 @@ onMounted(() => {
 })
 </script>
 <template>
+  <Loading v-model:active="isLoading">
+    <div class="loader"></div>
+  </Loading>
   <nav class="navbar bg-white shadow-sm mb-5 sticky-top">
     <div class="container">
       <div class="d-flex w-100">
@@ -63,21 +66,21 @@ onMounted(() => {
   <div class="container">
     <div class="mb-5">
       <div class="d-flex justify-content-between">
-        <h2 class="fs-3 placeholder-glow" v-if="company">
+        <h2 class="fs-3 placeholder-glow" v-if="!isLoading">
           <span :class="{ placeholder: isLoading }">{{ company['廠商'] }}</span>
         </h2>
         <div>
-          <a v-if="company" :href="company['網址']" target="_blank" class="fs-3 me-3 link-dark"
-            ><i class="bi bi-globe"></i
-          ></a>
-          <a class="fs-3 text-dark"><i class="bi bi-heart"></i></a>
+          <a :href="company['網址']" target="_blank" class="fs-3 me-3 link-dark"
+            ><span class="material-symbols-outlined"> language </span></a
+          >
+          <a class="fs-3 text-dark"><span class="material-symbols-outlined"> favorite </span></a>
         </div>
       </div>
 
       <div>
         <h3 class="mt-3 fs-6">公司介紹</h3>
-        <p v-if="company" class="placeholder-glow">
-          <span :class="{ placeholder: isLoading }">{{ company['公司簡介'] }}</span>
+        <p v-if="!isLoading" class="placeholder-glow">
+          <span :class="isLoading ? placeholder : ''">{{ company['公司簡介'] }}</span>
         </p>
       </div>
     </div>
