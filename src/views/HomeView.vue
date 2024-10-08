@@ -2,7 +2,8 @@
 import axios from 'axios'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import Loading from 'vue-loading-overlay'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+const router = useRouter()
 const route = useRoute()
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
@@ -11,7 +12,6 @@ const selectedindustry = ref('')
 const isLoading = ref(false)
 async function getSheetData(industry = '全部') {
   isLoading.value = true
-  //MultipleTypeArray.value = []
   selectedindustry.value = industry
   const range = `${industry}!A1:AA70`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
@@ -23,6 +23,9 @@ async function getSheetData(industry = '全部') {
     keys.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
     convertToObjects(hotpot.value)
+    MultipleTypeArray.value = route.query.MultipleTypeArray
+      ? JSON.parse(route.query.MultipleTypeArray)
+      : []
     getType()
   } catch (error) {
     isLoading.value = false
@@ -53,7 +56,6 @@ function covertAllObjects(array) {
     const filteredItem = Object.fromEntries(
       Object.entries(item).filter(([, value]) => value !== undefined || '')
     )
-
     if (!acc[item.類別]) {
       acc[item.類別] = []
     }
@@ -64,10 +66,8 @@ function covertAllObjects(array) {
   for (const key in categorizedData) {
     data.push({ [key]: categorizedData[key] })
   }
-
   allIndustryData.value = data
 }
-
 const hotpot = ref([])
 // 取得物件 KEY
 const keys = ref([])
@@ -101,7 +101,6 @@ const toScroll = () => {
       const bodyRect = document.body.getBoundingClientRect().top
       const elementRect = scrollbox.value.getBoundingClientRect().top
       const offsetPosition = elementRect - bodyRect - offset
-
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth'
@@ -160,7 +159,7 @@ const getType = () => {
       type.push(item[industryItem])
     })
   })
-  selected.value = []
+  selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
   // 移除重複陣列資料
   filterType.value = [...new Set(type.filter(Boolean).join().split(','))]
 }
@@ -168,15 +167,20 @@ const displayedType = computed(() => {
   return showAll.value ? filterType.value : filterType.value.slice(0, 8)
 })
 // -------- end -------
-
+function goCompany(id) {
+  router.push({
+    path: `company/${id}`,
+    query: {
+      selectedindustry: selectedindustry.value,
+      MultipleTypeArray: JSON.stringify(MultipleTypeArray.value),
+      selected: JSON.stringify(selected.value)
+    }
+  })
+}
 onMounted(() => {
-  console.log(route.query)
-
-  if (route.query.filter1 || route.query.filter2) {
-    console.log('yes')
-
-    MultipleTypeArray.value = JSON.parse(route.query.filter1)
-    selected.value = JSON.parse(route.query.filter2)
+  if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
+    getSheetData(route.query.selectedindustry)
+    return
   }
   getSheetData()
 })
@@ -227,7 +231,12 @@ onMounted(() => {
               type="button"
               class="btn btn-custom border-0"
               :class="{ active: selectedindustry === '全部' }"
-              @click="getSheetData('全部')"
+              @click="
+                () => {
+                  router.push({ query: {} })
+                  getSheetData('全部')
+                }
+              "
             >
               全部
             </button>
@@ -237,7 +246,12 @@ onMounted(() => {
               type="button"
               class="btn btn-custom border-0"
               :class="{ active: selectedindustry === '飲料' }"
-              @click="getSheetData('飲料')"
+              @click="
+                () => {
+                  router.push({ query: {} })
+                  getSheetData('飲料')
+                }
+              "
             >
               飲料
             </button>
@@ -247,7 +261,12 @@ onMounted(() => {
               type="button"
               class="btn btn-custom border-0"
               :class="{ active: selectedindustry === '火鍋' }"
-              @click="getSheetData('火鍋')"
+              @click="
+                () => {
+                  router.push({ query: {} })
+                  getSheetData('火鍋')
+                }
+              "
             >
               火鍋
             </button>
@@ -257,7 +276,12 @@ onMounted(() => {
               type="button"
               class="btn btn-custom border-0"
               :class="{ active: selectedindustry === '剉冰' }"
-              @click="getSheetData('剉冰')"
+              @click="
+                () => {
+                  router.push({ query: {} })
+                  getSheetData('剉冰')
+                }
+              "
             >
               剉冰
             </button>
@@ -267,7 +291,14 @@ onMounted(() => {
               type="button"
               class="btn btn-custom border-0"
               :class="{ active: selectedindustry === '燒烤' }"
-              @click="getSheetData('燒烤')"
+              @click="
+                () => {
+                  const path = route.path
+                  router.push(path)
+
+                  getSheetData('燒烤')
+                }
+              "
             >
               燒烤
             </button>
@@ -277,7 +308,12 @@ onMounted(() => {
               type="button"
               class="btn btn-custom border-0"
               :class="{ active: selectedindustry === '烘焙' }"
-              @click="getSheetData('烘焙')"
+              @click="
+                () => {
+                  router.push({ query: {} })
+                  getSheetData('烘焙')
+                }
+              "
             >
               烘焙
             </button>
@@ -411,12 +447,7 @@ onMounted(() => {
     <!-- 單獨廠商 -->
     <div class="row gx-2" v-else-if="selectedindustry !== '全部'">
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
-        <RouterLink
-          target="_blank"
-          :to="{
-            path: `/company/${company['編號']}`
-          }"
-        >
+        <a href="#" @click.prevent="goCompany(company['編號'])">
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
             <div class="d-flex justify-content-between mb-3">
               <div>
@@ -452,7 +483,7 @@ onMounted(() => {
                 </div>
               </template>
             </div>
-          </div></RouterLink
+          </div></a
         >
       </div>
     </div>
@@ -466,12 +497,7 @@ onMounted(() => {
             v-for="company in industry[Object.keys(industry)]"
             :key="company['編號']"
           >
-            <RouterLink
-              target="_blank"
-              :to="{
-                path: `/company/${company['編號']}`
-              }"
-            >
+            <a href="#" @click.prevent="goCompany(company['編號'])">
               <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
                 <div class="d-flex justify-content-between mb-3">
                   <div>
@@ -506,7 +532,7 @@ onMounted(() => {
                     </div>
                   </template>
                 </div>
-              </div></RouterLink
+              </div></a
             >
           </div>
         </div>

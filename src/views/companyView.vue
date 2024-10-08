@@ -1,13 +1,21 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import Loading from 'vue-loading-overlay'
 const route = useRoute()
+const router = useRouter()
+const goBack = () => {
+  router.push({ name: 'company', query: route.query })
+}
+onBeforeRouteLeave((to, from, next) => {
+  if (to.name === 'home') {
+    to.query = { ...route.query }
+  }
+  next()
+})
 const company = ref({})
 function getCompany() {
-  console.log(route)
-
   const id = route.params.id
   const filter = hotpot.value.filter((item) => item['編號'] === id)
   company.value = filter[0]
@@ -45,6 +53,7 @@ function convertToObjects(array) {
   return result
 }
 onMounted(() => {
+  console.log(route)
   getSheetData()
 })
 </script>
@@ -82,6 +91,7 @@ onMounted(() => {
         <p v-if="!isLoading" class="placeholder-glow">
           <span :class="isLoading ? placeholder : ''">{{ company['公司簡介'] }}</span>
         </p>
+        <button @click="goBack">返回</button>
       </div>
     </div>
     <p class="fs-6 mb-2">實際評測</p>
