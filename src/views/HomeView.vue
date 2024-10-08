@@ -193,9 +193,9 @@ onMounted(() => {
     <div class="container">
       <div class="d-flex w-100" v-if="!isSearched">
         <div>
-          <RouterLink class="navbar-brand" to="/">
+          <a href="#" class="navbar-brand" @click.prevent="getSheetData()">
             <img src="../assets/LOGO.png" alt="LOGO" />
-          </RouterLink>
+          </a>
         </div>
         <div class="ms-auto">
           <button class="btn" type="button" @click="showInput">
