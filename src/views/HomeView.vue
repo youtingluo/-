@@ -245,21 +245,6 @@ onMounted(() => {
             <button
               type="button"
               class="btn btn-custom border-0"
-              :class="{ active: selectedindustry === '飲料' }"
-              @click="
-                () => {
-                  router.push({ query: {} })
-                  getSheetData('飲料')
-                }
-              "
-            >
-              飲料
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              class="btn btn-custom border-0"
               :class="{ active: selectedindustry === '火鍋' }"
               @click="
                 () => {
@@ -269,6 +254,21 @@ onMounted(() => {
               "
             >
               火鍋
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="btn btn-custom border-0"
+              :class="{ active: selectedindustry === '飲料' }"
+              @click="
+                () => {
+                  router.push({ query: {} })
+                  getSheetData('飲料')
+                }
+              "
+            >
+              飲料
             </button>
           </li>
           <li>
