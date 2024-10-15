@@ -43,7 +43,8 @@ const registerUser = () => {
 </script>
 
 <template>
-  <div class="container pt-5 vh-100 d-flex justify-content-center align-items-center">
+  <div class="container pt-5 vh-100 d-flex flex-column justify-content-center align-items-center">
+    <h1 class="mb-5">註冊頁面</h1>
     <div class="login-content">
       <ul class="nav nav-tabs" ref="loginTab" role="tablist">
         <li class="nav-item me-auto" role="presentation">
@@ -93,7 +94,7 @@ const registerUser = () => {
               />
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <button type="submit" class="btn btn-primary" :disabled="isLoading">
+              <button type="submit" class="btn btn-primary flex-grow-1 me-3" :disabled="isLoading">
                 <span
                   v-if="isLoading"
                   class="spinner-border spinner-border-sm me-1"
@@ -103,7 +104,7 @@ const registerUser = () => {
                 </span>
                 註冊
               </button>
-              <RouterLink to="login" class="link-primary">我要登入</RouterLink>
+              <RouterLink to="login" class="btn btn-outline-dark">前往登入</RouterLink>
             </div>
           </form>
           <p v-if="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
