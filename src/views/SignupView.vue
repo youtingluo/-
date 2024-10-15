@@ -1,17 +1,42 @@
 <script setup>
 import { ref } from 'vue'
 import { auth } from '../utils/firebase'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
-
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const userName = ref('')
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
+const errorMessage = ref('')
+const isLoading = ref(false)
 
 const registerUser = () => {
+  if (password.value !== confirmPassword.value) {
+    errorMessage.value = '密碼不一致，請再次確認。'
+    return
+  }
+  isLoading.value = true
   createUserWithEmailAndPassword(auth, email.value, password.value)
     .then((userCredential) => {
-      console.log('註冊成功：', userCredential.user)
+      const user = userCredential.user
+      updateProfile(user, { displayName: userName.value })
+        .then(() => {
+          console.log('註冊成功，顯示名稱已更新：', user.displayName)
+          isLoading.value = false
+          router.push('/login')
+        })
+        .catch((error) => {
+          console.error('更新顯示名稱錯誤：', error.message)
+          isLoading.value = false
+        })
     })
     .catch((error) => {
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage.value = '此電子郵件地址已被使用。'
+      } else {
+        errorMessage.value = error.message
+      }
       console.error('註冊錯誤：', error.message)
     })
 }
@@ -35,6 +60,16 @@ const registerUser = () => {
         <div class="tab-pane show active">
           <form @submit.prevent="registerUser">
             <div class="mb-3">
+              <label for="signup-userName" class="form-label">暱稱</label>
+              <input
+                type="text"
+                class="form-control"
+                id="signup-userName"
+                placeholder="輸入暱稱"
+                v-model="userName"
+              />
+            </div>
+            <div class="mb-3">
               <label for="signup-email" class="form-label">信箱</label>
               <input
                 type="email"
@@ -49,14 +84,29 @@ const registerUser = () => {
               <input type="password" class="form-control" id="password1" v-model="password" />
             </div>
             <div class="mb-3">
-              <label for="password2" class="form-label">確認密碼</label>
-              <input type="password" class="form-control" id="password2" />
+              <label for="confirmPassword" class="form-label">確認密碼</label>
+              <input
+                type="password"
+                class="form-control"
+                id="confirmPassword"
+                v-model="confirmPassword"
+              />
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <button type="submit" class="btn btn-primary">註冊</button>
+              <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm me-1"
+                  role="status"
+                  aria-hidden="true"
+                >
+                </span>
+                註冊
+              </button>
               <RouterLink to="login" class="link-primary">我要登入</RouterLink>
             </div>
           </form>
+          <p v-if="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
         </div>
       </div>
     </div>

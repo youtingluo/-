@@ -2,17 +2,23 @@
 import { ref } from 'vue'
 import { auth } from '../utils/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const loginEmail = ref('')
 const loginPassword = ref('')
+const isLoading = ref(false)
 
 const loginUser = () => {
+  isLoading.value = true
   signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value)
     .then((userCredential) => {
       console.log('登入成功：', userCredential.user)
+      isLoading.value = false
+      router.push('/')
     })
     .catch((error) => {
       console.error('登入錯誤：', error.message)
+      isLoading.value = false
     })
 }
 </script>
@@ -48,37 +54,18 @@ const loginUser = () => {
               <input type="password" class="form-control" id="password" v-model="loginPassword" />
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <button type="submit" class="btn btn-primary">登入</button>
+              <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm me-1"
+                  role="status"
+                  aria-hidden="true"
+                >
+                </span
+                >登入
+              </button>
               <RouterLink to="signup" class="link-primary">我要註冊</RouterLink>
             </div>
-          </form>
-        </div>
-        <div
-          class="tab-pane fade"
-          id="signup-tab"
-          role="tabpanel"
-          aria-labelledby="profile-tab"
-          tabindex="0"
-        >
-          <form>
-            <div class="mb-3">
-              <label for="signup-email" class="form-label">信箱</label>
-              <input
-                type="email"
-                class="form-control"
-                id="signup-email"
-                placeholder="name@example.com"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="password1" class="form-label">密碼</label>
-              <input type="password" class="form-control" id="password1" />
-            </div>
-            <div class="mb-3">
-              <label for="password2" class="form-label">確認密碼</label>
-              <input type="password" class="form-control" id="password2" />
-            </div>
-            <button class="btn btn-primary w-100">註冊</button>
           </form>
         </div>
       </div>

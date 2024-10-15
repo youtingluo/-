@@ -177,13 +177,20 @@ function goCompany(id) {
     }
   })
 }
+const user = ref(null)
+import { auth } from '../utils/firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 onMounted(() => {
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
     return
   }
   getSheetData()
+  onAuthStateChanged(auth, (u) => {
+    user.value = u
+  })
 })
+
 watch(
   () => selectedindustry.value,
   () => {
@@ -208,7 +215,8 @@ watch(
           <button class="btn" type="button" @click="showInput">
             <span class="material-symbols-outlined"> search </span>
           </button>
-          <RouterLink class="btn btn-primary" to="login">登入</RouterLink>
+          <button v-if="user" type="button" class="btn btn-primary">登出</button>
+          <RouterLink v-else class="btn btn-primary" to="login">登入 / 註冊</RouterLink>
         </div>
       </div>
       <div class="input-group" v-else>
