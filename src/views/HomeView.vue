@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
@@ -184,6 +184,13 @@ onMounted(() => {
   }
   getSheetData()
 })
+watch(
+  () => selectedindustry.value,
+  () => {
+    getSheetData(selectedindustry.value)
+  },
+  { deep: true }
+)
 </script>
 <template>
   <Loading v-model:active="isLoading">
@@ -193,7 +200,7 @@ onMounted(() => {
     <div class="container">
       <div class="d-flex w-100" v-if="!isSearched">
         <div>
-          <a href="#" class="navbar-brand" @click.prevent="getSheetData()">
+          <a href="#" class="navbar-brand" @click.prevent="router.push({ query: {} })">
             <img src="../assets/LOGO.png" alt="LOGO" />
           </a>
         </div>
@@ -201,6 +208,7 @@ onMounted(() => {
           <button class="btn" type="button" @click="showInput">
             <span class="material-symbols-outlined"> search </span>
           </button>
+          <RouterLink class="btn btn-primary" to="login">登入</RouterLink>
         </div>
       </div>
       <div class="input-group" v-else>
@@ -234,7 +242,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('全部')
+                  selectedindustry = '全部'
                 }
               "
             >
@@ -249,7 +257,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('火鍋')
+                  selectedindustry = '火鍋'
                 }
               "
             >
@@ -264,7 +272,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('飲料')
+                  selectedindustry = '飲料'
                 }
               "
             >
@@ -279,7 +287,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('剉冰')
+                  selectedindustry = '剉冰'
                 }
               "
             >
@@ -293,10 +301,8 @@ onMounted(() => {
               :class="{ active: selectedindustry === '燒烤' }"
               @click="
                 () => {
-                  const path = route.path
-                  router.push(path)
-
-                  getSheetData('燒烤')
+                  router.push({ query: {} })
+                  selectedindustry = '燒烤'
                 }
               "
             >
@@ -311,7 +317,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('烘焙')
+                  selectedindustry = '烘焙'
                 }
               "
             >
@@ -401,7 +407,9 @@ onMounted(() => {
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
             <div class="d-flex justify-content-between mb-3">
               <div>
-                <a :href="company['網址']" target="_blank" class="fs-6">{{ company['廠商'] }}</a>
+                <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
+                  company['廠商']
+                }}</a>
               </div>
               <div>
                 <i
@@ -451,7 +459,9 @@ onMounted(() => {
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
             <div class="d-flex justify-content-between mb-3">
               <div>
-                <a :href="company['網址']" target="_blank" class="fs-6">{{ company['廠商'] }}</a>
+                <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
+                  company['廠商']
+                }}</a>
               </div>
               <div>
                 <i
@@ -501,7 +511,7 @@ onMounted(() => {
               <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
                 <div class="d-flex justify-content-between mb-3">
                   <div>
-                    <a :href="company['網址']" target="_blank" class="fs-6">{{
+                    <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
                       company['廠商']
                     }}</a>
                   </div>
