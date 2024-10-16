@@ -1,8 +1,25 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { auth } from '../utils/firebase'
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth'
 import { useRouter } from 'vue-router'
+const unsubscribe = auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log('用户已登入:', user)
+    router.push('/')
+  } else {
+    console.log('用户未登入')
+  }
+})
+
+onUnmounted(() => {
+  unsubscribe()
+})
 const router = useRouter()
 const loginEmail = ref('')
 const loginPassword = ref('')
@@ -19,26 +36,50 @@ const loginUser = () => {
       router.push('/')
     })
     .catch((error) => {
-      console.error('登入錯誤：', error.message)
+      console.error('登入錯誤：', error.code)
+      if (error.code === 'auth/invalid-credential') {
+        errorMessage.value = '帳號或密碼不正確'
+      }
       isLoading.value = false
     })
 }
 const isReset = ref(false)
 const resetPassword = () => {
+  isLoading.value = true
   sendPasswordResetEmail(auth, resetEmail.value)
     .then(() => {
+      isLoading.value = false
       message.value = '密碼重設郵件已發送，請檢查您的郵箱。'
       errorMessage.value = ''
     })
     .catch((error) => {
+      isLoading.value = false
       errorMessage.value = error.message
       message.value = ''
+    })
+}
+
+const signInWithGoogle = () => {
+  isLoading.value = true
+  errorMessage.value = ''
+  const provider = new GoogleAuthProvider()
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      console.log('Google 登入成功：', result.user)
+      router.push('/')
+    })
+    .catch((error) => {
+      errorMessage.value = `Google 登入失敗：${error.message}`
+    })
+    .finally(() => {
+      isLoading.value = false
     })
 }
 </script>
 <template>
   <div class="container pt-5 vh-100 d-flex flex-column justify-content-center align-items-center">
     <h1 class="mb-5">登入頁面</h1>
+
     <div class="login-content">
       <ul class="nav nav-tabs" ref="loginTab" role="tablist">
         <li class="nav-item me-auto" role="presentation">
@@ -126,6 +167,11 @@ const resetPassword = () => {
                 </div>
               </div>
             </form>
+
+            <button @click.prevent="signInWithGoogle" class="btn btn-outline-danger mt-3 w-100">
+              <i class="bi bi-google me-2"></i>用 Google 帳號登入
+            </button>
+            <p v-if="errorMessage" class="text-danger mt-2 mb-0">{{ errorMessage }}</p>
           </div>
         </div>
       </div>

@@ -32,12 +32,18 @@ const registerUser = () => {
         })
     })
     .catch((error) => {
+      isLoading.value = false
       if (error.code === 'auth/email-already-in-use') {
-        errorMessage.value = '此電子郵件地址已被使用。'
+        errorMessage.value = '此信箱已被使用。'
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage.value = '信箱格式不正確'
+      } else if (error.code === 'auth/missing-password') {
+        errorMessage.value = `請輸入密碼`
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage.value = `密碼強度不足`
       } else {
-        errorMessage.value = error.message
+        errorMessage.value = error.code
       }
-      console.error('註冊錯誤：', error.message)
     })
 }
 </script>
