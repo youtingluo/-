@@ -1,9 +1,10 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
-import { onBeforeRouteLeave, useRoute } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import Loading from 'vue-loading-overlay'
 const route = useRoute()
+const router = useRouter()
 
 onBeforeRouteLeave((to, from, next) => {
   if (to.name === 'home') {
@@ -52,6 +53,13 @@ function convertToObjects(array) {
 onMounted(() => {
   getSheetData()
 })
+
+function resetAndGoHome() {
+  // 清除路由查询参数并跳转到首页
+  router.push({ name: 'home', query: {} })
+
+  // 重置相关的响应式变量
+}
 </script>
 <template>
   <Loading v-model:active="isLoading">
@@ -61,9 +69,9 @@ onMounted(() => {
     <div class="container">
       <div class="d-flex w-100">
         <div>
-          <RouterLink class="navbar-brand" to="/">
+          <a href="#" class="navbar-brand" @click.prevent="resetAndGoHome">
             <img src="../assets/LOGO.png" alt="LOGO" />
-          </RouterLink>
+          </a>
         </div>
       </div>
     </div>

@@ -97,7 +97,7 @@ const scrollbox = ref(null)
 const toScroll = () => {
   nextTick(() => {
     if (scrollbox.value) {
-      const offset = 82 // 偏移量，與導航欄高度一致
+      const offset = 113 // 偏移量，與導航欄高度一致
       const bodyRect = document.body.getBoundingClientRect().top
       const elementRect = scrollbox.value.getBoundingClientRect().top
       const offsetPosition = elementRect - bodyRect - offset
@@ -179,7 +179,7 @@ function goCompany(id) {
 }
 const user = ref(null)
 import { auth } from '../utils/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 onMounted(() => {
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
@@ -190,6 +190,16 @@ onMounted(() => {
     user.value = u
   })
 })
+// 回首頁
+function resetAndGoHome() {
+  router.push({ name: 'home', query: {} })
+
+  selectedindustry.value = '全部'
+  MultipleTypeArray.value = []
+  selected.value = []
+
+  getSheetData()
+}
 
 watch(
   () => selectedindustry.value,
@@ -203,11 +213,11 @@ watch(
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
-  <nav class="navbar bg-white shadow-sm mb-4 sticky-top">
+  <nav class="navbar bg-white shadow-sm sticky-top">
     <div class="container">
       <div class="d-flex w-100" v-if="!isSearched">
         <div>
-          <a href="#" class="navbar-brand" @click.prevent="router.push({ query: {} })">
+          <a href="#" class="navbar-brand" @click.prevent="resetAndGoHome">
             <img src="../assets/LOGO.png" alt="LOGO" />
           </a>
         </div>
@@ -215,8 +225,10 @@ watch(
           <button class="btn" type="button" @click="showInput">
             <span class="material-symbols-outlined"> search </span>
           </button>
-          <button v-if="user" type="button" class="btn btn-primary">登出</button>
-          <RouterLink v-else class="btn btn-primary" to="login">登入 / 註冊</RouterLink>
+          <button v-if="user" type="button" class="btn btn-primary" @click.prevent="signOut(auth)">
+            登出
+          </button>
+          <RouterLink v-else class="btn btn-primary" to="login">登入/註冊</RouterLink>
         </div>
       </div>
       <div class="input-group" v-else>
@@ -237,6 +249,27 @@ watch(
       </div>
     </div>
   </nav>
+  <div class="input-group mb-3 search-bar shadow-sm">
+    <button class="btn btn-dark btn-sm rounded-0" type="button" @click="scrollToTop">
+      <span class="material-symbols-outlined d-inline-block align-middle"> chevron_backward </span>
+    </button>
+    <input
+      @input="toScroll"
+      ref="input"
+      type="text"
+      class="form-control border-0"
+      placeholder="搜尋"
+      v-model="searchContent"
+    />
+    <button
+      v-if="searchContent"
+      class="btn btn-sm rounded-0"
+      type="button"
+      @click="searchContent = ''"
+    >
+      <span class="material-symbols-outlined"> close </span>
+    </button>
+  </div>
   <div class="container">
     <div class="border-bottom border-2 mb-4">
       <div class="mb-4">
@@ -558,3 +591,10 @@ watch(
     </template>
   </div>
 </template>
+<style scoped>
+.search-bar {
+  position: sticky;
+  top: 60px;
+  z-index: 1020;
+}
+</style>
