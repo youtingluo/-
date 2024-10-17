@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
 
 import './assets/scss/all.scss'
 import 'vue-loading-overlay/dist/css/index.css'
@@ -15,9 +16,17 @@ const firebaseConfig = {
   measurementId: 'G-BG57GVVZ8X'
 }
 const firebaseApp = initializeApp(firebaseConfig)
+const auth = getAuth(firebaseApp)
+let user = null
 
+const authPromise = new Promise((resolve) => {
+  auth.onAuthStateChanged((authUser) => {
+    user = authUser
+    resolve()
+  })
+})
 const app = createApp(App)
 app.use(router)
 app.mount('#app')
 
-export { firebaseApp }
+export { firebaseApp, auth, user, authPromise }

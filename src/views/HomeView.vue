@@ -178,7 +178,7 @@ function goCompany(id) {
   })
 }
 const user = ref(null)
-import { auth } from '../utils/firebase'
+import { auth } from '../main'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 onMounted(() => {
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
@@ -225,6 +225,7 @@ watch(
           <button class="btn" type="button" @click="showInput">
             <span class="material-symbols-outlined"> search </span>
           </button>
+          <RouterLink class="btn btn-primary me-2" to="/contribute">前往投稿</RouterLink>
           <button v-if="user" type="button" class="btn btn-primary" @click.prevent="signOut(auth)">
             登出
           </button>

@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onUnmounted } from 'vue'
-import { auth } from '../utils/firebase'
+import { ref } from 'vue'
+import { auth } from '../main'
 import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -8,18 +8,7 @@ import {
   signInWithPopup
 } from 'firebase/auth'
 import { useRouter } from 'vue-router'
-const unsubscribe = auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log('用户已登入:', user)
-    router.push('/')
-  } else {
-    console.log('用户未登入')
-  }
-})
 
-onUnmounted(() => {
-  unsubscribe()
-})
 const router = useRouter()
 const loginEmail = ref('')
 const loginPassword = ref('')
@@ -39,6 +28,8 @@ const loginUser = () => {
       console.error('登入錯誤：', error.code)
       if (error.code === 'auth/invalid-credential') {
         errorMessage.value = '帳號或密碼不正確'
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage.value = '信箱格式不正確'
       }
       isLoading.value = false
     })
