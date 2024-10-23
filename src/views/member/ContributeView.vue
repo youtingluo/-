@@ -190,7 +190,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { user } from '../../main'
+import { user } from '../../utils/firebase'
 console.log(user)
 const isLoading = ref(false)
 const sendForm = ref(null)

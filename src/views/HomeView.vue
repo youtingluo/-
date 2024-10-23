@@ -242,7 +242,7 @@ watch(
           <button v-if="user" type="button" class="btn btn-primary" @click.prevent="signOut(auth)">
             登出
           </button>
-          <RouterLink v-else class="btn btn-primary text-light" to="login">登入/註冊</RouterLink>
+          <RouterLink v-else class="btn btn-primary" to="login">登入/註冊</RouterLink>
         </div>
       </div>
       <div class="input-group" v-else>

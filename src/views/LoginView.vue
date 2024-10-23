@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { auth } from '../utils/firebase'
 import {
   signInWithEmailAndPassword,
@@ -8,6 +8,7 @@ import {
   signInWithPopup
 } from 'firebase/auth'
 import { useRouter } from 'vue-router'
+const toast = inject('$toast')
 const router = useRouter()
 const loginEmail = ref('')
 const loginPassword = ref('')
@@ -18,13 +19,15 @@ const errorMessage = ref('')
 const loginUser = () => {
   isLoading.value = true
   signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value)
-    .then((userCredential) => {
-      console.log('登入成功：', userCredential.user)
+    .then(() => {
+      toast.fire({
+        icon: 'success',
+        title: '登入成功'
+      })
       isLoading.value = false
       router.push('/')
     })
     .catch((error) => {
-      console.error('登入錯誤：', error.code)
       if (error.code === 'auth/invalid-credential') {
         errorMessage.value = '帳號或密碼不正確'
       } else if (error.code === 'auth/invalid-email') {
@@ -48,15 +51,17 @@ const resetPassword = () => {
       message.value = ''
     })
 }
-
 const signInWithGoogle = async () => {
   isLoading.value = true
   errorMessage.value = ''
   const provider = new GoogleAuthProvider()
   await signInWithPopup(auth, provider)
-    .then((result) => {
+    .then(() => {
       isLoading.value = false
-      console.log('Google 登入成功：', result.user)
+      toast.fire({
+        icon: 'success',
+        title: '登入成功'
+      })
       router.push('/')
     })
     .catch((error) => {
@@ -172,7 +177,7 @@ const signInWithGoogle = async () => {
                 </span>
                 <i class="bi bi-google me-2"></i>用 Google 帳號登入
               </button>
-              <p v-if="errorMessage" class="text-danger mt-2 mb-0">{{ errorMessage }}</p>
+              <p v-if="errorMessage" class="text-danger mb-1">{{ errorMessage }}</p>
               <a href="#" class="link-primary text-end" @click.prevent="isReset = true"
                 ><span class="material-symbols-outlined d-inline-block align-middle fs-6">
                   help </span

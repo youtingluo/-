@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { auth } from '../utils/firebase'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { useRouter } from 'vue-router'
@@ -10,7 +10,7 @@ const password = ref('')
 const confirmPassword = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
-
+const toast = inject('$toast')
 const registerUser = () => {
   if (password.value !== confirmPassword.value) {
     errorMessage.value = '密碼不一致，請再次確認。'
@@ -22,11 +22,18 @@ const registerUser = () => {
       const user = userCredential.user
       updateProfile(user, { displayName: userName.value })
         .then(() => {
-          console.log('註冊成功，顯示名稱已更新：', user.displayName)
+          toast.fire({
+            icon: 'success',
+            title: '註冊成功'
+          })
           isLoading.value = false
           router.push('/login')
         })
         .catch((error) => {
+          toast.fire({
+            icon: 'error',
+            title: error.message
+          })
           console.error('更新顯示名稱錯誤：', error.message)
           isLoading.value = false
         })
@@ -103,7 +110,7 @@ const registerUser = () => {
               <div class="d-flex justify-content-between align-items-center">
                 <button
                   type="submit"
-                  class="btn btn-primary text-light flex-grow-1 me-3"
+                  class="btn btn-primary flex-grow-1 me-3"
                   :disabled="isLoading"
                 >
                   <span
