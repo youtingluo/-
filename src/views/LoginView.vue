@@ -74,9 +74,9 @@ const signInWithGoogle = async () => {
 </script>
 <template>
   <div class="container pt-5">
-    <div class="row">
+    <div class="row justify-content-center">
       <div class="col-lg-6">
-        <h1 class="mb-5 text-center">登入</h1>
+        <h1 class="mb-3 text-center">登入</h1>
         <ul class="nav nav-tabs" ref="loginTab" role="tablist">
           <li class="nav-item me-auto" role="presentation">
             <div class="nav-link active">登入</div>
@@ -150,7 +150,7 @@ const signInWithGoogle = async () => {
                   <button
                     type="submit"
                     class="btn btn-primary flex-grow-1 text-white me-1"
-                    :disabled="isLoading"
+                    :disabled="isLoading || !loginEmail || !loginPassword"
                   >
                     <span
                       v-if="isLoading"
@@ -178,7 +178,15 @@ const signInWithGoogle = async () => {
                 <i class="bi bi-google me-2"></i>用 Google 帳號登入
               </button>
               <p v-if="errorMessage" class="text-danger mb-1">{{ errorMessage }}</p>
-              <a href="#" class="link-primary text-end" @click.prevent="isReset = true"
+              <a
+                href="#"
+                class="link-primary text-end"
+                @click.prevent="
+                  () => {
+                    isReset = true
+                    errorMessage = ''
+                  }
+                "
                 ><span class="material-symbols-outlined d-inline-block align-middle fs-6">
                   help </span
                 >忘記密碼</a
