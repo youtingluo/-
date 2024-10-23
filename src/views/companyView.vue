@@ -1,10 +1,9 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
-import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import Loading from 'vue-loading-overlay'
 const route = useRoute()
-const router = useRouter()
 
 onBeforeRouteLeave((to, from, next) => {
   if (to.name === 'home') {
@@ -53,29 +52,12 @@ function convertToObjects(array) {
 onMounted(() => {
   getSheetData()
 })
-
-function resetAndGoHome() {
-  // 清除路由查询参数并跳转到首页
-  router.push({ name: 'home', query: {} })
-
-  // 重置相关的响应式变量
-}
 </script>
 <template>
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
-  <nav class="navbar bg-white shadow-sm mb-5 sticky-top">
-    <div class="container">
-      <div class="d-flex w-100">
-        <div>
-          <a href="#" class="navbar-brand" @click.prevent="resetAndGoHome">
-            <img src="../assets/LOGO.png" alt="LOGO" />
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
+
   <div class="container">
     <div class="mb-5">
       <div class="d-flex justify-content-between">
@@ -89,7 +71,6 @@ function resetAndGoHome() {
           <a class="fs-3 text-dark"><span class="material-symbols-outlined"> favorite </span></a>
         </div>
       </div>
-
       <div>
         <h3 class="mt-3 fs-6">公司介紹</h3>
         <p v-if="!isLoading" class="placeholder-glow">

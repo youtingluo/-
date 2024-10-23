@@ -1,16 +1,5 @@
 <template>
-  <nav class="navbar bg-white shadow-sm mb-3 sticky-top">
-    <div class="container">
-      <div class="d-flex w-100">
-        <div>
-          <a href="#" class="navbar-brand" @click.prevent="resetAndGoHome">
-            <img src="/src/assets/LOGO.png" alt="LOGO" />
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
-  <div class="container">
+  <div class="container py-3">
     <div class="row justify-content-center mb-3">
       <div class="col-lg-8">
         <VForm ref="sendForm" @submit="onSubmit" v-slot="{ errors }">
