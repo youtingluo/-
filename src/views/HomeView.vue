@@ -122,10 +122,23 @@ const showInput = () => {
     input.value.focus()
   })
 }
+
 const searchCompany = computed(() => {
+  const keyWord = ref([])
   return hotpot.value.filter((item) => {
     const regex = new RegExp(searchContent.value.split('').join('.*'), 'i')
-    return keys.value.some((key) => regex.test(item[key]))
+
+    // 檢查每個 key 是否有匹配
+    const hasMatch = keys.value.some((key) => {
+      const match = regex.test(item[key])
+      // 如果匹配到了，把完整字串加入到 matchedKeywords
+      if (match) {
+        keyWord.value.push(item[key])
+      }
+      return match
+    })
+
+    return hasMatch
   })
 })
 // 多選類型
@@ -178,7 +191,7 @@ function goCompany(id) {
   })
 }
 const user = ref(null)
-import { auth } from '../main'
+import { auth } from '../utils/firebase'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 onMounted(() => {
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
@@ -225,11 +238,11 @@ watch(
           <button class="btn" type="button" @click="showInput">
             <span class="material-symbols-outlined"> search </span>
           </button>
-          <RouterLink class="btn btn-primary me-2" to="/contribute">前往投稿</RouterLink>
+          <RouterLink class="btn btn-outline-primary me-2" to="/contribute">前往投稿</RouterLink>
           <button v-if="user" type="button" class="btn btn-primary" @click.prevent="signOut(auth)">
             登出
           </button>
-          <RouterLink v-else class="btn btn-primary" to="login">登入/註冊</RouterLink>
+          <RouterLink v-else class="btn btn-primary text-light" to="login">登入/註冊</RouterLink>
         </div>
       </div>
       <div class="input-group" v-else>
@@ -250,28 +263,27 @@ watch(
       </div>
     </div>
   </nav>
-  <div class="input-group mb-3 search-bar shadow-sm">
-    <button class="btn btn-dark btn-sm rounded-0" type="button" @click="scrollToTop">
-      <span class="material-symbols-outlined d-inline-block align-middle"> chevron_backward </span>
-    </button>
-    <input
-      @input="toScroll"
-      ref="input"
-      type="text"
-      class="form-control border-0"
-      placeholder="搜尋"
-      v-model="searchContent"
-    />
-    <button
-      v-if="searchContent"
-      class="btn btn-sm rounded-0"
-      type="button"
-      @click="searchContent = ''"
-    >
-      <span class="material-symbols-outlined"> close </span>
-    </button>
-  </div>
+
   <div class="container">
+    <div class="input-group mb-3 search-bar shadow-sm">
+      <button class="btn btn-light btn-sm rounded-0" type="button" @click="scrollToTop">
+        <span class="material-symbols-outlined d-inline-block align-middle">
+          chevron_backward
+        </span>
+      </button>
+      <input
+        @input="toScroll"
+        ref="input"
+        type="text"
+        class="form-control border-0"
+        placeholder="搜尋食材/廠商"
+        v-model="searchContent"
+      />
+
+      <button class="btn btn-dark btn-sm rounded-0" type="button" @click="showInput">
+        <span class="material-symbols-outlined"> search </span>
+      </button>
+    </div>
     <div class="border-bottom border-2 mb-4">
       <div class="mb-4">
         <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
@@ -474,7 +486,8 @@ watch(
                     value !== '編號' &&
                     value !== '廠商' &&
                     value !== '網址' &&
-                    value !== '類別'
+                    value !== '類別' &&
+                    value !== '公司簡介'
                   "
                 >
                   <span

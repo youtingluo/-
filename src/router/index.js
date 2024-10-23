@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { user, authPromise } from '../main'
+import { user, authPromise } from '../utils/firebase'
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
@@ -37,9 +37,7 @@ const router = createRouter({
 })
 router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-
   await authPromise // 確保 user 狀態已設置
-
   if (requiresAuth && !user) {
     next('/login')
   } else {
