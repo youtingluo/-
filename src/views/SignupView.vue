@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject } from 'vue'
+import { ref } from 'vue'
 import { useAuthStore } from '@/store/auth'
 const authStore = useAuthStore()
 import { useRouter } from 'vue-router'
@@ -10,7 +10,6 @@ const password = ref('')
 const confirmPassword = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
-const toast = inject('$toast')
 const registerUser = async () => {
   if (password.value !== confirmPassword.value) {
     errorMessage.value = '密碼不一致，請再次確認。'
@@ -23,11 +22,6 @@ const registerUser = async () => {
       password: password.value,
       displayName: userName.value
     })
-    toast.fire({
-      icon: 'success',
-      title: '註冊成功'
-    })
-
     isLoading.value = false
     router.push('/login')
   } catch (error) {

@@ -39,8 +39,20 @@ export const useAuthStore = defineStore('auth', {
     async login(email, password) {
       try {
         const { user } = await signInWithEmailAndPassword(auth, email, password)
+
+        await user.reload() // 確保獲取最新的驗證狀態
+        if (!user.emailVerified) {
+          Swal.fire({
+            title: '請先前往信箱驗證再登入',
+            icon: 'error'
+          })
+          await signOut(auth) // 確保未驗證用戶登出
+          return false
+        }
+
         this.user = user
         this.error = null
+        return true
       } catch (err) {
         this.error = err.message
         throw err
@@ -58,7 +70,7 @@ export const useAuthStore = defineStore('auth', {
         })
         sendEmailVerification(user).then(() => {
           Swal.fire({
-            text: '註冊成功！請前往註冊信箱驗證。',
+            text: '註冊成功！請前往註冊信箱驗證後再登入',
             icon: 'success'
           })
         })

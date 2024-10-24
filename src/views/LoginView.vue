@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const toast = inject('$toast')
+// const swal = inject('$swal')
 const router = useRouter()
 const loginEmail = ref('')
 const loginPassword = ref('')
@@ -14,22 +15,28 @@ const message = ref('')
 const errorMessage = ref('')
 const loginUser = async () => {
   isLoading.value = true
+
   try {
-    await authStore.login(loginEmail.value, loginPassword.value)
-    toast.fire({
-      icon: 'success',
-      title: '登入成功'
-    })
-    isLoading.value = false
-    router.push('/')
+    const success = await authStore.login(loginEmail.value, loginPassword.value)
+    if (success) {
+      toast.fire({
+        icon: 'success',
+        title: '登入成功'
+      })
+      router.push('/')
+    }
   } catch (error) {
+    console.error('登入失敗', error)
     if (error.code === 'auth/invalid-credential') {
       errorMessage.value = '帳號或密碼不正確'
     } else if (error.code === 'auth/invalid-email') {
       errorMessage.value = '信箱格式不正確'
     }
     isLoading.value = false
+  } finally {
+    isLoading.value = false // 結束加載
   }
+
   // signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value)
   //   .then(() => {
   //     toast.fire({
