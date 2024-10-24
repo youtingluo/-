@@ -1,10 +1,12 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
+import { useAuthStore } from './store/auth'
 import router from './router'
 import sweetalert2 from './plugins/sweetalert2'
 import './assets/scss/all.scss'
 import 'vue-loading-overlay/dist/css/index.css'
-import 'bootstrap/js/dist/dropdown'
+import 'bootstrap/dist/js/bootstrap.bundle'
 import { Form, Field, ErrorMessage, defineRule, configure } from 'vee-validate'
 import { required, email, min, numeric } from '@vee-validate/rules'
 import { localize, setLocale } from '@vee-validate/i18n'
@@ -21,9 +23,14 @@ configure({
 setLocale('zh_TW')
 
 const app = createApp(App)
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.use(sweetalert2)
 app.component('VForm', Form)
 app.component('VField', Field)
 app.component('ErrorMessage', ErrorMessage)
+
+const authStore = useAuthStore()
+authStore.init()
 app.mount('#app')

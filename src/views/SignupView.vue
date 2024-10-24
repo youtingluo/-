@@ -1,7 +1,7 @@
 <script setup>
 import { ref, inject } from 'vue'
-import { auth } from '../utils/firebase'
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { useAuthStore } from '@/store/auth'
+const authStore = useAuthStore()
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const userName = ref('')
@@ -11,52 +11,78 @@ const confirmPassword = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
 const toast = inject('$toast')
-const registerUser = () => {
+const registerUser = async () => {
   if (password.value !== confirmPassword.value) {
     errorMessage.value = '密碼不一致，請再次確認。'
     return
   }
   isLoading.value = true
-  createUserWithEmailAndPassword(auth, email.value, password.value)
-    .then((userCredential) => {
-      const user = userCredential.user
-      updateProfile(user, { displayName: userName.value })
-        .then(() => {
-          toast.fire({
-            icon: 'success',
-            title: '註冊成功'
-          })
-          isLoading.value = false
-          router.push('/login')
-        })
-        .catch((error) => {
-          toast.fire({
-            icon: 'error',
-            title: error.message
-          })
-          console.error('更新顯示名稱錯誤：', error.message)
-          isLoading.value = false
-        })
+  try {
+    await authStore.register({
+      email: email.value,
+      password: password.value,
+      displayName: userName.value
     })
-    .catch((error) => {
-      isLoading.value = false
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage.value = '此信箱已被使用。'
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage.value = '信箱格式不正確'
-      } else if (error.code === 'auth/missing-password') {
-        errorMessage.value = `請輸入密碼`
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage.value = `密碼強度不足`
-      } else {
-        errorMessage.value = error.code
-      }
+    toast.fire({
+      icon: 'success',
+      title: '註冊成功'
     })
+
+    isLoading.value = false
+    router.push('/login')
+  } catch (error) {
+    isLoading.value = false
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage.value = '此信箱已被使用。'
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage.value = '信箱格式不正確'
+    } else if (error.code === 'auth/missing-password') {
+      errorMessage.value = `請輸入密碼`
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage.value = `密碼強度不足`
+    } else {
+      errorMessage.value = error.code
+    }
+  }
+  //     .then((userCredential) => {
+  //       const user = userCredential.user
+  //       updateProfile(authStore.user, { displayName: userName.value })
+  //         .then(() => {
+  //           toast.fire({
+  //             icon: 'success',
+  //             title: '註冊成功'
+  //           })
+  //           isLoading.value = false
+  //           router.push('/login')
+  //         })
+  //         .catch((error) => {
+  //           toast.fire({
+  //             icon: 'error',
+  //             title: error.message
+  //           })
+  //           console.error('更新顯示名稱錯誤：', error.message)
+  //           isLoading.value = false
+  //         })
+  //     })
+  //     .catch((error) => {
+  //       isLoading.value = false
+  //       if (error.code === 'auth/email-already-in-use') {
+  //         errorMessage.value = '此信箱已被使用。'
+  //       } else if (error.code === 'auth/invalid-email') {
+  //         errorMessage.value = '信箱格式不正確'
+  //       } else if (error.code === 'auth/missing-password') {
+  //         errorMessage.value = `請輸入密碼`
+  //       } else if (error.code === 'auth/weak-password') {
+  //         errorMessage.value = `密碼強度不足`
+  //       } else {
+  //         errorMessage.value = error.code
+  //       }
+  //     })
 }
 </script>
 
 <template>
-  <div class="container pt-5">
+  <div class="container py-3">
     <div class="row justify-content-center">
       <div class="col-lg-6">
         <h1 class="mb-3 text-center">註冊</h1>
@@ -80,7 +106,7 @@ const registerUser = () => {
                   type="text"
                   class="form-control"
                   id="signup-userName"
-                  placeholder="輸入暱稱"
+                  placeholder="請輸入暱稱"
                   v-model="userName"
                 />
               </div>
@@ -90,13 +116,19 @@ const registerUser = () => {
                   type="email"
                   class="form-control"
                   id="signup-email"
-                  placeholder="name@example.com"
+                  placeholder="請輸入電子信箱"
                   v-model="email"
                 />
               </div>
               <div class="mb-3">
                 <label for="password1" class="form-label">密碼</label>
-                <input type="password" class="form-control" id="password1" v-model="password" />
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password1"
+                  placeholder="請輸入密碼"
+                  v-model="password"
+                />
               </div>
               <div class="mb-3">
                 <label for="confirmPassword" class="form-label">確認密碼</label>
@@ -104,6 +136,7 @@ const registerUser = () => {
                   type="password"
                   class="form-control"
                   id="confirmPassword"
+                  placeholder="請再次輸入密碼"
                   v-model="confirmPassword"
                 />
               </div>
@@ -125,7 +158,10 @@ const registerUser = () => {
                 <RouterLink to="login" class="btn btn-outline-dark">前往登入</RouterLink>
               </div>
             </form>
-            <p v-if="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
+            <p v-if="errorMessage" class="text-danger mt-1">
+              <span class="material-symbols-outlined d-inline-block align-middle"> cancel </span>
+              {{ errorMessage }}
+            </p>
           </div>
         </div>
       </div>

@@ -1,13 +1,9 @@
 <script setup>
 import { ref, inject } from 'vue'
-import { auth } from '../utils/firebase'
-import {
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  GoogleAuthProvider,
-  signInWithPopup
-} from 'firebase/auth'
+import { useAuthStore } from '@/store/auth'
 import { useRouter } from 'vue-router'
+
+const authStore = useAuthStore()
 const toast = inject('$toast')
 const router = useRouter()
 const loginEmail = ref('')
@@ -16,60 +12,89 @@ const resetEmail = ref('')
 const isLoading = ref(false)
 const message = ref('')
 const errorMessage = ref('')
-const loginUser = () => {
+const loginUser = async () => {
   isLoading.value = true
-  signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value)
-    .then(() => {
-      toast.fire({
-        icon: 'success',
-        title: '登入成功'
-      })
-      isLoading.value = false
-      router.push('/')
+  try {
+    await authStore.login(loginEmail.value, loginPassword.value)
+    toast.fire({
+      icon: 'success',
+      title: '登入成功'
     })
-    .catch((error) => {
-      if (error.code === 'auth/invalid-credential') {
-        errorMessage.value = '帳號或密碼不正確'
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage.value = '信箱格式不正確'
-      }
-      isLoading.value = false
-    })
+    isLoading.value = false
+    router.push('/')
+  } catch (error) {
+    if (error.code === 'auth/invalid-credential') {
+      errorMessage.value = '帳號或密碼不正確'
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage.value = '信箱格式不正確'
+    }
+    isLoading.value = false
+  }
+  // signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value)
+  //   .then(() => {
+  //     toast.fire({
+  //       icon: 'success',
+  //       title: '登入成功'
+  //     })
+  //     isLoading.value = false
+  //     router.push('/')
+  //   })
+  //   .catch((error) => {
+  //     if (error.code === 'auth/invalid-credential') {
+  //       errorMessage.value = '帳號或密碼不正確'
+  //     } else if (error.code === 'auth/invalid-email') {
+  //       errorMessage.value = '信箱格式不正確'
+  //     }
+  //     isLoading.value = false
+  //   })
 }
 const isReset = ref(false)
-const resetPassword = () => {
-  isLoading.value = true
-  sendPasswordResetEmail(auth, resetEmail.value)
-    .then(() => {
-      isLoading.value = false
-      message.value = '密碼重設郵件已發送，請檢查您的郵箱。'
-      errorMessage.value = ''
-    })
-    .catch((error) => {
-      isLoading.value = false
-      errorMessage.value = error.message
-      message.value = ''
-    })
-}
-const signInWithGoogle = async () => {
+// const resetPassword = () => {
+//   isLoading.value = true
+//   sendPasswordResetEmail(auth, resetEmail.value)
+//     .then(() => {
+//       isLoading.value = false
+//       message.value = '密碼重設郵件已發送，請檢查您的郵箱。'
+//       errorMessage.value = ''
+//     })
+//     .catch((error) => {
+//       isLoading.value = false
+//       errorMessage.value = error.message
+//       message.value = ''
+//     })
+// }
+// const signInWithGoogle = async () => {
+//   isLoading.value = true
+//   errorMessage.value = ''
+//   const provider = new GoogleAuthProvider()
+//   await signInWithPopup(auth, provider)
+//     .then(() => {
+//       isLoading.value = false
+//       toast.fire({
+//         icon: 'success',
+//         title: '登入成功'
+//       })
+//       router.push('/')
+//     })
+//     .catch((error) => {
+//       errorMessage.value = `Google 登入失敗：${error.message}`
+//     })
+//     .finally(() => {
+//       isLoading.value = false
+//     })
+// }
+const handleGoogleLogin = async () => {
   isLoading.value = true
   errorMessage.value = ''
-  const provider = new GoogleAuthProvider()
-  await signInWithPopup(auth, provider)
-    .then(() => {
-      isLoading.value = false
-      toast.fire({
-        icon: 'success',
-        title: '登入成功'
-      })
-      router.push('/')
-    })
-    .catch((error) => {
-      errorMessage.value = `Google 登入失敗：${error.message}`
-    })
-    .finally(() => {
-      isLoading.value = false
-    })
+
+  try {
+    await authStore.loginWithGoogle()
+    router.push('/')
+  } catch (err) {
+    errorMessage.value = err.message
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 <template>
@@ -167,7 +192,12 @@ const signInWithGoogle = async () => {
                 </div>
               </form>
 
-              <button @click.prevent="signInWithGoogle" class="btn btn-outline-danger my-3 w-100">
+              <p v-if="errorMessage" class="text-danger my-1">
+                <span class="material-symbols-outlined d-inline-block align-middle"> cancel </span>
+                {{ errorMessage }}
+              </p>
+              <hr />
+              <button @click.prevent="handleGoogleLogin" class="btn btn-outline-danger mb-2 w-100">
                 <span
                   v-if="isLoading"
                   class="spinner-border spinner-border-sm me-1"
@@ -177,7 +207,6 @@ const signInWithGoogle = async () => {
                 </span>
                 <i class="bi bi-google me-2"></i>用 Google 帳號登入
               </button>
-              <p v-if="errorMessage" class="text-danger mb-1">{{ errorMessage }}</p>
               <a
                 href="#"
                 class="link-primary text-end"

@@ -1,12 +1,47 @@
 <script setup>
-import { auth } from '../utils/firebase'
+import { useAuthStore } from '@/store/auth'
+import { inject, ref, onMounted, nextTick, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import Dropdown from 'bootstrap/js/dist/dropdown'
+const router = useRouter()
 
-const user = auth.currentUser
-if (user) {
-  console.log('用戶已登入')
-} else {
-  console.log('用戶沒有登入')
+const toast = inject('$toast')
+const authStore = useAuthStore()
+
+const dropdownRef = ref(null)
+let dropdownInstance = null
+
+const handleLogout = async () => {
+  try {
+    await authStore.logout()
+    toast.fire({
+      icon: 'success',
+      title: '登出成功'
+    })
+    router.push('/')
+  } catch (error) {
+    console.error('登出失敗:', error)
+  }
 }
+const toggleDropdown = () => {
+  if (dropdownInstance) {
+    dropdownInstance.toggle()
+  }
+}
+const initDropdown = async () => {
+  await nextTick()
+  if (dropdownRef.value) {
+    dropdownInstance = new Dropdown(dropdownRef.value.querySelector('.dropdown-toggle'))
+  }
+}
+
+onMounted(() => {
+  initDropdown()
+})
+
+watch(router.currentRoute, () => {
+  initDropdown()
+})
 </script>
 <template>
   <nav class="navbar bg-white shadow-sm sticky-top">
@@ -18,32 +53,44 @@ if (user) {
           </a>
         </div>
         <div class="ms-auto">
-          <div class="dropdown">
+          <div
+            class="dropdown"
+            ref="dropdownRef"
+            @click="toggleDropdown"
+            v-if="authStore.isLoggedIn"
+          >
+            <span>嗨！{{ authStore.displayName }}</span>
             <button
+              data-bs-toggle="dropdown"
               class="btn bg-transparent border-0 dropdown-toggle"
               type="button"
-              data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               <span
                 class="material-symbols-outlined text-primary d-inline-block align-middle"
-                data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                account_circle </span
-              >會員
+                account_circle
+              </span>
             </button>
 
             <ul class="dropdown-menu">
               <li>
-                <RouterLink class="dropdown-item" to="/contribute">前往投稿</RouterLink>
+                <RouterLink
+                  class="dropdown-item"
+                  to="/contribute"
+                  :class="{ active: router.currentRoute.name === 'contribute' }"
+                  >前往投稿</RouterLink
+                >
               </li>
               <li><a class="dropdown-item" href="#">會員中心</a></li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <RouterLink class="dropdown-item" to="/contribute">登出</RouterLink>
+                <a class="dropdown-item" @click.prevent="handleLogout">登出</a>
               </li>
             </ul>
+          </div>
+          <div v-else>
             <RouterLink class="btn btn-primary" to="login">登入/註冊</RouterLink>
           </div>
         </div>

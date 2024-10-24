@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { user, authPromise } from '../utils/firebase'
+import { useAuthStore } from '@/store/auth'
 const router = createRouter({
+  linkActiveClass: 'active',
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
@@ -35,10 +36,11 @@ const router = createRouter({
     }
   ]
 })
-router.beforeEach(async (to, from, next) => {
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  await authPromise // 確保 user 狀態已設置
-  if (requiresAuth && !user) {
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+
+  // 由於在 main.js 已初始化，這裡可以直接使用 authStore 的狀態
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     next('/login')
   } else {
     next()

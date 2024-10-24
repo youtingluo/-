@@ -58,7 +58,7 @@ onMounted(() => {
     <div class="loader"></div>
   </Loading>
 
-  <div class="container">
+  <div class="container py-3">
     <div class="mb-5">
       <div class="d-flex justify-content-between">
         <h2 class="fs-3 placeholder-glow" v-if="!isLoading">

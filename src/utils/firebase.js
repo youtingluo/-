@@ -12,12 +12,5 @@ const firebaseConfig = {
 }
 const firebaseApp = initializeApp(firebaseConfig)
 const auth = getAuth(firebaseApp)
-let user = null
 
-const authPromise = new Promise((resolve) => {
-  auth.onAuthStateChanged((authUser) => {
-    user = authUser
-    resolve()
-  })
-})
-export { firebaseApp, auth, user, authPromise }
+export { firebaseApp, auth }
