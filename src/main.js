@@ -32,5 +32,5 @@ app.component('VField', Field)
 app.component('ErrorMessage', ErrorMessage)
 
 const authStore = useAuthStore()
-authStore.init()
+authStore.initializeAuth()
 app.mount('#app')

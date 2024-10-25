@@ -10,14 +10,18 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
-  sendEmailVerification
+  sendEmailVerification,
+  reauthenticateWithCredential,
+  updatePassword,
+  EmailAuthProvider
 } from 'firebase/auth'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    loading: true,
-    error: null
+    isInitialized: false,
+    error: null,
+    profileId: null
   }),
 
   getters: {
@@ -28,10 +32,22 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     // 初始化 Firebase 認證監聽
-    init() {
-      onAuthStateChanged(auth, (user) => {
-        this.user = user
-        this.loading = false
+    async initializeAuth() {
+      return new Promise((resolve) => {
+        onAuthStateChanged(auth, (user) => {
+          this.isInitialized = true
+          if (user) {
+            user.providerData.forEach((profile) => {
+              this.profileId = profile.providerId
+              console.log('Sign-in provider: ' + profile.providerId)
+            })
+            this.user = user
+            resolve(true)
+          } else {
+            this.user = null
+            resolve(false)
+          }
+        })
       })
     },
 
@@ -90,6 +106,7 @@ export const useAuthStore = defineStore('auth', {
         // })
         const { user } = await signInWithPopup(auth, provider)
         this.user = user
+
         this.error = null
         return true
       } catch (err) {
@@ -106,6 +123,41 @@ export const useAuthStore = defineStore('auth', {
       } catch (err) {
         this.error = err.message
         throw err
+      }
+    },
+    setUser(user) {
+      this.user = user
+    },
+    // 修改暱稱
+    async updateDisplayName(newDisplayName) {
+      try {
+        await updateProfile(auth.currentUser, {
+          displayName: newDisplayName
+        })
+        this.setUser({ ...auth.currentUser })
+        console.log('DisplayName updated:', auth.currentUser.displayName)
+      } catch (error) {
+        console.error('個人資訊更新失敗', error)
+        throw error
+      }
+    },
+    async reauthenticate(currentPassword) {
+      const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword)
+      try {
+        await reauthenticateWithCredential(auth.currentUser, credential)
+        console.log('重新驗證成功')
+      } catch (error) {
+        console.error('重新驗證失敗', error)
+        throw error
+      }
+    },
+    async updatePassword(newPassword) {
+      try {
+        await updatePassword(auth.currentUser, newPassword)
+        console.log('密碼更新成功')
+      } catch (error) {
+        console.error('密碼更新失敗', error)
+        throw error
       }
     }
   }

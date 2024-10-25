@@ -4,10 +4,8 @@ import { inject, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Dropdown from 'bootstrap/js/dist/dropdown'
 const router = useRouter()
-
 const toast = inject('$toast')
 const authStore = useAuthStore()
-
 const dropdownRef = ref(null)
 let dropdownInstance = null
 
@@ -57,9 +55,9 @@ watch(router.currentRoute, () => {
             class="dropdown"
             ref="dropdownRef"
             @click="toggleDropdown"
-            v-if="authStore.isLoggedIn"
+            v-show="authStore.isLoggedIn"
           >
-            <span>嗨！{{ authStore.displayName }}</span>
+            <span v-if="authStore.user">嗨！{{ authStore.user.displayName }}</span>
             <button
               data-bs-toggle="dropdown"
               class="btn bg-transparent border-0 dropdown-toggle"
@@ -76,21 +74,18 @@ watch(router.currentRoute, () => {
 
             <ul class="dropdown-menu">
               <li>
-                <RouterLink
-                  class="dropdown-item"
-                  to="/contribute"
-                  :class="{ active: router.currentRoute.name === 'contribute' }"
-                  >前往投稿</RouterLink
-                >
+                <RouterLink class="dropdown-item" to="/contribute">前往投稿</RouterLink>
               </li>
-              <li><a class="dropdown-item" href="#">會員中心</a></li>
+              <li>
+                <RouterLink class="dropdown-item" to="/userprofile">會員中心</RouterLink>
+              </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
                 <a class="dropdown-item" @click.prevent="handleLogout">登出</a>
               </li>
             </ul>
           </div>
-          <div v-else>
+          <div v-show="!authStore.isLoggedIn">
             <RouterLink class="btn btn-primary" to="login">登入/註冊</RouterLink>
           </div>
         </div>

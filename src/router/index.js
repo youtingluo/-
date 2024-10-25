@@ -31,6 +31,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      name: 'userprofile',
+      path: '/userprofile',
+      component: () => import('../views/member/UserProfileView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       component: () => import('../views/NotFoundView.vue')
     }
@@ -39,11 +45,19 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  // 由於在 main.js 已初始化，這裡可以直接使用 authStore 的狀態
-  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next('/login')
+  const checkAuth = () => {
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+    if (requiresAuth && !authStore.isLoggedIn) {
+      next('/login')
+    } else {
+      next()
+    }
+  }
+
+  if (!authStore.isInitialized) {
+    authStore.initializeAuth().then(checkAuth)
   } else {
-    next()
+    checkAuth()
   }
 })
 export default router

@@ -118,19 +118,33 @@ const searchContent = ref('')
 const input = ref(null)
 const showInput = () => {
   isSearched.value = true
-
   input.value.focus()
 }
-
+const Matchkeyword = computed(() => {
+  const results = []
+  const keyword = searchContent.value
+  hotpot.value.forEach((item) => {
+    const regex = new RegExp(keyword, 'i')
+    keys.value.forEach((key) => {
+      if (regex.test(item[key])) {
+        const matches = item[key].split(',').filter((word) => regex.test(word))
+        results.push(...matches)
+      }
+    })
+  })
+  const uniqueArray = Array.from(new Set(results))
+  return uniqueArray
+})
 const searchCompany = computed(() => {
   const keyWord = ref([])
   return hotpot.value.filter((item) => {
-    const regex = new RegExp(searchContent.value.split('').join('.*'), 'i')
-
+    //const regex = new RegExp(searchContent.value.split('').join('.*'), 'i') // 模糊搜尋
+    const regex = new RegExp(searchContent.value, 'i')
     // 檢查每個 key 是否有匹配
     const hasMatch = keys.value.some((key) => {
       const match = regex.test(item[key])
       // 如果匹配到了，把完整字串加入到 matchedKeywords
+
       if (match) {
         keyWord.value.push(item[key])
       }
@@ -404,62 +418,74 @@ watch(
     </div>
     <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
     <!-- 搜尋結果 -->
-    <div class="row gx-2" v-if="searchContent.trim()" ref="scrollbox">
-      <h4>
+    <div v-if="searchContent.trim()" ref="scrollbox">
+      <p class="h5">
         以下為 <span class="text-danger">{{ searchContent }} </span> 的搜尋結果
-        <button type="button" class="btn btn-sm btn-danger" @click="scrollToTop">Ｘ</button>
-      </h4>
+        <button type="button" class="btn btn-sm btn-danger fs-6" @click.prevent="scrollToTop">
+          <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
+        </button>
+      </p>
+      <div class="pb-2">
+        <span
+          class="badge rounded-pill text-bg-dark me-1 mb-1"
+          v-for="keyword in Matchkeyword"
+          :key="keyword"
+          >{{ keyword }}</span
+        >
+      </div>
       <div class="text-center py-5" v-if="!searchCompany.length">
         <img src="../assets/Empty.png" alt="無資料" />
       </div>
-      <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
-        <RouterLink target="_blank" :to="`/company/${company['編號']}`">
-          <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-            <div class="d-flex justify-content-between mb-3">
-              <div>
-                <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
-                  company['廠商']
-                }}</a>
-              </div>
-              <div>
-                <i
-                  v-if="isLiked"
-                  class="bi bi-heart-fill fs-4 link-info"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-                <i
-                  v-else
-                  class="bi bi-heart fs-4 link-gray"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-              </div>
-            </div>
-            <div class="d-flex flex-wrap">
-              <template v-for="value in Object.keys(company)" :key="value">
-                <div
-                  v-if="
-                    company[value] &&
-                    value !== '編號' &&
-                    value !== '廠商' &&
-                    value !== '網址' &&
-                    value !== '類別' &&
-                    value !== '公司簡介'
-                  "
-                >
-                  <span
-                    class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                    :class="[
-                      { 'bg-warning': MultipleTypeArray.includes(value) },
-                      { 'text-dark': MultipleTypeArray.includes(value) }
-                    ]"
-                  >
-                    {{ value }}
-                  </span>
+      <div class="row gx-2">
+        <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
+          <RouterLink target="_blank" :to="`/company/${company['編號']}`">
+            <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+              <div class="d-flex justify-content-between mb-3">
+                <div>
+                  <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
+                    company['廠商']
+                  }}</a>
                 </div>
-              </template>
-            </div>
-          </div></RouterLink
-        >
+                <div>
+                  <i
+                    v-if="isLiked"
+                    class="bi bi-heart-fill fs-4 link-info"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                  <i
+                    v-else
+                    class="bi bi-heart fs-4 link-gray"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                </div>
+              </div>
+              <div class="d-flex flex-wrap">
+                <template v-for="value in Object.keys(company)" :key="value">
+                  <div
+                    v-if="
+                      company[value] &&
+                      value !== '編號' &&
+                      value !== '廠商' &&
+                      value !== '網址' &&
+                      value !== '類別' &&
+                      value !== '公司簡介'
+                    "
+                  >
+                    <span
+                      class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                      :class="[
+                        { 'bg-warning': MultipleTypeArray.includes(value) },
+                        { 'text-dark': MultipleTypeArray.includes(value) }
+                      ]"
+                    >
+                      {{ value }}
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div></RouterLink
+          >
+        </div>
       </div>
     </div>
     <!-- end -->
