@@ -144,13 +144,11 @@ const searchCompany = computed(() => {
     const hasMatch = keys.value.some((key) => {
       const match = regex.test(item[key])
       // 如果匹配到了，把完整字串加入到 matchedKeywords
-
       if (match) {
         keyWord.value.push(item[key])
       }
       return match
     })
-
     return hasMatch
   })
 })
@@ -427,7 +425,7 @@ watch(
       </p>
       <div class="pb-2">
         <span
-          class="badge rounded-pill text-bg-dark me-1 mb-1"
+          class="badge rounded-pill text-bg-primary me-1 mb-1"
           v-for="keyword in Matchkeyword"
           :key="keyword"
           >{{ keyword }}</span
@@ -438,7 +436,7 @@ watch(
       </div>
       <div class="row gx-2">
         <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
-          <RouterLink target="_blank" :to="`/company/${company['編號']}`">
+          <a href="#" @click.prevent="goCompany(company['編號'])">
             <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
               <div class="d-flex justify-content-between mb-3">
                 <div>
@@ -483,7 +481,7 @@ watch(
                   </div>
                 </template>
               </div>
-            </div></RouterLink
+            </div></a
           >
         </div>
       </div>
