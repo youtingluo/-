@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2'
 // 創建一個基礎的 Swal 實例，設定預設選項
 export const swal = Swal.mixin({
-  confirmButtonColor: '#3085d6',
+  confirmButtonColor: '#3e7f41',
   cancelButtonColor: '#d33',
   confirmButtonText: '確定',
   cancelButtonText: '取消'
