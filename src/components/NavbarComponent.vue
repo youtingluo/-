@@ -46,9 +46,9 @@ watch(router.currentRoute, () => {
     <div class="container">
       <div class="d-flex w-100">
         <div>
-          <a href="#" class="navbar-brand">
+          <RouterLink to="/" class="navbar-brand">
             <img src="../assets/LOGO.png" alt="LOGO" />
-          </a>
+          </RouterLink>
         </div>
         <div class="ms-auto">
           <div

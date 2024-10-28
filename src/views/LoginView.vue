@@ -1,11 +1,12 @@
 <script setup>
 import { ref, inject } from 'vue'
 import { useAuthStore } from '@/store/auth'
+import { sendPasswordResetEmail } from 'firebase/auth'
+import { auth } from '@/utils/firebase'
 import { useRouter } from 'vue-router'
-
 const authStore = useAuthStore()
 const toast = inject('$toast')
-// const swal = inject('$swal')
+const swal = inject('$swal')
 const router = useRouter()
 const loginEmail = ref('')
 const loginPassword = ref('')
@@ -15,7 +16,6 @@ const message = ref('')
 const errorMessage = ref('')
 const loginUser = async () => {
   isLoading.value = true
-
   try {
     const success = await authStore.login(loginEmail.value, loginPassword.value)
     if (success) {
@@ -26,7 +26,6 @@ const loginUser = async () => {
       router.push('/')
     }
   } catch (error) {
-    console.error('登入失敗', error)
     if (error.code === 'auth/invalid-credential') {
       errorMessage.value = '帳號或密碼不正確'
     } else if (error.code === 'auth/invalid-email') {
@@ -36,60 +35,38 @@ const loginUser = async () => {
   } finally {
     isLoading.value = false // 結束加載
   }
-
-  // signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value)
-  //   .then(() => {
-  //     toast.fire({
-  //       icon: 'success',
-  //       title: '登入成功'
-  //     })
-  //     isLoading.value = false
-  //     router.push('/')
-  //   })
-  //   .catch((error) => {
-  //     if (error.code === 'auth/invalid-credential') {
-  //       errorMessage.value = '帳號或密碼不正確'
-  //     } else if (error.code === 'auth/invalid-email') {
-  //       errorMessage.value = '信箱格式不正確'
-  //     }
-  //     isLoading.value = false
-  //   })
 }
 const isReset = ref(false)
-// const resetPassword = () => {
-//   isLoading.value = true
-//   sendPasswordResetEmail(auth, resetEmail.value)
-//     .then(() => {
-//       isLoading.value = false
-//       message.value = '密碼重設郵件已發送，請檢查您的郵箱。'
-//       errorMessage.value = ''
-//     })
-//     .catch((error) => {
-//       isLoading.value = false
-//       errorMessage.value = error.message
-//       message.value = ''
-//     })
-// }
-// const signInWithGoogle = async () => {
-//   isLoading.value = true
-//   errorMessage.value = ''
-//   const provider = new GoogleAuthProvider()
-//   await signInWithPopup(auth, provider)
-//     .then(() => {
-//       isLoading.value = false
-//       toast.fire({
-//         icon: 'success',
-//         title: '登入成功'
-//       })
-//       router.push('/')
-//     })
-//     .catch((error) => {
-//       errorMessage.value = `Google 登入失敗：${error.message}`
-//     })
-//     .finally(() => {
-//       isLoading.value = false
-//     })
-// }
+const resetPassword = () => {
+  isLoading.value = true
+  sendPasswordResetEmail(auth, resetEmail.value)
+    .then(() => {
+      isLoading.value = false
+      swal.fire({
+        title: '信件已發送',
+        html: `<div class="text-success mt-2 mb-0">
+              <p>
+                密碼重設信件已發送，請檢查您的信箱。
+              </p>
+              <p>
+                <small class="text-danger">
+                  <span class="material-symbols-outlined d-inline-block align-middle">
+                info
+                </span>
+                  請注意，假如未使用此信箱註冊過，並不會收到重設信件！
+                </small>
+              </p>
+              </div>`
+      })
+      isReset.value = false
+    })
+    .catch((error) => {
+      isLoading.value = false
+      errorMessage.value = error.message
+      message.value = ''
+    })
+}
+
 const handleGoogleLogin = async () => {
   isLoading.value = true
   errorMessage.value = ''
@@ -139,7 +116,7 @@ const handleGoogleLogin = async () => {
                   <button
                     type="submit"
                     class="btn btn-primary flex-grow-1 me-2"
-                    :disabled="isLoading"
+                    :disabled="isLoading || !resetEmail"
                   >
                     <span
                       v-if="isLoading"
@@ -153,7 +130,7 @@ const handleGoogleLogin = async () => {
                   <a href="#" class="link-primary" @click.prevent="isReset = false">返回登入</a>
                 </div>
               </form>
-              <p v-if="message" class="text-success mt-2 mb-0">{{ message }}</p>
+
               <p v-if="errorMessage" class="text-danger mt-2 mb-0">{{ errorMessage }}</p>
             </div>
             <div v-else>

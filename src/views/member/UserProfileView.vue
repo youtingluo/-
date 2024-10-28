@@ -95,9 +95,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/store/auth'
-//const toast = inject('$toast')
 const authStore = useAuthStore()
 const isEditing = ref(false)
+const isLoading = ref(false)
 const newDisplayName = ref('')
 const error = ref(null)
 const currentPassword = ref('')
@@ -116,13 +116,18 @@ const updateProfileInfo = async () => {
   }
 }
 const updateUserPassword = async () => {
+  isLoading.value = true
   error.value = null
   try {
-    await authStore.reauthenticate(currentPassword.value)
-    await authStore.updatePassword(newPassword.value)
-    console.log('密碼更新成功')
+    await authStore.reauthenticate(currentPassword.value, newPassword.value)
+
+    isLoading.value = false
+    currentPassword.value = ''
+    newPassword.value = ''
   } catch (err) {
-    error.value = '密碼更新失敗: ' + err.message
+    isLoading.value = false
+    currentPassword.value = ''
+    newPassword.value = ''
   }
 }
 </script>
