@@ -1,6 +1,6 @@
 <!-- components/UserProfile.vue -->
 <template>
-  <div class="container mt-5">
+  <div class="container py-3">
     <div v-if="authStore.user">
       <h1 class="mb-4">會員中心</h1>
       <div class="card">
@@ -48,7 +48,6 @@
               </div>
             </div>
             <hr />
-            {{ authStore.profileId }}
             <div class="mb-3" v-if="authStore.profileId === 'password'">
               <p class="card-title h5 text-primary">修改密碼</p>
               <div class="row">
