@@ -71,7 +71,7 @@
                     v-model="newPassword"
                   />
                 </div>
-                <div class="col-12 col-lg-6 mt-2">
+                <div class="col-12 col-lg-2 mt-2">
                   <button
                     type="button"
                     class="btn btn-primary w-100"
