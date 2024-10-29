@@ -231,7 +231,6 @@ watch(
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
-
   <div class="container py-3">
     <div class="input-group mb-3 search-bar shadow-sm">
       <button class="btn btn-light btn-sm rounded-0" type="button" @click="scrollToTop">

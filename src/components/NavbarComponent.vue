@@ -55,7 +55,7 @@ watch(router.currentRoute, () => {
             class="dropdown d-flex align-items-center"
             ref="dropdownRef"
             @click="toggleDropdown"
-            v-show="authStore.isLoggedIn"
+            v-if="authStore.isLoggedIn"
           >
             <span v-if="authStore.user">嗨！{{ authStore.user.displayName }}</span>
             <button
@@ -85,7 +85,7 @@ watch(router.currentRoute, () => {
               </li>
             </ul>
           </div>
-          <div v-show="!authStore.isLoggedIn">
+          <div v-else>
             <RouterLink class="btn btn-primary" to="login">登入/註冊</RouterLink>
           </div>
         </div>

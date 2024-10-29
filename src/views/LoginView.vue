@@ -181,7 +181,11 @@ const handleGoogleLogin = async () => {
                 {{ errorMessage }}
               </p>
               <hr />
-              <button @click.prevent="handleGoogleLogin" class="btn btn-outline-danger mb-2 w-100">
+              <button
+                @click.prevent="handleGoogleLogin"
+                class="btn btn-outline-danger mb-2 w-100"
+                :disabled="isLoading"
+              >
                 <span
                   v-if="isLoading"
                   class="spinner-border spinner-border-sm me-1"
