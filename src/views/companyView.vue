@@ -57,18 +57,8 @@ onMounted(() => {
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
-  <nav class="navbar bg-white shadow-sm mb-5 sticky-top">
-    <div class="container">
-      <div class="d-flex w-100">
-        <div>
-          <RouterLink class="navbar-brand" to="/">
-            <img src="../assets/LOGO.png" alt="LOGO" />
-          </RouterLink>
-        </div>
-      </div>
-    </div>
-  </nav>
-  <div class="container">
+
+  <div class="container py-3">
     <div class="mb-5">
       <div class="d-flex justify-content-between">
         <h2 class="fs-3 placeholder-glow" v-if="!isLoading">
@@ -81,7 +71,6 @@ onMounted(() => {
           <a class="fs-3 text-dark"><span class="material-symbols-outlined"> favorite </span></a>
         </div>
       </div>
-
       <div>
         <h3 class="mt-3 fs-6">公司介紹</h3>
         <p v-if="!isLoading" class="placeholder-glow">

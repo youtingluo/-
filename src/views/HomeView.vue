@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
@@ -97,7 +97,7 @@ const scrollbox = ref(null)
 const toScroll = () => {
   nextTick(() => {
     if (scrollbox.value) {
-      const offset = 82 // 偏移量，與導航欄高度一致
+      const offset = 110 // 偏移量，與導航欄高度一致
       const bodyRect = document.body.getBoundingClientRect().top
       const elementRect = scrollbox.value.getBoundingClientRect().top
       const offsetPosition = elementRect - bodyRect - offset
@@ -118,14 +118,38 @@ const searchContent = ref('')
 const input = ref(null)
 const showInput = () => {
   isSearched.value = true
-  nextTick(() => {
-    input.value.focus()
-  })
+  input.value.focus()
 }
+const Matchkeyword = computed(() => {
+  const results = []
+  const keyword = searchContent.value
+  hotpot.value.forEach((item) => {
+    const regex = new RegExp(keyword, 'i')
+    keys.value.forEach((key) => {
+      if (regex.test(item[key])) {
+        const matches = item[key].split(',').filter((word) => regex.test(word))
+        results.push(...matches)
+      }
+    })
+  })
+  const uniqueArray = Array.from(new Set(results))
+  return uniqueArray
+})
 const searchCompany = computed(() => {
+  const keyWord = ref([])
   return hotpot.value.filter((item) => {
-    const regex = new RegExp(searchContent.value.split('').join('.*'), 'i')
-    return keys.value.some((key) => regex.test(item[key]))
+    //const regex = new RegExp(searchContent.value.split('').join('.*'), 'i') // 模糊搜尋
+    const regex = new RegExp(searchContent.value, 'i')
+    // 檢查每個 key 是否有匹配
+    const hasMatch = keys.value.some((key) => {
+      const match = regex.test(item[key])
+      // 如果匹配到了，把完整字串加入到 matchedKeywords
+      if (match) {
+        keyWord.value.push(item[key])
+      }
+      return match
+    })
+    return hasMatch
   })
 })
 // 多選類型
@@ -177,6 +201,7 @@ function goCompany(id) {
     }
   })
 }
+
 onMounted(() => {
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
@@ -184,44 +209,49 @@ onMounted(() => {
   }
   getSheetData()
 })
+// 回首頁
+// function resetAndGoHome() {
+//   router.push({ name: 'home', query: {} })
+//   selectedindustry.value = '全部'
+//   MultipleTypeArray.value = []
+//   selected.value = []
+
+//   getSheetData()
+// }
+
+watch(
+  () => selectedindustry.value,
+  () => {
+    getSheetData(selectedindustry.value)
+  },
+  { deep: true }
+)
 </script>
 <template>
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
-  <nav class="navbar bg-white shadow-sm mb-4 sticky-top">
-    <div class="container">
-      <div class="d-flex w-100" v-if="!isSearched">
-        <div>
-          <a href="#" class="navbar-brand" @click.prevent="getSheetData()">
-            <img src="../assets/LOGO.png" alt="LOGO" />
-          </a>
-        </div>
-        <div class="ms-auto">
-          <button class="btn" type="button" @click="showInput">
-            <span class="material-symbols-outlined"> search </span>
-          </button>
-        </div>
-      </div>
-      <div class="input-group" v-else>
-        <button class="btn" type="button" @click="scrollToTop">
-          <span class="material-symbols-outlined"> chevron_backward </span>
-        </button>
-        <input
-          @input="toScroll"
-          ref="input"
-          type="text"
-          class="form-control border-0"
-          placeholder="搜尋"
-          v-model="searchContent"
-        />
-        <button v-if="searchContent" class="btn" type="button" @click="searchContent = ''">
-          <span class="material-symbols-outlined"> close </span>
-        </button>
-      </div>
+
+  <div class="container py-3">
+    <div class="input-group mb-3 search-bar shadow-sm">
+      <button class="btn btn-light btn-sm rounded-0" type="button" @click="scrollToTop">
+        <span class="material-symbols-outlined d-inline-block align-middle">
+          chevron_backward
+        </span>
+      </button>
+      <input
+        @input="toScroll"
+        ref="input"
+        type="text"
+        class="form-control border-0"
+        placeholder="搜尋食材/廠商"
+        v-model="searchContent"
+      />
+
+      <button class="btn btn-dark btn-sm rounded-0" type="button" @click="showInput">
+        <span class="material-symbols-outlined"> search </span>
+      </button>
     </div>
-  </nav>
-  <div class="container">
     <div class="border-bottom border-2 mb-4">
       <div class="mb-4">
         <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
@@ -234,7 +264,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('全部')
+                  selectedindustry = '全部'
                 }
               "
             >
@@ -249,7 +279,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('火鍋')
+                  selectedindustry = '火鍋'
                 }
               "
             >
@@ -264,7 +294,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('飲料')
+                  selectedindustry = '飲料'
                 }
               "
             >
@@ -279,7 +309,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('剉冰')
+                  selectedindustry = '剉冰'
                 }
               "
             >
@@ -293,10 +323,8 @@ onMounted(() => {
               :class="{ active: selectedindustry === '燒烤' }"
               @click="
                 () => {
-                  const path = route.path
-                  router.push(path)
-
-                  getSheetData('燒烤')
+                  router.push({ query: {} })
+                  selectedindustry = '燒烤'
                 }
               "
             >
@@ -311,7 +339,7 @@ onMounted(() => {
               @click="
                 () => {
                   router.push({ query: {} })
-                  getSheetData('烘焙')
+                  selectedindustry = '烘焙'
                 }
               "
             >
@@ -388,59 +416,75 @@ onMounted(() => {
     </div>
     <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
     <!-- 搜尋結果 -->
-    <div class="row gx-2" v-if="searchContent.trim()" ref="scrollbox">
-      <h4>
+    <div v-if="searchContent.trim()" ref="scrollbox">
+      <p class="h5">
         以下為 <span class="text-danger">{{ searchContent }} </span> 的搜尋結果
-        <button type="button" class="btn btn-sm btn-danger" @click="scrollToTop">Ｘ</button>
-      </h4>
+        <button type="button" class="btn btn-sm btn-danger fs-6" @click.prevent="scrollToTop">
+          <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
+        </button>
+      </p>
+      <div class="pb-2">
+        <span
+          class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
+          v-for="keyword in Matchkeyword"
+          :key="keyword"
+          @click="searchContent = keyword"
+          >{{ keyword }}</span
+        >
+      </div>
       <div class="text-center py-5" v-if="!searchCompany.length">
         <img src="../assets/Empty.png" alt="無資料" />
       </div>
-      <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
-        <RouterLink target="_blank" :to="`/company/${company['編號']}`">
-          <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-            <div class="d-flex justify-content-between mb-3">
-              <div>
-                <a :href="company['網址']" target="_blank" class="fs-6">{{ company['廠商'] }}</a>
-              </div>
-              <div>
-                <i
-                  v-if="isLiked"
-                  class="bi bi-heart-fill fs-4 link-info"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-                <i
-                  v-else
-                  class="bi bi-heart fs-4 link-gray"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-              </div>
-            </div>
-            <div class="d-flex flex-wrap">
-              <template v-for="value in Object.keys(company)" :key="value">
-                <div
-                  v-if="
-                    company[value] &&
-                    value !== '編號' &&
-                    value !== '廠商' &&
-                    value !== '網址' &&
-                    value !== '類別'
-                  "
-                >
-                  <span
-                    class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                    :class="[
-                      { 'bg-warning': MultipleTypeArray.includes(value) },
-                      { 'text-dark': MultipleTypeArray.includes(value) }
-                    ]"
-                  >
-                    {{ value }}
-                  </span>
+      <div class="row gx-2">
+        <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
+          <a href="#" @click.prevent="goCompany(company['編號'])">
+            <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+              <div class="d-flex justify-content-between mb-3">
+                <div>
+                  <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
+                    company['廠商']
+                  }}</a>
                 </div>
-              </template>
-            </div>
-          </div></RouterLink
-        >
+                <div>
+                  <i
+                    v-if="isLiked"
+                    class="bi bi-heart-fill fs-4 link-info"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                  <i
+                    v-else
+                    class="bi bi-heart fs-4 link-gray"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                </div>
+              </div>
+              <div class="d-flex flex-wrap">
+                <template v-for="value in Object.keys(company)" :key="value">
+                  <div
+                    v-if="
+                      company[value] &&
+                      value !== '編號' &&
+                      value !== '廠商' &&
+                      value !== '網址' &&
+                      value !== '類別' &&
+                      value !== '公司簡介'
+                    "
+                  >
+                    <span
+                      class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                      :class="[
+                        { 'bg-warning': MultipleTypeArray.includes(value) },
+                        { 'text-dark': MultipleTypeArray.includes(value) }
+                      ]"
+                    >
+                      {{ value }}
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div></a
+          >
+        </div>
       </div>
     </div>
     <!-- end -->
@@ -451,7 +495,9 @@ onMounted(() => {
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
             <div class="d-flex justify-content-between mb-3">
               <div>
-                <a :href="company['網址']" target="_blank" class="fs-6">{{ company['廠商'] }}</a>
+                <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
+                  company['廠商']
+                }}</a>
               </div>
               <div>
                 <i
@@ -501,7 +547,7 @@ onMounted(() => {
               <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
                 <div class="d-flex justify-content-between mb-3">
                   <div>
-                    <a :href="company['網址']" target="_blank" class="fs-6">{{
+                    <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
                       company['廠商']
                     }}</a>
                   </div>
@@ -540,3 +586,9 @@ onMounted(() => {
     </template>
   </div>
 </template>
+<style scoped>
+.search-bar {
+  position: sticky;
+  top: 54.66px;
+}
+</style>
