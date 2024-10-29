@@ -44,7 +44,7 @@ watch(router.currentRoute, () => {
 <template>
   <nav class="navbar bg-white shadow-sm sticky-top">
     <div class="container">
-      <div class="d-flex w-100">
+      <div class="d-flex w-100 align-items-center">
         <div>
           <RouterLink to="/" class="navbar-brand">
             <img src="../assets/LOGO.png" alt="LOGO" />
@@ -52,7 +52,7 @@ watch(router.currentRoute, () => {
         </div>
         <div class="ms-auto">
           <div
-            class="dropdown"
+            class="dropdown d-flex align-items-center"
             ref="dropdownRef"
             @click="toggleDropdown"
             v-show="authStore.isLoggedIn"

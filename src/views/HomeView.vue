@@ -425,9 +425,10 @@ watch(
       </p>
       <div class="pb-2">
         <span
-          class="badge rounded-pill text-bg-primary me-1 mb-1"
+          class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
           v-for="keyword in Matchkeyword"
           :key="keyword"
+          @click="searchContent = keyword"
           >{{ keyword }}</span
         >
       </div>

@@ -77,11 +77,17 @@
                     type="button"
                     class="btn btn-primary w-100"
                     @click.prevent="updateUserPassword"
-                    :disabled="!currentPassword || !newPassword"
+                    :disabled="isLoading || !currentPassword || !newPassword"
                   >
+                    <span
+                      v-if="isLoading"
+                      class="spinner-border spinner-border-sm me-1"
+                      role="status"
+                      aria-hidden="true"
+                    >
+                    </span>
                     確認修改
                   </button>
-                  <p v-if="error" class="text-danger mt-3">{{ error }}</p>
                 </div>
               </div>
             </div>
@@ -99,7 +105,6 @@ const authStore = useAuthStore()
 const isEditing = ref(false)
 const isLoading = ref(false)
 const newDisplayName = ref('')
-const error = ref(null)
 const currentPassword = ref('')
 const newPassword = ref('')
 const editProfileName = () => {
@@ -117,10 +122,8 @@ const updateProfileInfo = async () => {
 }
 const updateUserPassword = async () => {
   isLoading.value = true
-  error.value = null
   try {
     await authStore.reauthenticate(currentPassword.value, newPassword.value)
-
     isLoading.value = false
     currentPassword.value = ''
     newPassword.value = ''
