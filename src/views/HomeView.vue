@@ -10,6 +10,7 @@ const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
 const selectedindustry = ref('')
 const isLoading = ref(false)
+
 async function getSheetData(industry = '全部') {
   isLoading.value = true
   selectedindustry.value = industry
@@ -20,7 +21,8 @@ async function getSheetData(industry = '全部') {
     isLoading.value = false
     // values 為正式資料
     const values = response.data.values
-    keys.value = values[0].slice(2, -1)
+    keys.value = values[0].slice(2, -2)
+    industryKey.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
     convertToObjects(hotpot.value)
     MultipleTypeArray.value = route.query.MultipleTypeArray
@@ -33,6 +35,7 @@ async function getSheetData(industry = '全部') {
   }
 }
 // 轉換成陣列包物件的函數
+
 function convertToObjects(array) {
   const keys = array[0]
   const result = []
@@ -45,8 +48,8 @@ function convertToObjects(array) {
   }
   if (selectedindustry.value === '全部') {
     covertAllObjects(hotpot.value)
-    return result
   }
+
   return result
 }
 // 全部的資料
@@ -66,10 +69,12 @@ function covertAllObjects(array) {
   for (const key in categorizedData) {
     data.push({ [key]: categorizedData[key] })
   }
+
   allIndustryData.value = data
 }
 const hotpot = ref([])
 // 取得物件 KEY
+const industryKey = ref([])
 const keys = ref([])
 // 篩選廠商
 const selected = ref([])
@@ -136,7 +141,6 @@ const Matchkeyword = computed(() => {
   return uniqueArray
 })
 const searchCompany = computed(() => {
-  const keyWord = ref([])
   return hotpot.value.filter((item) => {
     //const regex = new RegExp(searchContent.value.split('').join('.*'), 'i') // 模糊搜尋
     const regex = new RegExp(searchContent.value, 'i')
@@ -144,9 +148,6 @@ const searchCompany = computed(() => {
     const hasMatch = keys.value.some((key) => {
       const match = regex.test(item[key])
       // 如果匹配到了，把完整字串加入到 matchedKeywords
-      if (match) {
-        keyWord.value.push(item[key])
-      }
       return match
     })
     return hasMatch
@@ -365,7 +366,7 @@ watch(
                 >全部</a
               >
             </li>
-            <li class="me-2" v-for="objKey in keys" :key="objKey">
+            <li class="me-2" v-for="objKey in industryKey" :key="objKey">
               <a
                 href="#"
                 class="btn btn-custom border-0"
