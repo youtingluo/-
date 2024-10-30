@@ -32,7 +32,9 @@ const initDropdown = async () => {
     dropdownInstance = new Dropdown(dropdownRef.value.querySelector('.dropdown-toggle'))
   }
 }
-
+const resetAndGoHome = () => {
+  router.push({ name: 'home', query: {} })
+}
 onMounted(() => {
   initDropdown()
 })
@@ -46,9 +48,9 @@ watch(router.currentRoute, () => {
     <div class="container">
       <div class="d-flex w-100 align-items-center">
         <div>
-          <RouterLink to="/" class="navbar-brand">
+          <a @click.prevent="resetAndGoHome" class="navbar-brand">
             <img src="../assets/LOGO.png" alt="LOGO" />
-          </RouterLink>
+          </a>
         </div>
         <div class="ms-auto">
           <div

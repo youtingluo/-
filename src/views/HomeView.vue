@@ -10,7 +10,6 @@ const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
 const selectedindustry = ref('')
 const isLoading = ref(false)
-
 async function getSheetData(industry = '全部') {
   isLoading.value = true
   selectedindustry.value = industry
@@ -24,7 +23,13 @@ async function getSheetData(industry = '全部') {
     keys.value = values[0].slice(2, -2)
     industryKey.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
-    convertToObjects(hotpot.value)
+    covertAllObjects(hotpot.value)
+    if (route.query.search) {
+      searchContent.value = route.query.search
+      searchCompany.value = searchCompanyFn(route.query.search) // 確保在數據載入完成後執行搜索
+    } else {
+      searchCompany.value = []
+    }
     MultipleTypeArray.value = route.query.MultipleTypeArray
       ? JSON.parse(route.query.MultipleTypeArray)
       : []
@@ -35,7 +40,6 @@ async function getSheetData(industry = '全部') {
   }
 }
 // 轉換成陣列包物件的函數
-
 function convertToObjects(array) {
   const keys = array[0]
   const result = []
@@ -45,9 +49,6 @@ function convertToObjects(array) {
       obj[keys[j]] = array[i][j]
     }
     result.push(obj)
-  }
-  if (selectedindustry.value === '全部') {
-    covertAllObjects(hotpot.value)
   }
 
   return result
@@ -69,7 +70,6 @@ function covertAllObjects(array) {
   for (const key in categorizedData) {
     data.push({ [key]: categorizedData[key] })
   }
-
   allIndustryData.value = data
 }
 const hotpot = ref([])
@@ -115,17 +115,42 @@ const toScroll = () => {
 }
 const scrollToTop = () => {
   window.scrollTo(0, 0)
-  isSearched.value = false
   searchContent.value = ''
+  router.replace({ query: {} })
 }
-const isSearched = ref(false)
+// 搜尋相關功能
 const searchContent = ref('')
 const input = ref(null)
-const showInput = () => {
-  isSearched.value = true
-  input.value.focus()
-}
-const Matchkeyword = computed(() => {
+const matchkeyword = ref([])
+const matchTypeArray = ref([])
+const searchCompany = ref([])
+watch(searchContent, (newVal) => {
+  console.log('watch searchContent', newVal)
+  if (newVal) {
+    getSheetData('全部')
+    router.replace({ query: { search: newVal } })
+    matchkeyword.value = MatchkeywordFn()
+    matchTypeArray.value = extractMatchingKeys(hotpot.value, matchkeyword.value)
+    searchCompany.value = searchCompanyFn(newVal)
+  } else {
+    console.log('清空了')
+
+    matchkeyword.value = []
+    matchTypeArray.value = []
+    searchCompany.value = []
+  }
+})
+// 監聽路由變化
+// watch(route, (newRoute) => {
+//   console.log('watch newRoute', newRoute)
+//   if (newRoute.query.search) {
+//     searchContent.value = newRoute.query.search
+//     matchkeyword.value = MatchkeywordFn()
+//     matchTypeArray.value = extractMatchingKeys(hotpot.value, matchkeyword.value)
+//     searchCompany.value = searchCompanyFn(newRoute.query.search)
+//   }
+// })
+const MatchkeywordFn = () => {
   const results = []
   const keyword = searchContent.value
   hotpot.value.forEach((item) => {
@@ -138,12 +163,34 @@ const Matchkeyword = computed(() => {
     })
   })
   const uniqueArray = Array.from(new Set(results))
+
   return uniqueArray
-})
-const searchCompany = computed(() => {
+}
+const extractMatchingKeys = (dataArray, searchArray) => {
+  const extractedKeys = []
+
+  dataArray.forEach((dataItem) => {
+    Object.keys(dataItem).forEach((key) => {
+      searchArray.forEach((searchItem) => {
+        if (dataItem[key] && dataItem[key].includes(searchItem)) {
+          extractedKeys.push(key)
+        }
+      })
+    })
+  })
+
+  return [...new Set(extractedKeys)]
+}
+
+const searchCompanyFn = (value) => {
+  console.log(value)
+  if (!value) {
+    searchCompany.value = []
+    return
+  }
   return hotpot.value.filter((item) => {
     //const regex = new RegExp(searchContent.value.split('').join('.*'), 'i') // 模糊搜尋
-    const regex = new RegExp(searchContent.value, 'i')
+    const regex = new RegExp(value, 'i')
     // 檢查每個 key 是否有匹配
     const hasMatch = keys.value.some((key) => {
       const match = regex.test(item[key])
@@ -152,7 +199,7 @@ const searchCompany = computed(() => {
     })
     return hasMatch
   })
-})
+}
 // 多選類型
 const MultipleTypeArray = ref([])
 const addMultipleType = (item) => {
@@ -196,6 +243,7 @@ function goCompany(id) {
   router.push({
     path: `company/${id}`,
     query: {
+      search: searchContent.value,
       selectedindustry: selectedindustry.value,
       MultipleTypeArray: JSON.stringify(MultipleTypeArray.value),
       selected: JSON.stringify(selected.value)
@@ -204,11 +252,11 @@ function goCompany(id) {
 }
 
 onMounted(() => {
+  getSheetData()
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
     return
   }
-  getSheetData()
 })
 // 回首頁
 // function resetAndGoHome() {
@@ -233,6 +281,7 @@ watch(
     <div class="loader"></div>
   </Loading>
   <div class="container py-3">
+    {{ searchContent }} / {{ matchTypeArray }}
     <div class="input-group mb-3 search-bar shadow-sm">
       <button class="btn btn-light btn-sm rounded-0" type="button" @click="scrollToTop">
         <span class="material-symbols-outlined d-inline-block align-middle">
@@ -240,7 +289,6 @@ watch(
         </span>
       </button>
       <input
-        @input="toScroll"
         ref="input"
         type="text"
         class="form-control border-0"
@@ -248,7 +296,7 @@ watch(
         v-model="searchContent"
       />
 
-      <button class="btn btn-dark btn-sm rounded-0" type="button" @click="showInput">
+      <button class="btn btn-dark btn-sm rounded-0" type="button" @click="toScroll">
         <span class="material-symbols-outlined"> search </span>
       </button>
     </div>
@@ -280,6 +328,7 @@ watch(
                 () => {
                   router.push({ query: {} })
                   selectedindustry = '火鍋'
+                  searchContent = ''
                 }
               "
             >
@@ -295,6 +344,7 @@ watch(
                 () => {
                   router.push({ query: {} })
                   selectedindustry = '飲料'
+                  searchContent = ''
                 }
               "
             >
@@ -310,6 +360,7 @@ watch(
                 () => {
                   router.push({ query: {} })
                   selectedindustry = '剉冰'
+                  searchContent = ''
                 }
               "
             >
@@ -325,6 +376,7 @@ watch(
                 () => {
                   router.push({ query: {} })
                   selectedindustry = '燒烤'
+                  searchContent = ''
                 }
               "
             >
@@ -340,6 +392,7 @@ watch(
                 () => {
                   router.push({ query: {} })
                   selectedindustry = '烘焙'
+                  searchContent = ''
                 }
               "
             >
@@ -416,7 +469,7 @@ watch(
     </div>
     <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
     <!-- 搜尋結果 -->
-    <div v-if="searchContent.trim()" ref="scrollbox">
+    <div v-if="searchContent" ref="scrollbox">
       <p class="h5">
         以下為 <span class="text-danger">{{ searchContent }} </span> 的搜尋結果
         <button type="button" class="btn btn-sm btn-danger fs-6" @click.prevent="scrollToTop">
@@ -426,7 +479,7 @@ watch(
       <div class="pb-2">
         <span
           class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
-          v-for="keyword in Matchkeyword"
+          v-for="keyword in matchkeyword"
           :key="keyword"
           @click="searchContent = keyword"
           >{{ keyword }}</span
@@ -473,8 +526,8 @@ watch(
                     <span
                       class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
                       :class="[
-                        { 'bg-warning': MultipleTypeArray.includes(value) },
-                        { 'text-dark': MultipleTypeArray.includes(value) }
+                        { 'bg-warning': matchTypeArray.includes(value) },
+                        { 'text-dark': matchTypeArray.includes(value) }
                       ]"
                     >
                       {{ value }}
@@ -489,7 +542,7 @@ watch(
     </div>
     <!-- end -->
     <!-- 單獨廠商 -->
-    <div class="row gx-2" v-else-if="selectedindustry !== '全部'">
+    <div class="row gx-2" v-else-if="selectedindustry !== '全部' && !searchContent">
       <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
         <a href="#" @click.prevent="goCompany(company['編號'])">
           <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
