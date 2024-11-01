@@ -25,7 +25,11 @@ async function getSheetData(industry = '全部') {
     hotpot.value = convertToObjects(values)
     covertAllObjects(hotpot.value)
     if (route.query.search) {
+      console.log('1')
+
       searchContent.value = route.query.search
+      matchkeyword.value = MatchkeywordFn()
+      matchTypeArray.value = extractMatchingKeys(hotpot.value, matchkeyword.value)
       searchCompany.value = searchCompanyFn(route.query.search) // 確保在數據載入完成後執行搜索
     } else {
       searchCompany.value = []
@@ -129,9 +133,9 @@ watch(searchContent, (newVal) => {
   if (newVal) {
     getSheetData('全部')
     router.replace({ query: { search: newVal } })
-    matchkeyword.value = MatchkeywordFn()
-    matchTypeArray.value = extractMatchingKeys(hotpot.value, matchkeyword.value)
-    searchCompany.value = searchCompanyFn(newVal)
+    // matchkeyword.value = MatchkeywordFn()
+    // matchTypeArray.value = extractMatchingKeys(hotpot.value, matchkeyword.value)
+    // searchCompany.value = searchCompanyFn(newVal)
   } else {
     console.log('清空了')
 
@@ -243,7 +247,7 @@ function goCompany(id) {
   router.push({
     path: `company/${id}`,
     query: {
-      search: searchContent.value,
+      //search: searchContent.value,
       selectedindustry: selectedindustry.value,
       MultipleTypeArray: JSON.stringify(MultipleTypeArray.value),
       selected: JSON.stringify(selected.value)
@@ -252,6 +256,8 @@ function goCompany(id) {
 }
 
 onMounted(() => {
+  console.log('onmounted')
+
   getSheetData()
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
@@ -543,48 +549,57 @@ watch(
     <!-- end -->
     <!-- 單獨廠商 -->
     <div class="row gx-2" v-else-if="selectedindustry !== '全部' && !searchContent">
-      <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
-        <a href="#" @click.prevent="goCompany(company['編號'])">
-          <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-            <div class="d-flex justify-content-between mb-3">
-              <div>
-                <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
-                  company['廠商']
-                }}</a>
-              </div>
-              <div>
-                <i
-                  v-if="isLiked"
-                  class="bi bi-heart-fill fs-4 link-info"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-                <i
-                  v-else
-                  class="bi bi-heart fs-4 link-gray"
-                  @click.prevent="isLiked = !isLiked"
-                ></i>
-              </div>
-            </div>
-            <div class="d-flex flex-wrap">
-              <template v-for="value in Object.keys(company)" :key="value">
-                <div
-                  v-if="company[value] && value !== '編號' && value !== '廠商' && value !== '網址'"
-                >
-                  <span
-                    class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                    :class="[
-                      { 'bg-warning': MultipleTypeArray.includes(value) },
-                      { 'text-dark': MultipleTypeArray.includes(value) }
-                    ]"
-                  >
-                    {{ value }}
-                  </span>
+      <template v-if="filterCompany.length">
+        <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
+          <a href="#" @click.prevent="goCompany(company['編號'])">
+            <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+              <div class="d-flex justify-content-between mb-3">
+                <div>
+                  <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
+                    company['廠商']
+                  }}</a>
                 </div>
-              </template>
-            </div>
-          </div></a
-        >
-      </div>
+                <div>
+                  <i
+                    v-if="isLiked"
+                    class="bi bi-heart-fill fs-4 link-info"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                  <i
+                    v-else
+                    class="bi bi-heart fs-4 link-gray"
+                    @click.prevent="isLiked = !isLiked"
+                  ></i>
+                </div>
+              </div>
+              <div class="d-flex flex-wrap">
+                <template v-for="value in Object.keys(company)" :key="value">
+                  <div
+                    v-if="
+                      company[value] && value !== '編號' && value !== '廠商' && value !== '網址'
+                    "
+                  >
+                    <span
+                      class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
+                      :class="[
+                        { 'bg-warning': MultipleTypeArray.includes(value) },
+                        { 'text-dark': MultipleTypeArray.includes(value) }
+                      ]"
+                    >
+                      {{ value }}
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div></a
+          >
+        </div>
+      </template>
+      <template v-else>
+        <div class="text-center py-5">
+          <img src="../assets/Empty.png" alt="無資料" />
+        </div>
+      </template>
     </div>
     <!-- 全部廠商 -->
     <template v-if="selectedindustry === '全部' && !searchContent">

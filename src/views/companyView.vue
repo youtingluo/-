@@ -4,8 +4,8 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Loading from 'vue-loading-overlay'
 const route = useRoute()
-
 const company = ref({})
+
 function getCompany() {
   const id = route.params.id
   const filter = hotpot.value.filter((item) => item['編號'] === id)
