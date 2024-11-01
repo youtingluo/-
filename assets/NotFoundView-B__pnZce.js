@@ -1,1 +1,0 @@
-import{o,bY as t,a,e as n,m as r}from"./index-BAoRV7va.js";const p={__name:"NotFoundView",setup(s){return o(()=>{t.push("/")}),(u,e)=>(r(),a("div",null,e[0]||(e[0]=[n("h1",null,"404 NOT FOUND",-1)])))}};export{p as default};

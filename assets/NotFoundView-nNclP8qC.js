@@ -1,0 +1,1 @@
+import{o,bX as t,a,e as n,l as r}from"./index-BILeH2Fv.js";const p={__name:"NotFoundView",setup(s){return o(()=>{t.push("/")}),(u,e)=>(r(),a("div",null,e[0]||(e[0]=[n("h1",null,"404 NOT FOUND",-1)])))}};export{p as default};
