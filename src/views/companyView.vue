@@ -1,17 +1,11 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
-import { onBeforeRouteLeave, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Loading from 'vue-loading-overlay'
 const route = useRoute()
-
-onBeforeRouteLeave((to, from, next) => {
-  if (to.name === 'home') {
-    to.query = { ...route.query }
-  }
-  next()
-})
 const company = ref({})
+
 function getCompany() {
   const id = route.params.id
   const filter = hotpot.value.filter((item) => item['編號'] === id)
@@ -83,7 +77,9 @@ onMounted(() => {
     <p class="fs-3 text-danger">規劃中，陸續更新，敬請期待！</p>
     <div class="d-flex flex-column align-items-center">
       <img class="mb-3" src="../assets/Empty.png" alt="尚無資料" />
-      <RouterLink to="/" class="btn btn-primary">回首頁</RouterLink>
+      <RouterLink :to="{ path: '/', query: route.query }" class="btn btn-primary"
+        >回首頁</RouterLink
+      >
     </div>
   </div>
 </template>
