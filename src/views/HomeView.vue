@@ -479,7 +479,6 @@ watch(
             <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
           </button>
         </p>
-        {{ matchkeyword }}
         <div class="pb-2">
           <span
             class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
