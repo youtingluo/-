@@ -3,6 +3,7 @@ import axios from 'axios'
 import { computed, onMounted, ref, watch } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
+import _ from 'lodash'
 const router = useRouter()
 const route = useRoute()
 const key = ref(0)
@@ -109,7 +110,9 @@ const filterCompany = computed(() => {
   }
 })
 const scrollbox = ref(null)
+const isInputZh = ref(false)
 const toScroll = () => {
+  if (isInputZh.value) return
   handleSearchChange(searchContent.value)
   if (scrollbox.value) {
     const offset = 110 // 偏移量，與導航欄高度一致
@@ -122,6 +125,7 @@ const toScroll = () => {
     })
   }
 }
+const debouncedSearch = _.debounce(toScroll, 400)
 const scrollToTop = () => {
   window.scrollTo(0, 0)
   searchContent.value = ''
@@ -129,6 +133,13 @@ const scrollToTop = () => {
   matchTypeArray.value = []
   searchCompany.value = []
   router.replace({ query: {} })
+}
+
+const compositionstart = () => {
+  isInputZh.value = true
+}
+const compositionend = () => {
+  isInputZh.value = false
 }
 // 搜尋相關功能
 const searchContent = ref('')
@@ -283,7 +294,9 @@ watch(
           class="form-control border-0"
           placeholder="搜尋食材/廠商"
           v-model="searchContent"
-          @keyup="toScroll"
+          @input="debouncedSearch"
+          @compositionstart="compositionstart"
+          @compositionend="compositionend"
         />
 
         <button class="btn btn-dark btn-sm rounded-0" type="button">
@@ -466,6 +479,7 @@ watch(
             <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
           </button>
         </p>
+        {{ matchkeyword }}
         <div class="pb-2">
           <span
             class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
