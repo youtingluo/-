@@ -1,13 +1,21 @@
 <script setup>
 import { useAuthStore } from '@/store/auth'
 import { inject, ref, onMounted, nextTick, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Dropdown from 'bootstrap/js/dist/dropdown'
 const router = useRouter()
+const route = useRoute()
 const toast = inject('$toast')
 const authStore = useAuthStore()
 const dropdownRef = ref(null)
 let dropdownInstance = null
+const handleLogoClick = () => {
+  if (route.path === '/') {
+    router.push('/refresh')
+  } else {
+    router.push('/')
+  }
+}
 
 const handleLogout = async () => {
   try {
@@ -46,7 +54,7 @@ watch(router.currentRoute, () => {
     <div class="container">
       <div class="d-flex w-100 align-items-center">
         <div>
-          <a href="#" @click.prevent="router.push('/')" class="navbar-brand">
+          <a href="#" @click.prevent="handleLogoClick" class="navbar-brand">
             <img src="../assets/LOGO.png" alt="LOGO" />
           </a>
         </div>

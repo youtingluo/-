@@ -7,7 +7,20 @@ const router = createRouter({
     {
       name: 'home',
       path: '/',
-      component: () => import('../views/HomeView.vue')
+      component: () => import('../views/HomeView.vue'),
+      beforeEnter: (to, from, next) => {
+        if (from.path === '/') {
+          next({ path: '/refresh', replace: true })
+        } else {
+          next()
+        }
+      }
+    },
+    {
+      path: '/refresh',
+      beforeEnter: (to, from, next) => {
+        next('/')
+      }
     },
     {
       name: 'login',
