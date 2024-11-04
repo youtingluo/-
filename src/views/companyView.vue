@@ -3,13 +3,17 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Loading from 'vue-loading-overlay'
+import ReviewComponent from '@/components/ReviewComponent.vue'
+import { convertToObjects } from '../utils/coverArray'
 const route = useRoute()
 const company = ref({})
 
 function getCompany() {
   const id = route.params.id
   const filter = hotpot.value.filter((item) => item['編號'] === id)
+
   company.value = filter[0]
+  console.log(company.value)
   isLoading.value = false
 }
 
@@ -31,18 +35,7 @@ async function getSheetData() {
     console.error('Error fetching values:', error)
   }
 }
-function convertToObjects(array) {
-  const keys = array[0]
-  const result = []
-  for (let i = 1; i < array.length; i++) {
-    const obj = {}
-    for (let j = 0; j < keys.length; j++) {
-      obj[keys[j]] = array[i][j]
-    }
-    result.push(obj)
-  }
-  return result
-}
+
 onMounted(() => {
   getSheetData()
 })
@@ -73,6 +66,7 @@ onMounted(() => {
       </div>
     </div>
     <p class="fs-6 mb-2">實際評測</p>
+    <ReviewComponent />
 
     <p class="fs-3 text-danger">規劃中，陸續更新，敬請期待！</p>
     <div class="d-flex flex-column align-items-center">
@@ -83,3 +77,9 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style>
+.fill-symbol {
+  font-variation-settings: 'FILL' 1;
+}
+</style>

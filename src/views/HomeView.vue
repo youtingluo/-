@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
+import { convertToObjects } from '../utils/coverArray'
 const router = useRouter()
 const route = useRoute()
 const key = ref(0)
@@ -50,27 +51,15 @@ async function getSheetData(industry = '全部') {
     console.error('Error fetching values:', error)
   }
 }
-// 轉換成陣列包物件的函數
-function convertToObjects(array) {
-  const keys = array[0]
-  const result = []
-  for (let i = 1; i < array.length; i++) {
-    const obj = {}
-    for (let j = 0; j < keys.length; j++) {
-      obj[keys[j]] = array[i][j]
-    }
-    result.push(obj)
-  }
 
-  return result
-}
 // 全部的資料
 const allIndustryData = ref([])
 function covertAllObjects(array) {
   const categorizedData = array.reduce((acc, item) => {
     const filteredItem = Object.fromEntries(
-      Object.entries(item).filter(([, value]) => value !== undefined || '')
+      Object.entries(item).filter(([, value]) => value !== '')
     )
+
     if (!acc[item.類別]) {
       acc[item.類別] = []
     }
@@ -81,6 +70,7 @@ function covertAllObjects(array) {
   for (const key in categorizedData) {
     data.push({ [key]: categorizedData[key] })
   }
+
   allIndustryData.value = data
 }
 const hotpot = ref([])
@@ -479,7 +469,6 @@ watch(
             <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
           </button>
         </p>
-        {{ matchkeyword }}
         <div class="pb-2">
           <span
             class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
@@ -519,7 +508,6 @@ watch(
                   <template v-for="value in Object.keys(company)" :key="value">
                     <div
                       v-if="
-                        company[value] &&
                         value !== '編號' &&
                         value !== '廠商' &&
                         value !== '網址' &&
@@ -572,11 +560,7 @@ watch(
                 </div>
                 <div class="d-flex flex-wrap">
                   <template v-for="value in Object.keys(company)" :key="value">
-                    <div
-                      v-if="
-                        company[value] && value !== '編號' && value !== '廠商' && value !== '網址'
-                      "
-                    >
+                    <div v-if="value !== '編號' && value !== '廠商' && value !== '網址'">
                       <span
                         class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
                         :class="[
@@ -634,8 +618,11 @@ watch(
                     <template v-for="value in Object.keys(company)" :key="value">
                       <div
                         v-if="
-                          company[value] &&
-                          !['編號', '廠商', '網址', '類別', '公司簡介'].includes(value)
+                          value !== '編號' &&
+                          value !== '廠商' &&
+                          value !== '網址' &&
+                          value !== '類別' &&
+                          value !== '公司簡介'
                         "
                       >
                         <span class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2">
