@@ -23,6 +23,20 @@ ul {
     color: $secondary;
   }
 }
+.bedge-custom {
+  background-color: $secondary;
+  color: $primary;
+  &.active {
+    color: $secondary;
+    background-color: $primary;
+  }
+}
+@media (any-hover: hover) {
+  .bedge-custom:hover {
+    background-color: $primary;
+    color: $secondary;
+  }
+}
 
 .link-gray {
   color: #7d7d7d;

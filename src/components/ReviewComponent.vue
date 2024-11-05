@@ -5,9 +5,14 @@
         <h3 class="fs-5">
           <img class="rounded-circle me-2" src="../assets/Shape.png" alt="avatar" />管理員
         </h3>
-        <p class="text-info fs-5">
-          4.5 <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i
-          ><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i><i class="bi bi-star"></i>
+
+        <p class="star-null fs-5 d-flex align-items-center">
+          <span class="text-info">4.0</span>
+          <span class="material-symbols-outlined fill-symbol text-info"> star </span
+          ><span class="material-symbols-outlined fill-symbol text-info"> star </span
+          ><span class="material-symbols-outlined fill-symbol text-info"> star </span>
+          <span class="material-symbols-outlined fill-symbol text-info"> star </span>
+          <span class="material-symbols-outlined fill-symbol"> star </span>
         </p>
       </div>
       <div>
@@ -27,10 +32,9 @@
       </li>
     </ul>
     <p>綠茶泡開後有明顯的苦澀味，不能放超過四個小時，否則會變酸。茶葉品質中等，適合搭配蜂蜜調味</p>
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between align-items-center">
       <span
-        ><i class="bi bi-hand-thumbs-up-fill text-primary fs-4"></i
-        ><small class="text-muted">345</small></span
+        ><span class="material-symbols-outlined fill-symbol text-primary"> thumb_up </span></span
       >
 
       <button type="button" class="btn btn-outline-primary" disabled>
@@ -40,3 +44,9 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+.star-null {
+  color: #cdcdcd;
+}
+</style>

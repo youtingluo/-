@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
+import { convertToObjects } from '../utils/coverArray'
 const router = useRouter()
 const route = useRoute()
 const key = ref(0)
@@ -30,6 +31,7 @@ async function getSheetData(industry = '全部') {
     keys.value = values[0].slice(2, -2)
     industryKey.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
+
     covertAllObjects(hotpot.value)
     if (route.query.search) {
       searchContent.value = route.query.search
@@ -50,27 +52,15 @@ async function getSheetData(industry = '全部') {
     console.error('Error fetching values:', error)
   }
 }
-// 轉換成陣列包物件的函數
-function convertToObjects(array) {
-  const keys = array[0]
-  const result = []
-  for (let i = 1; i < array.length; i++) {
-    const obj = {}
-    for (let j = 0; j < keys.length; j++) {
-      obj[keys[j]] = array[i][j]
-    }
-    result.push(obj)
-  }
 
-  return result
-}
 // 全部的資料
 const allIndustryData = ref([])
 function covertAllObjects(array) {
   const categorizedData = array.reduce((acc, item) => {
     const filteredItem = Object.fromEntries(
-      Object.entries(item).filter(([, value]) => value !== undefined || '')
+      Object.entries(item).filter(([, value]) => value !== '')
     )
+
     if (!acc[item.類別]) {
       acc[item.類別] = []
     }
@@ -81,6 +71,7 @@ function covertAllObjects(array) {
   for (const key in categorizedData) {
     data.push({ [key]: categorizedData[key] })
   }
+
   allIndustryData.value = data
 }
 const hotpot = ref([])
@@ -147,10 +138,19 @@ const input = ref(null)
 const matchkeyword = ref([])
 const matchTypeArray = ref([])
 const searchCompany = ref([])
-
+watch(
+  matchkeyword,
+  () => {
+    matchTypeArray.value = extractMatchingKeys(hotpot.value, matchkeyword.value)
+    searchCompany.value = searchCompanyFn(route.query.search) //
+  },
+  { deep: true }
+)
 // 處理搜索內容變更
+let filterMatchArr = ref([])
 const handleSearchChange = (newSearchContent) => {
   searchContent.value = newSearchContent
+
   // 當搜索內容變更時，只保留 search 參數
   router.replace({
     path: '/',
@@ -174,8 +174,17 @@ const MatchkeywordFn = () => {
     })
   })
   const uniqueArray = Array.from(new Set(results))
-
+  filterMatchArr.value = [...uniqueArray]
   return uniqueArray
+}
+
+const handleMatchKeywordArray = (keyword) => {
+  const index = matchkeyword.value.indexOf(keyword)
+  if (index > -1) {
+    matchkeyword.value.splice(index, 1)
+  } else {
+    matchkeyword.value.push(keyword)
+  }
 }
 const extractMatchingKeys = (dataArray, searchArray) => {
   const extractedKeys = []
@@ -198,17 +207,38 @@ const searchCompanyFn = (value) => {
     searchCompany.value = []
     return
   }
-  return hotpot.value.filter((item) => {
-    //const regex = new RegExp(searchContent.value.split('').join('.*'), 'i') // 模糊搜尋
-    const regex = new RegExp(value, 'i')
-    // 檢查每個 key 是否有匹配
-    const hasMatch = keys.value.some((key) => {
-      const match = regex.test(item[key])
-      // 如果匹配到了，把完整字串加入到 matchedKeywords
-      return match
-    })
-    return hasMatch
+  const arr = hotpot.value.filter((item) => {
+    // 檢查指定的 key 是否包含所有指定的 value
+    const hasAllValues = industryKey.value.some((key) =>
+      matchkeyword.value.some((value) => item[key] && item[key].includes(value))
+    )
+    return hasAllValues
   })
+
+  const mergedData = {}
+  arr.forEach((obj) => {
+    const vendor = obj['廠商']
+    if (!mergedData[vendor]) {
+      mergedData[vendor] = {}
+    }
+    for (const key in obj) {
+      if (key === '廠商') continue // 跳過 "廠商" 鍵
+      if (mergedData[vendor][key]) {
+        const newValues = obj[key].split(',').map((item) => item.trim())
+        const existingValues = mergedData[vendor][key].split(',').map((item) => item.trim())
+        const mergedValues = Array.from(new Set([...existingValues, ...newValues])).join(',')
+        mergedData[vendor][key] = mergedValues
+      } else {
+        mergedData[vendor][key] = obj[key]
+      }
+    }
+  })
+
+  const mergeArray = Object.keys(mergedData).map((vendor) => ({
+    廠商: vendor,
+    ...mergedData[vendor]
+  }))
+  return mergeArray
 }
 // 多選類型
 const MultipleTypeArray = ref([])
@@ -249,9 +279,9 @@ const displayedType = computed(() => {
   return showAll.value ? filterType.value : filterType.value.slice(0, 8)
 })
 // -------- end -------
-function goCompany(id) {
+function goCompany(industry) {
   router.push({
-    path: `company/${id}`,
+    path: `company/${industry}`,
     query: {
       //search: searchContent.value,
       selectedindustry: selectedindustry.value,
@@ -481,14 +511,15 @@ watch(
         </p>
         <div class="pb-2">
           <span
-            class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
-            v-for="keyword in matchkeyword"
+            class="badge rounded-pill bedge-custom btn fs-6 fw-normal me-1 mb-1"
+            :class="{ active: matchkeyword.includes(keyword) }"
+            v-for="keyword in filterMatchArr"
             :key="keyword"
-            @click="handleSearchChange(keyword)"
+            @click="handleMatchKeywordArray(keyword)"
             >{{ keyword }}</span
           >
         </div>
-        <div class="text-center py-5" v-if="!searchCompany.length">
+        <div class="text-center py-5" v-if="!searchCompany?.length">
           <img src="../assets/Empty.png" alt="無資料" />
         </div>
         <div class="row gx-2" v-else>
@@ -518,7 +549,6 @@ watch(
                   <template v-for="value in Object.keys(company)" :key="value">
                     <div
                       v-if="
-                        company[value] &&
                         value !== '編號' &&
                         value !== '廠商' &&
                         value !== '網址' &&
@@ -571,11 +601,7 @@ watch(
                 </div>
                 <div class="d-flex flex-wrap">
                   <template v-for="value in Object.keys(company)" :key="value">
-                    <div
-                      v-if="
-                        company[value] && value !== '編號' && value !== '廠商' && value !== '網址'
-                      "
-                    >
+                    <div v-if="value !== '編號' && value !== '廠商' && value !== '網址'">
                       <span
                         class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
                         :class="[
@@ -633,8 +659,11 @@ watch(
                     <template v-for="value in Object.keys(company)" :key="value">
                       <div
                         v-if="
-                          company[value] &&
-                          !['編號', '廠商', '網址', '類別', '公司簡介'].includes(value)
+                          value !== '編號' &&
+                          value !== '廠商' &&
+                          value !== '網址' &&
+                          value !== '類別' &&
+                          value !== '公司簡介'
                         "
                       >
                         <span class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2">
