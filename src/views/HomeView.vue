@@ -30,6 +30,7 @@ async function getSheetData(industry = '全部') {
     const values = response.data.values
     keys.value = values[0].slice(2, -2)
     industryKey.value = values[0].slice(2, -1)
+
     hotpot.value = convertToObjects(values)
     covertAllObjects(hotpot.value)
     if (route.query.search) {
@@ -137,10 +138,19 @@ const input = ref(null)
 const matchkeyword = ref([])
 const matchTypeArray = ref([])
 const searchCompany = ref([])
-
+watch(
+  matchkeyword,
+  () => {
+    matchTypeArray.value = extractMatchingKeys(hotpot.value, matchkeyword.value)
+    searchCompany.value = searchCompanyFn(route.query.search) //
+  },
+  { deep: true }
+)
 // 處理搜索內容變更
+let filterMatchArr = ref([])
 const handleSearchChange = (newSearchContent) => {
   searchContent.value = newSearchContent
+
   // 當搜索內容變更時，只保留 search 參數
   router.replace({
     path: '/',
@@ -164,8 +174,18 @@ const MatchkeywordFn = () => {
     })
   })
   const uniqueArray = Array.from(new Set(results))
-
+  filterMatchArr.value = [...uniqueArray]
   return uniqueArray
+}
+
+const handleMatchKeywordArray = (keyword) => {
+  const index = matchkeyword.value.indexOf(keyword)
+  console.log(index)
+  if (index > -1) {
+    matchkeyword.value.splice(index, 1)
+  } else {
+    matchkeyword.value.push(keyword)
+  }
 }
 const extractMatchingKeys = (dataArray, searchArray) => {
   const extractedKeys = []
@@ -188,17 +208,17 @@ const searchCompanyFn = (value) => {
     searchCompany.value = []
     return
   }
-  return hotpot.value.filter((item) => {
-    //const regex = new RegExp(searchContent.value.split('').join('.*'), 'i') // 模糊搜尋
-    const regex = new RegExp(value, 'i')
-    // 檢查每個 key 是否有匹配
-    const hasMatch = keys.value.some((key) => {
-      const match = regex.test(item[key])
-      // 如果匹配到了，把完整字串加入到 matchedKeywords
-      return match
-    })
-    return hasMatch
+  let arr = []
+  arr = hotpot.value.filter((item) => {
+    // 檢查指定的 key 是否包含所有指定的 value
+    const hasAllValues = industryKey.value.some((key) =>
+      matchkeyword.value.some((value) => item[key] && item[key].includes(value))
+    )
+    return hasAllValues
   })
+  console.log(arr)
+
+  return arr
 }
 // 多選類型
 const MultipleTypeArray = ref([])
@@ -470,11 +490,13 @@ watch(
           </button>
         </p>
         <div class="pb-2">
+          matchkeyword:{{ matchkeyword }} filterMatchArr: {{ filterMatchArr }}
           <span
-            class="badge rounded-pill text-bg-primary me-1 mb-1 btn"
-            v-for="keyword in matchkeyword"
+            class="badge rounded-pill bedge-custom btn fs-6 fw-normal me-1 mb-1"
+            :class="{ active: matchkeyword.includes(keyword) }"
+            v-for="keyword in filterMatchArr"
             :key="keyword"
-            @click="handleSearchChange(keyword)"
+            @click="handleMatchKeywordArray(keyword)"
             >{{ keyword }}</span
           >
         </div>
