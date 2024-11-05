@@ -3,7 +3,6 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Loading from 'vue-loading-overlay'
-import ReviewComponent from '@/components/ReviewComponent.vue'
 import { convertToObjects } from '../utils/coverArray'
 const route = useRoute()
 const company = ref({})
@@ -64,7 +63,6 @@ onMounted(() => {
       </div>
     </div>
     <p class="fs-6 mb-2">實際評測</p>
-    <ReviewComponent />
 
     <p class="fs-3 text-danger">規劃中，陸續更新，敬請期待！</p>
     <div class="d-flex flex-column align-items-center">
