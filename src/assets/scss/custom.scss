@@ -24,6 +24,8 @@ ul {
   }
 }
 .bedge-custom {
+  cursor: pointer;
+  padding: 5px 10px;
   background-color: $secondary;
   color: $primary;
   &.active {
@@ -31,10 +33,10 @@ ul {
     background-color: $primary;
   }
 }
-@media (any-hover: hover) {
-  .bedge-custom:hover {
-    background-color: $primary;
-    color: $secondary;
+@media (hover: none) {
+  .bedge-custom {
+    background-color: $secondary;
+    color: $primary;
   }
 }
 

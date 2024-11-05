@@ -511,11 +511,11 @@ watch(
         </p>
         <div class="pb-2">
           <span
-            class="badge rounded-pill bedge-custom btn fs-6 fw-normal me-1 mb-1"
+            class="bedge rounded-pill d-inline-block bedge-custom fs-6 fw-normal me-1 mb-1"
             :class="{ active: matchkeyword.includes(keyword) }"
             v-for="keyword in filterMatchArr"
             :key="keyword"
-            @click="handleMatchKeywordArray(keyword)"
+            @click.prevent="handleMatchKeywordArray(keyword)"
             >{{ keyword }}</span
           >
         </div>
