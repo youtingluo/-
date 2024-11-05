@@ -116,7 +116,7 @@ const toScroll = () => {
     })
   }
 }
-const debouncedSearch = _.debounce(toScroll, 400)
+const debouncedSearch = _.debounce(toScroll, 600)
 const scrollToTop = () => {
   window.scrollTo(0, 0)
   searchContent.value = ''
@@ -283,7 +283,7 @@ function goCompany(industry) {
   router.push({
     path: `company/${industry}`,
     query: {
-      //search: searchContent.value,
+      search: searchContent.value,
       selectedindustry: selectedindustry.value,
       MultipleTypeArray: JSON.stringify(MultipleTypeArray.value),
       selected: JSON.stringify(selected.value)
