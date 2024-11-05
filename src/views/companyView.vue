@@ -10,10 +10,8 @@ const company = ref({})
 
 function getCompany() {
   const id = route.params.id
-  const filter = hotpot.value.filter((item) => item['編號'] === id)
-
+  const filter = hotpot.value.filter((item) => id.split(',').includes(item['編號']))
   company.value = filter[0]
-  console.log(company.value)
   isLoading.value = false
 }
 

@@ -53,7 +53,10 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       component: () => import('../views/NotFoundView.vue')
     }
-  ]
+  ],
+  scrollBehavior() {
+    return { top: 0, behavior: 'smooth' }
+  }
 })
 router.beforeEach((to, from, next) => {
   if (to.path === '/' && from.path.includes('/company/')) {

@@ -25,10 +25,10 @@ ul {
 }
 .bedge-custom {
   background-color: $secondary;
-  color: $dark;
+  color: $primary;
   &.active {
     color: $secondary;
-    background-color: $info;
+    background-color: $primary;
   }
 }
 @media (any-hover: hover) {

@@ -30,8 +30,8 @@ async function getSheetData(industry = '全部') {
     const values = response.data.values
     keys.value = values[0].slice(2, -2)
     industryKey.value = values[0].slice(2, -1)
-
     hotpot.value = convertToObjects(values)
+
     covertAllObjects(hotpot.value)
     if (route.query.search) {
       searchContent.value = route.query.search
@@ -180,7 +180,6 @@ const MatchkeywordFn = () => {
 
 const handleMatchKeywordArray = (keyword) => {
   const index = matchkeyword.value.indexOf(keyword)
-  console.log(index)
   if (index > -1) {
     matchkeyword.value.splice(index, 1)
   } else {
@@ -208,17 +207,38 @@ const searchCompanyFn = (value) => {
     searchCompany.value = []
     return
   }
-  let arr = []
-  arr = hotpot.value.filter((item) => {
+  const arr = hotpot.value.filter((item) => {
     // 檢查指定的 key 是否包含所有指定的 value
     const hasAllValues = industryKey.value.some((key) =>
       matchkeyword.value.some((value) => item[key] && item[key].includes(value))
     )
     return hasAllValues
   })
-  console.log(arr)
 
-  return arr
+  const mergedData = {}
+  arr.forEach((obj) => {
+    const vendor = obj['廠商']
+    if (!mergedData[vendor]) {
+      mergedData[vendor] = {}
+    }
+    for (const key in obj) {
+      if (key === '廠商') continue // 跳過 "廠商" 鍵
+      if (mergedData[vendor][key]) {
+        const newValues = obj[key].split(',').map((item) => item.trim())
+        const existingValues = mergedData[vendor][key].split(',').map((item) => item.trim())
+        const mergedValues = Array.from(new Set([...existingValues, ...newValues])).join(',')
+        mergedData[vendor][key] = mergedValues
+      } else {
+        mergedData[vendor][key] = obj[key]
+      }
+    }
+  })
+
+  const mergeArray = Object.keys(mergedData).map((vendor) => ({
+    廠商: vendor,
+    ...mergedData[vendor]
+  }))
+  return mergeArray
 }
 // 多選類型
 const MultipleTypeArray = ref([])
@@ -259,9 +279,9 @@ const displayedType = computed(() => {
   return showAll.value ? filterType.value : filterType.value.slice(0, 8)
 })
 // -------- end -------
-function goCompany(id) {
+function goCompany(industry) {
   router.push({
-    path: `company/${id}`,
+    path: `company/${industry}`,
     query: {
       //search: searchContent.value,
       selectedindustry: selectedindustry.value,
@@ -490,7 +510,6 @@ watch(
           </button>
         </p>
         <div class="pb-2">
-          matchkeyword:{{ matchkeyword }} filterMatchArr: {{ filterMatchArr }}
           <span
             class="badge rounded-pill bedge-custom btn fs-6 fw-normal me-1 mb-1"
             :class="{ active: matchkeyword.includes(keyword) }"
@@ -500,7 +519,7 @@ watch(
             >{{ keyword }}</span
           >
         </div>
-        <div class="text-center py-5" v-if="!searchCompany.length">
+        <div class="text-center py-5" v-if="!searchCompany?.length">
           <img src="../assets/Empty.png" alt="無資料" />
         </div>
         <div class="row gx-2" v-else>
