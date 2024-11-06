@@ -21,7 +21,7 @@ async function getSheetData() {
     const values = response.data.values
     hotpot.value = convertToObjects(values)
     await getReview()
-    await getCompany()
+    getCompany()
   } catch (error) {
     isLoading.value = false
     console.error('Error fetching values:', error)

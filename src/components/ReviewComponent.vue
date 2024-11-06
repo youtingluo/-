@@ -42,22 +42,11 @@ defineProps({
           <p>
             {{ item['實際評測'] }}
           </p>
-          <div class="d-flex justify-content-between align-items-center">
-            <span
-              ><span class="material-symbols-outlined fill-symbol text-primary">
-                thumb_up
-              </span></span
-            >
-
-            <button type="button" class="btn btn-outline-primary" disabled>
-              <i class="bi bi-hand-thumbs-up"></i>
-              同意評價
-            </button>
-          </div>
         </div>
       </div>
     </div>
   </div>
+
   <div v-else class="d-flex flex-column align-items-center">
     <img class="mb-3" src="../assets/Empty.png" alt="尚無資料" />
   </div>

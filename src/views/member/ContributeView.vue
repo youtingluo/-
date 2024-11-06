@@ -179,8 +179,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
+import { ref, inject } from 'vue'
+const toast = inject('$toast')
+const swal = inject('$swal')
 const isLoading = ref(false)
 const sendForm = ref(null)
 const form = ref({
@@ -226,15 +227,19 @@ const onSubmit = async () => {
     })
     if (response.ok) {
       isLoading.value = false
-      alert('信件已寄出!')
+      toast.fire({
+        icon: 'success',
+        title: '信件寄出成功'
+      })
       sendForm.value.resetForm()
-    } else {
-      alert('信件寄送失敗.')
     }
   } catch (error) {
     isLoading.value = false
     console.error('Error:', error)
-    alert('信件寄送失敗')
+    swal.fire({
+      icon: 'error',
+      title: '信件寄出失敗'
+    })
   }
 }
 </script>
