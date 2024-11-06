@@ -8,6 +8,6 @@ onMounted(() => {
 </script>
 <template>
   <div>
-    <h1>404 NOT FOUND</h1>
+    <h1>導向錯誤...請重新整理</h1>
   </div>
 </template>
