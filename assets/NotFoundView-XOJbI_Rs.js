@@ -1,1 +1,0 @@
-import{o,bX as t,b as l,f as n,F as r,p as s}from"./index-27sDEDtm.js";const d={__name:"NotFoundView",setup(u){return o(()=>{t.push("/")}),(a,e)=>(s(),l(r,null,[e[0]||(e[0]=n("div",null,null,-1)),e[1]||(e[1]=n("div",null,[n("h1",null,"導向錯誤...請重新整理")],-1))],64))}};export{d as default};
