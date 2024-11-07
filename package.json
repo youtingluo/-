@@ -9,31 +9,32 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
+    "predeploy": "cp .nojekyll dist",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@vee-validate/i18n": "^4.13.2",
-    "@vee-validate/rules": "^4.13.2",
+    "@vee-validate/i18n": "^4.14.6",
+    "@vee-validate/rules": "^4.14.6",
     "axios": "^1.7.7",
-    "bootstrap": "^5.2.3",
+    "bootstrap": "^5.3.3",
     "firebase": "^10.14.1",
     "lodash": "^4.17.21",
-    "pinia": "^2.2.4",
-    "sass": "^1.78.0",
-    "sweetalert2": "^11.14.4",
+    "pinia": "^2.2.6",
+    "sweetalert2": "^11.14.5",
     "vee-validate": "^4.13.2",
     "vue": "^3.4.29",
     "vue-loading-overlay": "^6.0.6",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.8.0",
-    "@vitejs/plugin-vue": "^5.0.5",
+    "@rushstack/eslint-patch": "^1.10.4",
+    "@vitejs/plugin-vue": "^5.1.4",
     "@vue/eslint-config-prettier": "^9.0.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-vue": "^9.23.0",
-    "gh-pages": "^6.1.1",
-    "prettier": "^3.2.5",
-    "vite": "^5.3.1"
+    "eslint": "^8.57.1",
+    "eslint-plugin-vue": "^9.30.0",
+    "gh-pages": "^6.2.0",
+    "prettier": "^3.3.3",
+    "sass": "^1.80.6",
+    "vite": "^5.4.10"
   }
 }
