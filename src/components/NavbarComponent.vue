@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/auth'
 import { inject, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Dropdown from 'bootstrap/js/dist/dropdown'
-
+import 'bootstrap/dist/js/bootstrap.bundle'
 const router = useRouter()
 const route = useRoute()
 const toast = inject('$toast')
