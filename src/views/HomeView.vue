@@ -1,24 +1,28 @@
 <script setup>
 import axios from 'axios'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
 import { convertToObjects } from '../utils/coverArray'
 import IndustryComponent from '@/components/IndustryComponent.vue'
+
 const router = useRouter()
 const route = useRoute()
 const key = ref(0)
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 // 取得資料
-const selectedindustry = ref('')
+const selectedindustry = ref('全部')
 const isLoading = ref(false)
 watch(route, (newRoute, oldRoute) => {
   if (oldRoute.path === '/' && newRoute.path === '/refresh') {
     key.value++
   }
 })
+// 全部的資料
+const hotpot = ref([])
+const allIndustryData = ref([])
 async function getSheetData(industry = '全部') {
   isLoading.value = true
   selectedindustry.value = industry
@@ -27,12 +31,12 @@ async function getSheetData(industry = '全部') {
   try {
     const response = await axios.get(url)
     isLoading.value = false
-    // values 為正式資料
     const values = response.data.values
-    keys.value = values[0].slice(2, -2)
+    keys.value = values[0].slice(2, -3)
     industryKey.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
-    covertAllObjects(hotpot.value)
+    allIndustryData.value = covertAllObjects(hotpot.value)
+
     if (route.query.search) {
       searchContent.value = route.query.search
       matchkeyword.value = MatchkeywordFn()
@@ -53,13 +57,9 @@ async function getSheetData(industry = '全部') {
   }
 }
 
-// 全部的資料
-const allIndustryData = ref([])
 function covertAllObjects(array) {
   const categorizedData = array.reduce((acc, item) => {
-    const filteredItem = Object.fromEntries(
-      Object.entries(item).filter(([, value]) => value !== '')
-    )
+    const filteredItem = Object.fromEntries(Object.entries(item).filter(([, value]) => value))
 
     if (!acc[item.類別]) {
       acc[item.類別] = []
@@ -72,9 +72,9 @@ function covertAllObjects(array) {
     data.push({ [key]: categorizedData[key] })
   }
 
-  allIndustryData.value = data
+  return data
 }
-const hotpot = ref([])
+
 // 取得物件 KEY
 const industryKey = ref([])
 const keys = ref([])
@@ -99,21 +99,50 @@ const filterCompany = computed(() => {
     })
   }
 })
+
+// 搜尋相關功能
+const searchContent = ref('')
+const input = ref(null)
+const matchkeyword = ref([])
+const matchTypeArray = ref([])
+const searchCompany = ref([])
 const scrollbox = ref(null)
 const isInputZh = ref(false)
+const compositionstart = () => {
+  isInputZh.value = true
+}
+const compositionend = () => {
+  isInputZh.value = false
+}
+
+const handleSearchChange = async (newSearchContent) => {
+  searchContent.value = newSearchContent
+
+  // 當搜索內容變更時，只保留 search 參數
+  router.replace({
+    path: '/',
+    query: {
+      search: newSearchContent
+    }
+  })
+  await getSheetData('全部')
+  await nextTick(() => {
+    if (scrollbox.value) {
+      const offset = 110 // 偏移量，與導航欄高度一致
+      const bodyRect = document.body.getBoundingClientRect().top
+      const elementRect = scrollbox.value.getBoundingClientRect().top
+      const offsetPosition = elementRect - bodyRect - offset
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  })
+}
+
 const toScroll = () => {
   if (isInputZh.value) return
   handleSearchChange(searchContent.value)
-  if (scrollbox.value) {
-    const offset = 110 // 偏移量，與導航欄高度一致
-    const bodyRect = document.body.getBoundingClientRect().top
-    const elementRect = scrollbox.value.getBoundingClientRect().top
-    const offsetPosition = elementRect - bodyRect - offset
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: 'smooth'
-    })
-  }
 }
 const debouncedSearch = _.debounce(toScroll, 600)
 const scrollToTop = () => {
@@ -124,19 +153,6 @@ const scrollToTop = () => {
   searchCompany.value = []
   router.replace({ query: {} })
 }
-
-const compositionstart = () => {
-  isInputZh.value = true
-}
-const compositionend = () => {
-  isInputZh.value = false
-}
-// 搜尋相關功能
-const searchContent = ref('')
-const input = ref(null)
-const matchkeyword = ref([])
-const matchTypeArray = ref([])
-const searchCompany = ref([])
 watch(
   matchkeyword,
   () => {
@@ -147,18 +163,6 @@ watch(
 )
 // 處理搜索內容變更
 let filterMatchArr = ref([])
-const handleSearchChange = (newSearchContent) => {
-  searchContent.value = newSearchContent
-
-  // 當搜索內容變更時，只保留 search 參數
-  router.replace({
-    path: '/',
-    query: {
-      search: newSearchContent
-    }
-  })
-  getSheetData('全部')
-}
 
 const MatchkeywordFn = () => {
   const results = []
@@ -291,7 +295,7 @@ function goCompany(industry) {
 }
 
 onMounted(() => {
-  getSheetData()
+  getSheetData(selectedindustry.value)
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
     return
@@ -521,8 +525,8 @@ watch(
         <div class="text-center py-5" v-if="!searchCompany?.length">
           <img src="../assets/Empty.png" alt="無資料" />
         </div>
-        <div class="row gx-2" v-else>
-          <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
+        <div class="row g-3" v-else>
+          <div class="col-6 col-lg-3" v-for="company in searchCompany" :key="company['編號']">
             <a href="#" @click.prevent="goCompany(company['編號'])">
               <IndustryComponent
                 :company="company"
@@ -535,9 +539,9 @@ watch(
       </div>
       <!-- end -->
       <!-- 單獨廠商 -->
-      <div class="row gx-2" v-else-if="selectedindustry !== '全部' && !route.query.search">
+      <div class="row g-3" v-else-if="selectedindustry !== '全部' && !route.query.search">
         <template v-if="filterCompany.length">
-          <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
+          <div class="col-6 col-lg-3" v-for="company in filterCompany" :key="company['編號']">
             <a href="#" @click.prevent="goCompany(company['編號'])">
               <IndustryComponent
                 :company="company"
@@ -557,9 +561,9 @@ watch(
       <template v-if="selectedindustry === '全部' && !route.query.search">
         <div class="mb-4" v-for="industry in allIndustryData" :key="industry['編號']">
           <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
-          <div class="row gx-2">
+          <div class="row g-3">
             <div
-              class="col-6 col-lg-3 mb-3"
+              class="col-6 col-lg-3"
               v-for="company in industry[Object.keys(industry)]"
               :key="company['編號']"
             >

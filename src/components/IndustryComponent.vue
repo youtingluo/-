@@ -6,12 +6,16 @@ defineProps({
 })
 </script>
 <template>
-  <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
+  <div class="px-3 py-2 rounded-5 h-100 shadow-sm bg-white">
     <div class="d-flex justify-content-between mb-3">
       <div>
-        <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
-          company['廠商']
-        }}</a>
+        <a
+          :href="company['網址']"
+          target="_blank"
+          class="fs-6 d-inline-block py-2 me-1"
+          @click.stop
+          >{{ company['廠商'] }}</a
+        ><span v-if="company['評測']" class="badge rounded-pill bg-info fw-normal"> new </span>
       </div>
       <div>
         <i class="bi bi-heart fs-4 link-gray"></i>
