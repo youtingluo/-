@@ -5,6 +5,7 @@ import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
 import { convertToObjects } from '../utils/coverArray'
+import IndustryComponent from '@/components/IndustryComponent.vue'
 const router = useRouter()
 const route = useRoute()
 const key = ref(0)
@@ -21,7 +22,7 @@ watch(route, (newRoute, oldRoute) => {
 async function getSheetData(industry = '全部') {
   isLoading.value = true
   selectedindustry.value = industry
-  const range = `${industry}!A1:AA70`
+  const range = `${industry}!A1:AB70`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
     const response = await axios.get(url)
@@ -31,7 +32,6 @@ async function getSheetData(industry = '全部') {
     keys.value = values[0].slice(2, -2)
     industryKey.value = values[0].slice(2, -1)
     hotpot.value = convertToObjects(values)
-
     covertAllObjects(hotpot.value)
     if (route.query.search) {
       searchContent.value = route.query.search
@@ -80,7 +80,6 @@ const industryKey = ref([])
 const keys = ref([])
 // 篩選廠商
 const selected = ref([])
-const isLiked = ref(false)
 const filterCompany = computed(() => {
   if (!selected.value.length) {
     return hotpot.value.filter((item) => {
@@ -525,51 +524,12 @@ watch(
         <div class="row gx-2" v-else>
           <div class="col-6 col-lg-3 mb-3" v-for="company in searchCompany" :key="company['編號']">
             <a href="#" @click.prevent="goCompany(company['編號'])">
-              <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-                <div class="d-flex justify-content-between mb-3">
-                  <div>
-                    <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
-                      company['廠商']
-                    }}</a>
-                  </div>
-                  <div>
-                    <i
-                      v-if="isLiked"
-                      class="bi bi-heart-fill fs-4 link-info"
-                      @click.prevent="isLiked = !isLiked"
-                    ></i>
-                    <i
-                      v-else
-                      class="bi bi-heart fs-4 link-gray"
-                      @click.prevent="isLiked = !isLiked"
-                    ></i>
-                  </div>
-                </div>
-                <div class="d-flex flex-wrap">
-                  <template v-for="value in Object.keys(company)" :key="value">
-                    <div
-                      v-if="
-                        value !== '編號' &&
-                        value !== '廠商' &&
-                        value !== '網址' &&
-                        value !== '類別' &&
-                        value !== '公司簡介'
-                      "
-                    >
-                      <span
-                        class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                        :class="[
-                          { 'bg-warning': matchTypeArray.includes(value) },
-                          { 'text-dark': matchTypeArray.includes(value) }
-                        ]"
-                      >
-                        {{ value }}
-                      </span>
-                    </div>
-                  </template>
-                </div>
-              </div></a
-            >
+              <IndustryComponent
+                :company="company"
+                :mutiple-type-array="matchTypeArray"
+                :tag="['編號', '廠商', '網址', '類別', '公司簡介']"
+              />
+            </a>
           </div>
         </div>
       </div>
@@ -579,43 +539,12 @@ watch(
         <template v-if="filterCompany.length">
           <div class="col-6 col-lg-3 mb-3" v-for="company in filterCompany" :key="company['編號']">
             <a href="#" @click.prevent="goCompany(company['編號'])">
-              <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-                <div class="d-flex justify-content-between mb-3">
-                  <div>
-                    <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
-                      company['廠商']
-                    }}</a>
-                  </div>
-                  <div>
-                    <i
-                      v-if="isLiked"
-                      class="bi bi-heart-fill fs-4 link-info"
-                      @click.prevent="isLiked = !isLiked"
-                    ></i>
-                    <i
-                      v-else
-                      class="bi bi-heart fs-4 link-gray"
-                      @click.prevent="isLiked = !isLiked"
-                    ></i>
-                  </div>
-                </div>
-                <div class="d-flex flex-wrap">
-                  <template v-for="value in Object.keys(company)" :key="value">
-                    <div v-if="value !== '編號' && value !== '廠商' && value !== '網址'">
-                      <span
-                        class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2"
-                        :class="[
-                          { 'bg-warning': MultipleTypeArray.includes(value) },
-                          { 'text-dark': MultipleTypeArray.includes(value) }
-                        ]"
-                      >
-                        {{ value }}
-                      </span>
-                    </div>
-                  </template>
-                </div>
-              </div></a
-            >
+              <IndustryComponent
+                :company="company"
+                :mutiple-type-array="MultipleTypeArray"
+                :tag="['編號', '廠商', '網址']"
+              />
+            </a>
           </div>
         </template>
         <template v-else>
@@ -635,45 +564,12 @@ watch(
               :key="company['編號']"
             >
               <a href="#" @click.prevent="goCompany(company['編號'])">
-                <div class="p-3 rounded-5 h-100 shadow-sm bg-white">
-                  <div class="d-flex justify-content-between mb-3">
-                    <div>
-                      <a :href="company['網址']" target="_blank" class="fs-6" @click.stop>{{
-                        company['廠商']
-                      }}</a>
-                    </div>
-                    <div>
-                      <i
-                        v-if="isLiked"
-                        class="bi bi-heart-fill fs-4 link-info"
-                        @click.prevent="isLiked = !isLiked"
-                      ></i>
-                      <i
-                        v-else
-                        class="bi bi-heart fs-4 link-gray"
-                        @click.prevent="isLiked = !isLiked"
-                      ></i>
-                    </div>
-                  </div>
-                  <div class="d-flex flex-wrap">
-                    <template v-for="value in Object.keys(company)" :key="value">
-                      <div
-                        v-if="
-                          value !== '編號' &&
-                          value !== '廠商' &&
-                          value !== '網址' &&
-                          value !== '類別' &&
-                          value !== '公司簡介'
-                        "
-                      >
-                        <span class="badge rounded-pill text-bg-secondary fw-normal fs-6 me-2 mb-2">
-                          {{ value }}
-                        </span>
-                      </div>
-                    </template>
-                  </div>
-                </div></a
-              >
+                <IndustryComponent
+                  :company="company"
+                  :mutiple-type-array="MultipleTypeArray"
+                  :tag="['編號', '廠商', '網址', '類別', '公司簡介']"
+                />
+              </a>
             </div>
           </div>
         </div>
