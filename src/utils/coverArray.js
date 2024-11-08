@@ -9,7 +9,7 @@ const convertToObjects = (array) => {
     result.push(obj)
   }
   const filterResult = result.map((item) => {
-    return Object.fromEntries(Object.entries(item).filter(([, value]) => value !== ''))
+    return Object.fromEntries(Object.entries(item).filter(([, value]) => value))
   })
 
   return filterResult

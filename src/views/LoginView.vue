@@ -1,10 +1,12 @@
 <script setup>
 import { ref, inject } from 'vue'
 import { useAuthStore } from '@/store/auth'
+import { storeToRefs } from 'pinia'
 import { sendPasswordResetEmail } from 'firebase/auth'
 import { auth } from '@/utils/firebase'
 import { useRouter } from 'vue-router'
 const authStore = useAuthStore()
+const { piniaLoading } = storeToRefs(authStore)
 const toast = inject('$toast')
 const swal = inject('$swal')
 const router = useRouter()
@@ -68,16 +70,11 @@ const resetPassword = () => {
 }
 
 const handleGoogleLogin = async () => {
-  isLoading.value = true
   errorMessage.value = ''
-
   try {
     await authStore.loginWithGoogle()
-    router.push('/')
   } catch (err) {
     errorMessage.value = err.message
-  } finally {
-    isLoading.value = false
   }
 }
 </script>
@@ -184,10 +181,10 @@ const handleGoogleLogin = async () => {
               <button
                 @click.prevent="handleGoogleLogin"
                 class="btn btn-outline-danger mb-2 w-100"
-                :disabled="isLoading"
+                :disabled="piniaLoading"
               >
                 <span
-                  v-if="isLoading"
+                  v-if="piniaLoading"
                   class="spinner-border spinner-border-sm me-1"
                   role="status"
                   aria-hidden="true"
