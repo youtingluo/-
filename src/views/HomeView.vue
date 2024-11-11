@@ -83,7 +83,7 @@ const selected = ref([])
 const filterCompany = computed(() => {
   if (!selected.value.length) {
     return hotpot.value.filter((item) => {
-      return item
+      return MultipleTypeArray.value.every((type) => item[type])
     })
   } else {
     return hotpot.value.filter((item) => {
@@ -533,7 +533,7 @@ watch(
               <IndustryComponent
                 :company="company"
                 :mutiple-type-array="matchTypeArray"
-                :tag="['編號', '廠商', '網址', '類別', '公司簡介']"
+                :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
               />
             </a>
           </div>
@@ -548,7 +548,7 @@ watch(
               <IndustryComponent
                 :company="company"
                 :mutiple-type-array="MultipleTypeArray"
-                :tag="['編號', '廠商', '網址']"
+                :tag="['編號', '廠商', '網址', '評測']"
               />
             </a>
           </div>
@@ -573,7 +573,7 @@ watch(
                 <IndustryComponent
                   :company="company"
                   :mutiple-type-array="MultipleTypeArray"
-                  :tag="['編號', '廠商', '網址', '類別', '公司簡介']"
+                  :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
                 />
               </a>
             </div>
