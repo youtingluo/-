@@ -33,7 +33,7 @@ async function getSheetData(industry = '全部') {
     isLoading.value = false
     const values = response.data.values
     keys.value = values[0].slice(2, -3)
-    industryKey.value = values[0].slice(2, -1)
+    industryKey.value = values[0].slice(2, -2)
     hotpot.value = convertToObjects(values)
     allIndustryData.value = covertAllObjects(hotpot.value)
 
@@ -83,7 +83,7 @@ const selected = ref([])
 const filterCompany = computed(() => {
   if (!selected.value.length) {
     return hotpot.value.filter((item) => {
-      return MultipleTypeArray.value.every((type) => item[type])
+      return item
     })
   } else {
     return hotpot.value.filter((item) => {
@@ -91,6 +91,8 @@ const filterCompany = computed(() => {
       const hasAllKeysWithValue = MultipleTypeArray.value.every(
         (key) => item[key] && item[key].length > 0
       )
+      console.log(hasAllKeysWithValue)
+
       // 檢查指定的 key 是否包含所有指定的 value
       const hasAllValues = MultipleTypeArray.value.some((key) =>
         selected.value.every((value) => item[key] && item[key].includes(value))
