@@ -24,6 +24,7 @@ watch(route, (newRoute, oldRoute) => {
 const hotpot = ref([])
 const allIndustryData = ref([])
 async function getSheetData(industry = '全部') {
+  isMatched = false
   isLoading.value = true
   selectedindustry.value = industry
   const range = `${industry}!A1:AB70`
@@ -182,8 +183,12 @@ const MatchkeywordFn = () => {
   filterMatchArr.value = [...uniqueArray]
   return uniqueArray
 }
-
+let isMatched = true
 const handleMatchKeywordArray = (keyword) => {
+  if (!isMatched) {
+    matchkeyword.value = []
+    isMatched = true
+  }
   const index = matchkeyword.value.indexOf(keyword)
   if (index > -1) {
     matchkeyword.value.splice(index, 1)
@@ -510,12 +515,21 @@ watch(
       <div v-if="route.query.search" ref="scrollbox">
         <p class="h5">
           以下為 <span class="text-danger">{{ route.query.search }} </span> 的搜尋結果
-          <button type="button" class="btn btn-sm btn-danger fs-6" @click.prevent="scrollToTop">
+          <button type="button" class="btn btn-sm btn-danger me-2" @click.prevent="scrollToTop">
             <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
           </button>
         </p>
+        <div class="mb-2">
+          已選取：<span
+            v-for="selected in matchkeyword"
+            :key="selected"
+            class="badge rounded-pill bg-info fw-normal me-1"
+          >
+            {{ selected }}
+          </span>
+        </div>
         <div class="pb-2">
-          <span
+          全部：<span
             class="bedge rounded-pill d-inline-block bedge-custom fs-6 fw-normal me-1 mb-1"
             :class="{ active: matchkeyword.includes(keyword) }"
             v-for="keyword in filterMatchArr"

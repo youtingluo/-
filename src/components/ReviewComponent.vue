@@ -49,9 +49,3 @@ defineProps({
     <img class="mb-3" src="../assets/Empty.png" alt="尚無資料" />
   </div>
 </template>
-
-<style scoped>
-.star-null {
-  color: #cdcdcd;
-}
-</style>
