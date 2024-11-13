@@ -583,7 +583,7 @@ watch(
               v-for="company in industry[Object.keys(industry)]"
               :key="company['編號']"
             >
-              <a href="#" @click.prevent="goCompany(company['編號'])">
+              <a href="#" class="text-decoration-none" @click.prevent="goCompany(company['編號'])">
                 <IndustryComponent
                   :company="company"
                   :mutiple-type-array="MultipleTypeArray"

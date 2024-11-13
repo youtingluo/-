@@ -6,19 +6,19 @@ defineProps({
 })
 </script>
 <template>
-  <div class="px-3 py-2 rounded-5 h-100 shadow-sm bg-white">
-    <div class="d-flex justify-content-between mb-3">
+  <div class="industry-card px-3 py-2 rounded-5 h-100 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
-        <a
-          :href="company['網址']"
-          target="_blank"
-          class="fs-6 d-inline-block py-2 me-1"
-          @click.stop
-          >{{ company['廠商'] }}</a
-        ><span v-if="company['評測']" class="badge rounded-pill bg-info fw-normal"> new </span>
+        <span class="text-gray">{{ company['廠商'] }}</span>
+        <span v-if="company['評測']" class="badge rounded-pill bg-info fw-normal ms-1"> new </span>
       </div>
       <div>
-        <i class="bi bi-heart fs-4 link-gray"></i>
+        <a :href="company['網址']" target="_blank" class="link-gray d-inline-block"
+          ><span class="material-symbols-outlined p-2"> language </span></a
+        >
+        <div class="d-inline-block">
+          <span class="material-symbols-outlined link-gray p-2"> favorite </span>
+        </div>
       </div>
     </div>
     <div class="d-flex flex-wrap">
@@ -38,3 +38,12 @@ defineProps({
     </div>
   </div>
 </template>
+
+<style>
+.industry-card {
+  transition: 0.3s ease;
+  &:hover {
+    box-shadow: 0 0.225rem 0.225rem #00000013;
+  }
+}
+</style>

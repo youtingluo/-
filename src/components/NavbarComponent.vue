@@ -43,6 +43,8 @@ const initDropdown = async () => {
 }
 
 onMounted(() => {
+  console.log(route)
+
   initDropdown()
 })
 
@@ -67,6 +69,12 @@ watch(router.currentRoute, () => {
             v-if="authStore.isLoggedIn"
           >
             <span v-if="authStore.user">嗨！{{ authStore.user.displayName }}</span>
+            <RouterLink
+              v-if="route.name !== 'company' && route.name !== 'contribute'"
+              class="btn btn-sm btn-primary ms-2"
+              to="/contribute"
+              >前往投稿</RouterLink
+            >
             <button
               data-bs-toggle="dropdown"
               class="btn bg-transparent border-0 dropdown-toggle"
@@ -82,9 +90,6 @@ watch(router.currentRoute, () => {
             </button>
 
             <ul class="dropdown-menu">
-              <li>
-                <RouterLink class="dropdown-item" to="/contribute">前往投稿</RouterLink>
-              </li>
               <li>
                 <RouterLink class="dropdown-item" to="/userprofile">會員中心</RouterLink>
               </li>

@@ -64,17 +64,18 @@ onMounted(() => {
     <div class="row justify-content-center">
       <div class="col-lg-9">
         <div class="mb-5">
-          <div class="d-flex justify-content-between">
-            <h2 class="fs-3 placeholder-glow" v-if="!isLoading">
-              <span :class="{ placeholder: isLoading }">{{ company['廠商'] }}</span>
+          <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fs-3 d-flex align-items-center mb-0" v-if="!isLoading">
+              {{ company['廠商'] }}
+              <a :href="company['網址']" target="_blank" class="d-inline-block link-gray"
+                ><span class="material-symbols-outlined px-2 py-3"> language </span></a
+              >
             </h2>
+
             <div>
-              <a :href="company['網址']" target="_blank" class="fs-3 me-3 link-dark"
-                ><span class="material-symbols-outlined"> language </span></a
-              >
-              <a class="fs-3 text-dark"
-                ><span class="material-symbols-outlined"> favorite </span></a
-              >
+              <div class="d-inline-block cursor-pointer">
+                <span class="material-symbols-outlined link-gray p-2"> favorite </span>
+              </div>
             </div>
           </div>
           <div>
@@ -88,6 +89,7 @@ onMounted(() => {
 
         <ReviewComponent :review-content="matchReviewResult" />
         <div class="text-center py-3">
+          <RouterLink to="/contribute" class="btn btn-primary me-2">前往投稿</RouterLink>
           <RouterLink :to="{ path: '/', query: route.query }" class="btn btn-primary"
             >回首頁</RouterLink
           >
@@ -96,9 +98,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style>
-.fill-symbol {
-  font-variation-settings: 'FILL' 1;
-}
-</style>
