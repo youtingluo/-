@@ -116,7 +116,7 @@ const compositionend = () => {
   isInputZh.value = false
 }
 // 子元件切換廠商類別
-const industries = ['火鍋', '飲料', '剉冰', '燒烤', '烘焙']
+const industries = ['火鍋', '飲料', '剉冰', '燒烤', '烘焙', '早餐', '牛排']
 const handleIndustryChange = (industry) => {
   router.push({ query: {} })
   selectedindustry.value = industry
