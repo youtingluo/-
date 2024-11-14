@@ -1,7 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap');
 // Required
 @import 'bootstrap/scss/functions';
-
+$grid-breakpoints: (
+  xs: 0,
+  xxs: 376px,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
 // Default variable overrides
 $font-family-sans-serif:
   'Noto Sans TC',

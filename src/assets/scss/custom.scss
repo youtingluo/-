@@ -6,6 +6,9 @@ ul {
   list-style-type: none;
   padding-left: 0;
 }
+.cursor-pointer {
+  cursor: pointer;
+}
 .review-btn.active {
   background-color: $info;
   color: $primary;
@@ -26,8 +29,8 @@ ul {
 .bedge-custom {
   cursor: pointer;
   padding: 5px 10px;
-  background-color: $secondary;
-  color: $primary;
+  background-color: #cdcdcd; //$secondary;
+  color: #fff; //$primary;
   &.active {
     color: $secondary;
     background-color: $primary;
@@ -58,4 +61,11 @@ ul {
   100% {
     background-size: 110%;
   }
+}
+// icon 充填
+.fill-symbol {
+  font-variation-settings: 'FILL' 1;
+}
+.star-null {
+  color: #cdcdcd;
 }

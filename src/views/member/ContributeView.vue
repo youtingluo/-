@@ -1,6 +1,6 @@
 <template>
   <div class="container py-3">
-    <h1 class="mb-4">投稿</h1>
+    <h1 class="mb-4 text-center">投稿</h1>
     <div class="row justify-content-center mb-3">
       <div class="col-lg-8">
         <VForm ref="sendForm" @submit="onSubmit" v-slot="{ errors }">
