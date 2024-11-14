@@ -43,8 +43,6 @@ const initDropdown = async () => {
 }
 
 onMounted(() => {
-  console.log(route)
-
   initDropdown()
 })
 

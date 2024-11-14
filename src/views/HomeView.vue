@@ -6,12 +6,13 @@ import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
 import { convertToObjects } from '../utils/coverArray'
 import IndustryComponent from '@/components/IndustryComponent.vue'
-
+import IndustryListComponent from '@/components/IndustryListComponent.vue'
 const router = useRouter()
 const route = useRoute()
 const key = ref(0)
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
+
 // 取得資料
 const selectedindustry = ref('全部')
 const isLoading = ref(false)
@@ -27,7 +28,7 @@ async function getSheetData(industry = '全部') {
   isMatched = false
   isLoading.value = true
   selectedindustry.value = industry
-  const range = `${industry}!A1:AB70`
+  const range = `${industry}`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
     const response = await axios.get(url)
@@ -61,7 +62,6 @@ async function getSheetData(industry = '全部') {
 function covertAllObjects(array) {
   const categorizedData = array.reduce((acc, item) => {
     const filteredItem = Object.fromEntries(Object.entries(item).filter(([, value]) => value))
-
     if (!acc[item.類別]) {
       acc[item.類別] = []
     }
@@ -72,7 +72,6 @@ function covertAllObjects(array) {
   for (const key in categorizedData) {
     data.push({ [key]: categorizedData[key] })
   }
-
   return data
 }
 
@@ -92,7 +91,6 @@ const filterCompany = computed(() => {
       const hasAllKeysWithValue = MultipleTypeArray.value.every(
         (key) => item[key] && item[key].length > 0
       )
-      console.log(hasAllKeysWithValue)
 
       // 檢查指定的 key 是否包含所有指定的 value
       const hasAllValues = MultipleTypeArray.value.some((key) =>
@@ -117,7 +115,13 @@ const compositionstart = () => {
 const compositionend = () => {
   isInputZh.value = false
 }
-
+// 子元件切換廠商類別
+const industries = ['火鍋', '飲料', '剉冰', '燒烤', '烘焙']
+const handleIndustryChange = (industry) => {
+  router.push({ query: {} })
+  selectedindustry.value = industry
+  searchContent.value = ''
+}
 const handleSearchChange = async (newSearchContent) => {
   searchContent.value = newSearchContent
 
@@ -352,96 +356,18 @@ watch(
                 type="button"
                 class="btn btn-custom border-0"
                 :class="{ active: selectedindustry === '全部' }"
-                @click="
-                  () => {
-                    router.push({ query: {} })
-                    selectedindustry = '全部'
-                  }
-                "
+                @click="handleIndustryChange('全部')"
               >
                 全部
               </button>
             </li>
-            <li>
-              <button
-                type="button"
-                class="btn btn-custom border-0"
-                :class="{ active: selectedindustry === '火鍋' }"
-                @click="
-                  () => {
-                    router.push({ query: {} })
-                    selectedindustry = '火鍋'
-                    searchContent = ''
-                  }
-                "
-              >
-                火鍋
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="btn btn-custom border-0"
-                :class="{ active: selectedindustry === '飲料' }"
-                @click="
-                  () => {
-                    router.push({ query: {} })
-                    selectedindustry = '飲料'
-                    searchContent = ''
-                  }
-                "
-              >
-                飲料
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="btn btn-custom border-0"
-                :class="{ active: selectedindustry === '剉冰' }"
-                @click="
-                  () => {
-                    router.push({ query: {} })
-                    selectedindustry = '剉冰'
-                    searchContent = ''
-                  }
-                "
-              >
-                剉冰
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="btn btn-custom border-0"
-                :class="{ active: selectedindustry === '燒烤' }"
-                @click="
-                  () => {
-                    router.push({ query: {} })
-                    selectedindustry = '燒烤'
-                    searchContent = ''
-                  }
-                "
-              >
-                燒烤
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                class="btn btn-custom border-0"
-                :class="{ active: selectedindustry === '烘焙' }"
-                @click="
-                  () => {
-                    router.push({ query: {} })
-                    selectedindustry = '烘焙'
-                    searchContent = ''
-                  }
-                "
-              >
-                烘焙
-              </button>
-            </li>
+            <IndustryListComponent
+              v-for="industry in industries"
+              :key="industry"
+              :selectedindustry="selectedindustry"
+              @change-industry="handleIndustryChange"
+              :industry="industry"
+            />
           </ul>
         </div>
         <div class="row gx-2 mb-4" v-if="!(selectedindustry === '全部')">
@@ -523,7 +449,7 @@ watch(
           已選取：<span
             v-for="selected in matchkeyword"
             :key="selected"
-            class="badge rounded-pill bg-info fw-normal me-1"
+            class="badge rounded-pill text-bg-secondary fw-normal fs-6 bg-warning me-2 mb-1"
           >
             {{ selected }}
           </span>
@@ -542,14 +468,13 @@ watch(
           <img src="../assets/Empty.png" alt="無資料" />
         </div>
         <div class="row g-3" v-else>
-          <div class="col-6 col-lg-3" v-for="company in searchCompany" :key="company['編號']">
-            <a href="#" @click.prevent="goCompany(company['編號'])">
-              <IndustryComponent
-                :company="company"
-                :mutiple-type-array="matchTypeArray"
-                :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
-              />
-            </a>
+          <div class="col-xxs-6 col-lg-3" v-for="company in searchCompany" :key="company['編號']">
+            <IndustryComponent
+              @go-company="goCompany"
+              :company="company"
+              :mutiple-type-array="matchTypeArray"
+              :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
+            />
           </div>
         </div>
       </div>
@@ -557,14 +482,13 @@ watch(
       <!-- 單獨廠商 -->
       <div class="row g-3" v-else-if="selectedindustry !== '全部' && !route.query.search">
         <template v-if="filterCompany.length">
-          <div class="col-6 col-lg-3" v-for="company in filterCompany" :key="company['編號']">
-            <a href="#" @click.prevent="goCompany(company['編號'])">
-              <IndustryComponent
-                :company="company"
-                :mutiple-type-array="MultipleTypeArray"
-                :tag="['編號', '廠商', '網址', '評測']"
-              />
-            </a>
+          <div class="col-xxs-6 col-lg-3" v-for="company in filterCompany" :key="company['編號']">
+            <IndustryComponent
+              @go-company="goCompany"
+              :company="company"
+              :mutiple-type-array="MultipleTypeArray"
+              :tag="['編號', '廠商', '網址', '評測']"
+            />
           </div>
         </template>
         <template v-else>
@@ -579,17 +503,16 @@ watch(
           <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
           <div class="row g-3">
             <div
-              class="col-6 col-lg-3"
+              class="col-xxs-6 col-lg-3"
               v-for="company in industry[Object.keys(industry)]"
               :key="company['編號']"
             >
-              <a href="#" class="text-decoration-none" @click.prevent="goCompany(company['編號'])">
-                <IndustryComponent
-                  :company="company"
-                  :mutiple-type-array="MultipleTypeArray"
-                  :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
-                />
-              </a>
+              <IndustryComponent
+                @go-company="goCompany"
+                :company="company"
+                :mutiple-type-array="MultipleTypeArray"
+                :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
+              />
             </div>
           </div>
         </div>

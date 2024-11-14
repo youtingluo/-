@@ -14,11 +14,11 @@ const hotpot = ref([])
 const review = ref([])
 async function getSheetData() {
   isLoading.value = true
-  const range = `全部!A1:AA70`
+  const range = `全部`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
     const response = await axios.get(url)
-    const values = response.data.values
+    const values = await response.data.values
     hotpot.value = convertToObjects(values)
     await getReview()
     getCompany()
@@ -28,14 +28,13 @@ async function getSheetData() {
   }
 }
 async function getReview() {
-  isLoading.value = true
   const range = `評測`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
-    isLoading.value = false
     const response = await axios.get(url)
-    const values = response.data.values
+    const values = await response.data.values
     review.value = convertToObjects(values)
+    isLoading.value = false
   } catch (error) {
     isLoading.value = false
     console.error('Error fetching values:', error)
@@ -48,7 +47,6 @@ function getCompany() {
   company.value = filter[0]
   const reviewResult = review.value.filter((item) => item['廠商'] === company.value['廠商'])
   matchReviewResult.value = reviewResult
-  isLoading.value = false
 }
 
 onMounted(() => {
