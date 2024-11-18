@@ -5,6 +5,11 @@ defineProps({
     default: () => []
   }
 })
+// let rating = 1
+// const fullStar = Math.floor(rating) // 3
+// const halfStar = rating % 1 !== 0 // true
+// const nullStar = 5 - fullStar - halfStar
+// console.log(nullStar)
 </script>
 <template>
   <div v-if="reviewContent.length">
