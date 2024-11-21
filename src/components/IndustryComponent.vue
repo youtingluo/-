@@ -12,15 +12,28 @@ defineEmits(['goCompany'])
       <div class="d-flex flex-wrap justify-content-between align-items-center">
         <div>
           <span class="text-gray">{{ company['廠商'] }}</span>
+
           <span v-if="company['評測']" class="badge rounded-pill bg-info fw-normal ms-1">
             new
           </span>
         </div>
-        <div>
-          <a @click.stop :href="company['網址']" target="_blank" class="link-gray d-inline-block"
+        <div class="d-flex align-items-center">
+          <!-- <a @click.stop :href="company['網址']" target="_blank" class="link-gray d-inline-block"
             ><span class="material-symbols-outlined p-2"> language </span></a
+          > -->
+          <a
+            @click.stop
+            :href="company['網址']"
+            target="_blank"
+            class="link link-primary d-inline-block text-decoration-none py-2"
+            ><span class="link-primary">
+              Go
+              <span class="material-symbols-outlined d-inline-block align-middle fs-5">
+                open_in_new
+              </span>
+            </span></a
           >
-          <div class="d-inline-block">
+          <div>
             <span class="material-symbols-outlined link-gray p-2"> favorite </span>
           </div>
         </div>
@@ -46,6 +59,15 @@ defineEmits(['goCompany'])
   transition: 0.3s ease;
   &:hover {
     box-shadow: 0 0.225rem 0.225rem #00000013;
+  }
+}
+.link {
+  display: inline-block;
+  padding: 5px;
+  text-align: center;
+  transition: 0.2s;
+  &:hover {
+    transform: translateY(-5px);
   }
 }
 </style>

@@ -7,8 +7,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div></div>
-  <div>
+  <div class="container">
     <h1>導向錯誤...請重新整理</h1>
   </div>
 </template>

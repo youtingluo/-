@@ -21,7 +21,6 @@ async function getSheetData() {
     const values = await response.data.values
     hotpot.value = convertToObjects(values)
     await getReview()
-    getCompany()
   } catch (error) {
     isLoading.value = false
     console.error('Error fetching values:', error)
@@ -34,6 +33,7 @@ async function getReview() {
     const response = await axios.get(url)
     const values = await response.data.values
     review.value = convertToObjects(values)
+    getCompany()
     isLoading.value = false
   } catch (error) {
     isLoading.value = false
@@ -57,7 +57,6 @@ onMounted(() => {
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
-
   <div class="container py-3">
     <div class="row justify-content-center">
       <div class="col-lg-9">
@@ -84,7 +83,6 @@ onMounted(() => {
           </div>
         </div>
         <p class="fs-6 mb-2">實際評測</p>
-
         <ReviewComponent :review-content="matchReviewResult" />
         <div class="text-center py-3">
           <RouterLink to="/contribute" class="btn btn-primary me-2">前往投稿</RouterLink>
