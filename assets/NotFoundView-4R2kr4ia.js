@@ -1,1 +1,0 @@
-import{i as o,bX as t,a as l,b as n,F as r,o as s}from"./index-uAHsGkss.js";const d={__name:"NotFoundView",setup(u){return o(()=>{t.push("/")}),(a,e)=>(s(),l(r,null,[e[0]||(e[0]=n("div",null,null,-1)),e[1]||(e[1]=n("div",null,[n("h1",null,"導向錯誤...請重新整理")],-1))],64))}};export{d as default};
