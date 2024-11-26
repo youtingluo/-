@@ -16,8 +16,8 @@ ul {
 }
 .btn-custom {
   &.active {
-    color: $primary;
-    background-color: $secondary;
+    color: $secondary;
+    background-color: $primary;
   }
 }
 @media (any-hover: hover) {

@@ -413,7 +413,7 @@ watch(
                   >全部</a
                 >
               </li>
-              <li v-for="item in displayedType" :key="item">
+              <li class="me-2" v-for="item in displayedType" :key="item">
                 <a
                   href="#"
                   class="btn btn-custom border-0"
