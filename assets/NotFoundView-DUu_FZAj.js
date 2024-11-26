@@ -1,1 +1,0 @@
-import{j as o,bX as t,a as s,b as a,o as n}from"./index-CcObfBZq.js";const r={class:"container"},l={__name:"NotFoundView",setup(u){return o(()=>{t.push("/")}),(c,e)=>(n(),s("div",r,e[0]||(e[0]=[a("h1",null,"導向錯誤...請重新整理",-1)])))}};export{l as default};
