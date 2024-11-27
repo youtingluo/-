@@ -456,7 +456,7 @@ watch(
         </div>
         <div class="pb-2">
           全部：<span
-            class="bedge rounded-pill d-inline-block bedge-custom fs-6 fw-normal me-1 mb-1"
+            class="btn bedge-custom rounded-pill me-1 mb-1"
             :class="{ active: matchkeyword.includes(keyword) }"
             v-for="keyword in filterMatchArr"
             :key="keyword"

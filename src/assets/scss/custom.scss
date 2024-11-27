@@ -27,19 +27,28 @@ ul {
   }
 }
 .bedge-custom {
-  cursor: pointer;
-  padding: 5px 10px;
   background-color: #cdcdcd; //$secondary;
   color: #fff; //$primary;
+  &:hover {
+    background-color: $primary;
+    color: $secondary;
+  }
   &.active {
     color: $secondary;
     background-color: $primary;
+    &:hover {
+      background-color: darken($primary, 10%);
+    }
   }
 }
 @media (hover: none) {
-  .bedge-custom {
-    background-color: $secondary;
-    color: $primary;
+  .bedge-custom:hover {
+    background-color: #cdcdcd; //$secondary;
+    color: #fff; //$primary;
+    &.active:hover {
+      color: $secondary;
+      background-color: $primary;
+    }
   }
 }
 

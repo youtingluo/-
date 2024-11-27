@@ -180,6 +180,8 @@
 
 <script setup>
 import { ref, inject } from 'vue'
+import { useAuthStore } from '@/store/auth'
+const authStore = useAuthStore()
 const toast = inject('$toast')
 const swal = inject('$swal')
 const isLoading = ref(false)
@@ -187,7 +189,7 @@ const sendForm = ref(null)
 const form = ref({
   name: '',
   company: '',
-  email: '',
+  email: authStore.user.email,
   phone: '',
   type: '',
   cooperateCompany: '',
