@@ -9,18 +9,12 @@ import IndustryComponent from '@/components/IndustryComponent.vue'
 import IndustryListComponent from '@/components/IndustryListComponent.vue'
 const router = useRouter()
 const route = useRoute()
-const key = ref(0)
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 
 // 取得資料
 const selectedindustry = ref('全部')
 const isLoading = ref(false)
-watch(route, (newRoute, oldRoute) => {
-  if (oldRoute.path === '/' && newRoute.path === '/refresh') {
-    key.value++
-  }
-})
 // 全部的資料
 const hotpot = ref([])
 const allIndustryData = ref([])
@@ -316,208 +310,206 @@ watch(
   () => selectedindustry.value,
   () => {
     getSheetData(selectedindustry.value)
-  },
-  { deep: true }
+  }
 )
 </script>
 <template>
-  <div :key="key">
-    <Loading v-model:active="isLoading">
-      <div class="loader"></div>
-    </Loading>
-    <div class="container py-3">
-      <div class="input-group mb-3 search-bar shadow-sm">
-        <button class="btn btn-light btn-sm rounded-0" type="button" @click="scrollToTop">
-          <span class="material-symbols-outlined d-inline-block align-middle">
-            chevron_backward
-          </span>
-        </button>
-        <input
-          ref="input"
-          type="text"
-          class="form-control border-0"
-          placeholder="搜尋食材/廠商"
-          v-model="searchContent"
-          @input="debouncedSearch"
-          @compositionstart="compositionstart"
-          @compositionend="compositionend"
-        />
+  <Loading v-model:active="isLoading">
+    <div class="loader"></div>
+  </Loading>
+  <div class="container py-3">
+    <div class="input-group mb-3 search-bar shadow-sm">
+      <button class="btn btn-light btn-sm rounded-0" type="button" @click="scrollToTop">
+        <span class="material-symbols-outlined d-inline-block align-middle">
+          chevron_backward
+        </span>
+      </button>
+      <input
+        ref="input"
+        type="text"
+        class="form-control border-0"
+        placeholder="搜尋食材/廠商"
+        v-model="searchContent"
+        @input="debouncedSearch"
+        @compositionstart="compositionstart"
+        @compositionend="compositionend"
+      />
 
-        <button class="btn btn-dark btn-sm rounded-0" type="button">
-          <span class="material-symbols-outlined"> search </span>
-        </button>
+      <button class="btn btn-dark btn-sm rounded-0" type="button">
+        <span class="material-symbols-outlined"> search </span>
+      </button>
+    </div>
+    <div class="border-bottom border-2 mb-4">
+      <div class="mb-4">
+        <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
+        <ul class="d-flex fs-3 mb-3 flex-wrap">
+          <li>
+            <button
+              type="button"
+              class="btn btn-custom border-0 me-1"
+              :class="{ active: selectedindustry === '全部' }"
+              @click="handleIndustryChange('全部')"
+            >
+              全部
+            </button>
+          </li>
+          <IndustryListComponent
+            class="me-1"
+            v-for="industry in industries"
+            :key="industry"
+            :selectedindustry="selectedindustry"
+            @change-industry="handleIndustryChange"
+            :industry="industry"
+          />
+        </ul>
       </div>
-      <div class="border-bottom border-2 mb-4">
-        <div class="mb-4">
-          <h3 class="fs-6 text-black text-opacity-50">廠商行業</h3>
-          <ul class="d-flex fs-3 mb-3 flex-wrap">
-            <li>
-              <button
-                type="button"
+      <div class="row gx-2 mb-4" v-if="!(selectedindustry === '全部')">
+        <div class="col">
+          <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
+          <ul class="d-flex fs-3 flex-wrap">
+            <li class="me-2">
+              <a
+                href="#"
                 class="btn btn-custom border-0"
-                :class="{ active: selectedindustry === '全部' }"
-                @click="handleIndustryChange('全部')"
+                :class="{ active: !MultipleTypeArray.length }"
+                @click="
+                  () => {
+                    MultipleTypeArray = []
+                    selected = []
+                  }
+                "
+                >全部</a
               >
-                全部
-              </button>
             </li>
-            <IndustryListComponent
-              v-for="industry in industries"
-              :key="industry"
-              :selectedindustry="selectedindustry"
-              @change-industry="handleIndustryChange"
-              :industry="industry"
-            />
+            <li class="me-2" v-for="objKey in industryKey" :key="objKey">
+              <a
+                href="#"
+                class="btn btn-custom border-0"
+                :class="{ active: MultipleTypeArray.includes(objKey) }"
+                @click.prevent="addMultipleType(objKey)"
+                >{{ objKey }}</a
+              >
+            </li>
           </ul>
         </div>
-        <div class="row gx-2 mb-4" v-if="!(selectedindustry === '全部')">
-          <div class="col">
-            <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
-            <ul class="d-flex fs-3 flex-wrap">
-              <li class="me-2">
-                <a
-                  href="#"
-                  class="btn btn-custom border-0"
-                  :class="{ active: !MultipleTypeArray.length }"
-                  @click="
-                    () => {
-                      MultipleTypeArray = []
-                      selected = []
-                    }
-                  "
-                  >全部</a
-                >
-              </li>
-              <li class="me-2" v-for="objKey in industryKey" :key="objKey">
-                <a
-                  href="#"
-                  class="btn btn-custom border-0"
-                  :class="{ active: MultipleTypeArray.includes(objKey) }"
-                  @click.prevent="addMultipleType(objKey)"
-                  >{{ objKey }}</a
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="row mb-4" v-if="MultipleTypeArray.length">
-          <div class="col">
-            <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
-            <ul class="d-flex flex-wrap fs-3">
-              <li class="me-2">
-                <a
-                  href="#"
-                  class="btn btn-custom border-0"
-                  :class="{ active: !selected.length }"
-                  @click="selected = []"
-                  >全部</a
-                >
-              </li>
-              <li class="me-2" v-for="item in displayedType" :key="item">
-                <a
-                  href="#"
-                  class="btn btn-custom border-0"
-                  :class="{ active: selected.includes(item) }"
-                  @click.prevent="addMultipleItem(item)"
-                  >{{ item }}</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="btn text-primary border-0"
-                  v-if="filterType.length > 8"
-                  @click.prevent="showAll = !showAll"
-                >
-                  {{ showAll ? '收起－' : '更多' }}
-                </a>
-              </li>
-            </ul>
-          </div>
+      </div>
+      <div class="row mb-4" v-if="MultipleTypeArray.length">
+        <div class="col">
+          <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
+          <ul class="d-flex flex-wrap fs-3">
+            <li class="me-2">
+              <a
+                href="#"
+                class="btn btn-custom border-0"
+                :class="{ active: !selected.length }"
+                @click="selected = []"
+                >全部</a
+              >
+            </li>
+            <li class="me-2" v-for="item in displayedType" :key="item">
+              <a
+                href="#"
+                class="btn btn-custom border-0"
+                :class="{ active: selected.includes(item) }"
+                @click.prevent="addMultipleItem(item)"
+                >{{ item }}</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="btn text-primary border-0"
+                v-if="filterType.length > 8"
+                @click.prevent="showAll = !showAll"
+              >
+                {{ showAll ? '收起－' : '更多' }}
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
-      <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
-      <!-- 搜尋結果 -->
-      <div v-if="route.query.search" ref="scrollbox">
-        <p class="h5">
-          以下為 <span class="text-danger">{{ route.query.search }} </span> 的搜尋結果
-          <button type="button" class="btn btn-sm btn-danger me-2" @click.prevent="scrollToTop">
-            <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
-          </button>
-        </p>
-        <div class="mb-2">
-          已選取：<span
-            v-for="selected in matchkeyword"
-            :key="selected"
-            class="badge rounded-pill text-bg-secondary fw-normal fs-6 bg-warning me-2 mb-1"
-          >
-            {{ selected }}
-          </span>
+    </div>
+    <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
+    <!-- 搜尋結果 -->
+    <div v-if="route.query.search" ref="scrollbox">
+      <p class="h5">
+        以下為 <span class="text-danger">{{ route.query.search }} </span> 的搜尋結果
+        <button type="button" class="btn btn-sm btn-danger me-2" @click.prevent="scrollToTop">
+          <span class="material-symbols-outlined d-inline-block align-middle"> close </span>
+        </button>
+      </p>
+      <div class="mb-2">
+        已選取：<span
+          v-for="selected in matchkeyword"
+          :key="selected"
+          class="badge rounded-pill text-bg-secondary fw-normal fs-6 bg-warning me-2 mb-1"
+        >
+          {{ selected }}
+        </span>
+      </div>
+      <div class="pb-2">
+        全部：<span
+          class="btn bedge-custom rounded-pill me-1 mb-1"
+          :class="{ active: matchkeyword.includes(keyword) }"
+          v-for="keyword in filterMatchArr"
+          :key="keyword"
+          @click.prevent="handleMatchKeywordArray(keyword)"
+          >{{ keyword }}</span
+        >
+      </div>
+      <div class="text-center py-5" v-if="!searchCompany?.length">
+        <img src="../assets/Empty.png" alt="無資料" />
+      </div>
+      <div class="row g-3" v-else>
+        <div class="col-xxs-6 col-lg-3" v-for="company in searchCompany" :key="company['編號']">
+          <IndustryComponent
+            @go-company="goCompany"
+            :company="company"
+            :mutiple-type-array="matchTypeArray"
+            :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
+          />
         </div>
-        <div class="pb-2">
-          全部：<span
-            class="btn bedge-custom rounded-pill me-1 mb-1"
-            :class="{ active: matchkeyword.includes(keyword) }"
-            v-for="keyword in filterMatchArr"
-            :key="keyword"
-            @click.prevent="handleMatchKeywordArray(keyword)"
-            >{{ keyword }}</span
-          >
+      </div>
+    </div>
+    <!-- end -->
+    <!-- 單獨廠商 -->
+    <div class="row g-3" v-else-if="selectedindustry !== '全部' && !route.query.search">
+      <template v-if="filterCompany.length">
+        <div class="col-xxs-6 col-lg-3" v-for="company in filterCompany" :key="company['編號']">
+          <IndustryComponent
+            @go-company="goCompany"
+            :company="company"
+            :mutiple-type-array="MultipleTypeArray"
+            :tag="['編號', '廠商', '網址', '評測']"
+          />
         </div>
-        <div class="text-center py-5" v-if="!searchCompany?.length">
+      </template>
+      <template v-else>
+        <div class="text-center py-5">
           <img src="../assets/Empty.png" alt="無資料" />
         </div>
-        <div class="row g-3" v-else>
-          <div class="col-xxs-6 col-lg-3" v-for="company in searchCompany" :key="company['編號']">
+      </template>
+    </div>
+    <!-- 全部廠商 -->
+    <template v-if="selectedindustry === '全部' && !route.query.search">
+      <div class="mb-4" v-for="industry in allIndustryData" :key="industry['編號']">
+        <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
+        <div class="row g-3">
+          <div
+            class="col-xxs-6 col-lg-3"
+            v-for="company in industry[Object.keys(industry)]"
+            :key="company['編號']"
+          >
             <IndustryComponent
               @go-company="goCompany"
               :company="company"
-              :mutiple-type-array="matchTypeArray"
+              :mutiple-type-array="MultipleTypeArray"
               :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
             />
           </div>
         </div>
       </div>
-      <!-- end -->
-      <!-- 單獨廠商 -->
-      <div class="row g-3" v-else-if="selectedindustry !== '全部' && !route.query.search">
-        <template v-if="filterCompany.length">
-          <div class="col-xxs-6 col-lg-3" v-for="company in filterCompany" :key="company['編號']">
-            <IndustryComponent
-              @go-company="goCompany"
-              :company="company"
-              :mutiple-type-array="MultipleTypeArray"
-              :tag="['編號', '廠商', '網址', '評測']"
-            />
-          </div>
-        </template>
-        <template v-else>
-          <div class="text-center py-5">
-            <img src="../assets/Empty.png" alt="無資料" />
-          </div>
-        </template>
-      </div>
-      <!-- 全部廠商 -->
-      <template v-if="selectedindustry === '全部' && !route.query.search">
-        <div class="mb-4" v-for="industry in allIndustryData" :key="industry['編號']">
-          <h3 class="fs-6 text-black text-opacity-50">{{ Object.keys(industry).toString() }}</h3>
-          <div class="row g-3">
-            <div
-              class="col-xxs-6 col-lg-3"
-              v-for="company in industry[Object.keys(industry)]"
-              :key="company['編號']"
-            >
-              <IndustryComponent
-                @go-company="goCompany"
-                :company="company"
-                :mutiple-type-array="MultipleTypeArray"
-                :tag="['編號', '廠商', '網址', '類別', '公司簡介', '評測']"
-              />
-            </div>
-          </div>
-        </div>
-      </template>
-    </div>
+    </template>
   </div>
 </template>
 <style scoped>
