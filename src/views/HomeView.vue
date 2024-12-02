@@ -4,18 +4,15 @@ import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
-import { convertToObjects } from '../utils/coverArray'
+import { convertToObjects, covertAllObjects, extractMatchingKeys } from '../utils/coverArray'
 import IndustryComponent from '@/components/IndustryComponent.vue'
 import IndustryListComponent from '@/components/IndustryListComponent.vue'
 const router = useRouter()
 const route = useRoute()
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
-
-// 取得資料
 const selectedindustry = ref('全部')
 const isLoading = ref(false)
-// 全部的資料
 const hotpot = ref([])
 const allIndustryData = ref([])
 async function getSheetData(industry = '全部') {
@@ -52,23 +49,6 @@ async function getSheetData(industry = '全部') {
     console.error('Error fetching values:', error)
   }
 }
-
-function covertAllObjects(array) {
-  const categorizedData = array.reduce((acc, item) => {
-    const filteredItem = Object.fromEntries(Object.entries(item).filter(([, value]) => value))
-    if (!acc[item.類別]) {
-      acc[item.類別] = []
-    }
-    acc[item.類別].push(filteredItem)
-    return acc
-  }, {})
-  const data = []
-  for (const key in categorizedData) {
-    data.push({ [key]: categorizedData[key] })
-  }
-  return data
-}
-
 // 取得物件 KEY
 const industryKey = ref([])
 const keys = ref([])
@@ -193,21 +173,6 @@ const handleMatchKeywordArray = (keyword) => {
   } else {
     matchkeyword.value.push(keyword)
   }
-}
-const extractMatchingKeys = (dataArray, searchArray) => {
-  const extractedKeys = []
-
-  dataArray.forEach((dataItem) => {
-    Object.keys(dataItem).forEach((key) => {
-      searchArray.forEach((searchItem) => {
-        if (dataItem[key] && dataItem[key].includes(searchItem)) {
-          extractedKeys.push(key)
-        }
-      })
-    })
-  })
-
-  return [...new Set(extractedKeys)]
 }
 
 const searchCompanyFn = (value) => {
