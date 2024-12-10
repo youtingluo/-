@@ -3,7 +3,8 @@ import { useAuthStore } from '@/store/auth'
 import { inject, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Dropdown from 'bootstrap/js/dist/dropdown'
-
+import { useFavoriteStore } from '@/store/favorite'
+const favoriteStore = useFavoriteStore()
 const router = useRouter()
 const route = useRoute()
 const toast = inject('$toast')
@@ -21,6 +22,7 @@ const handleLogoClick = () => {
 const handleLogout = async () => {
   try {
     await authStore.logout()
+    await favoriteStore.loadFavorites()
     toast.fire({
       icon: 'success',
       title: '登出成功'
@@ -90,6 +92,9 @@ watch(router.currentRoute, () => {
             <ul class="dropdown-menu">
               <li>
                 <RouterLink class="dropdown-item" to="/userprofile">會員中心</RouterLink>
+              </li>
+              <li>
+                <RouterLink class="dropdown-item" to="/favorite">我的收藏</RouterLink>
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>

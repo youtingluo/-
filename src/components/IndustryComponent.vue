@@ -1,13 +1,58 @@
 <script setup>
-defineProps({
+import { ref, watch } from 'vue'
+import { useFavoriteStore } from '@/store/favorite'
+const favoriteStore = useFavoriteStore()
+// 本地狀態，用於立即反饋
+const props = defineProps({
   company: Object,
   mutipleTypeArray: Array,
   tag: Array
 })
+const localIsFavorite = ref(favoriteStore.isFavorite(props.company['廠商']))
+const isLoading = ref(false)
+//console.log(props.company['廠商'])
+
+const handleToggleFavorite = async () => {
+  // 防止重複點擊
+  if (isLoading.value) return
+
+  try {
+    // 立即更新本地狀態
+    localIsFavorite.value = !localIsFavorite.value
+
+    // 開始載入
+    isLoading.value = true
+
+    // 等待 store 完成操作
+    await favoriteStore.toggleFavorite(props.company['廠商'])
+  } catch (error) {
+    // 如果操作失敗，回復本地狀態
+    localIsFavorite.value = favoriteStore.isFavorite(props.company['廠商'])
+    console.error(error)
+  } finally {
+    // 結束載入
+    isLoading.value = false
+  }
+}
+// 監聽 store 中的收藏狀態變化
+watch(
+  () => favoriteStore.favorites,
+  (newFavorites) => {
+    localIsFavorite.value = newFavorites.includes(props.company['廠商'])
+  },
+  { deep: true }
+)
 defineEmits(['goCompany'])
+import { onMounted } from 'vue'
+onMounted(async () => {
+  await favoriteStore.loadFavorites()
+})
 </script>
 <template>
-  <a href="#" class="text-decoration-none" @click.prevent="$emit('goCompany', company['編號'])">
+  <a
+    class="text-decoration-none cursor-pointer"
+    @click.prevent="$emit('goCompany', company['編號'])"
+  >
     <div class="industry-card px-3 py-2 rounded-5 h-100 bg-white">
       <div class="d-flex flex-wrap justify-content-between align-items-center">
         <div>
@@ -34,7 +79,13 @@ defineEmits(['goCompany'])
             </span></a
           >
           <div>
-            <span class="material-symbols-outlined link-gray p-2"> favorite </span>
+            <span
+              @click.stop="handleToggleFavorite"
+              class="material-symbols-outlined link-gray p-2"
+              :class="localIsFavorite ? 'fill-symbol' : 'none'"
+            >
+              favorite
+            </span>
           </div>
         </div>
       </div>
