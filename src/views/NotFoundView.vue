@@ -8,6 +8,6 @@ onMounted(() => {
 </script>
 <template>
   <div class="container">
-    <h1>導向錯誤...請重新整理</h1>
+    <h1>重新導向...請稍候，如未導向請重新整理</h1>
   </div>
 </template>
