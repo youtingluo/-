@@ -79,7 +79,7 @@ onMounted(async () => {
           <div>
             <span
               @click.stop="handleToggleFavorite"
-              class="material-symbols-outlined link-gray p-2"
+              class="material-symbols-outlined link-info p-2"
               :class="localIsFavorite ? 'fill-symbol' : 'none'"
             >
               favorite

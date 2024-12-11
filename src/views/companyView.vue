@@ -5,6 +5,9 @@ import { useRoute } from 'vue-router'
 import Loading from 'vue-loading-overlay'
 import ReviewComponent from '@/components/ReviewComponent.vue'
 import { convertToObjects } from '../utils/coverArray'
+import { useFavoriteStore } from '@/store/favorite'
+const favoriteStore = useFavoriteStore()
+
 const route = useRoute()
 const company = ref({})
 const apiKey = import.meta.env.VITE_APP_APIKEY
@@ -12,6 +15,7 @@ const sheetId = import.meta.env.VITE_APP_SHEETID
 const isLoading = ref(false)
 const hotpot = ref([])
 const review = ref([])
+
 async function getSheetData() {
   isLoading.value = true
   const range = `全部`
@@ -40,15 +44,29 @@ async function getReview() {
     console.error('Error fetching values:', error)
   }
 }
+let localIsFavorite = false
 const matchReviewResult = ref([])
 function getCompany() {
   const id = route.params.id
   const filter = hotpot.value.filter((item) => id.split(',').includes(item['編號']))
   company.value = filter[0]
+  localIsFavorite = favoriteStore.isFavorite(company.value['廠商'])
   const reviewResult = review.value.filter((item) => item['廠商'] === company.value['廠商'])
   matchReviewResult.value = reviewResult
 }
 
+const handleToggleFavorite = async () => {
+  try {
+    // 立即更新本地狀態
+    localIsFavorite = !localIsFavorite
+    // 等待 store 完成操作
+    await favoriteStore.toggleFavorite(company.value['廠商'])
+  } catch (error) {
+    // 如果操作失敗，回復本地狀態
+    localIsFavorite = favoriteStore.isFavorite(company.value['廠商'])
+    console.error(error)
+  }
+}
 onMounted(() => {
   getSheetData()
 })
@@ -71,7 +89,13 @@ onMounted(() => {
 
             <div>
               <div class="d-inline-block cursor-pointer">
-                <span class="material-symbols-outlined link-gray p-2"> favorite </span>
+                <span
+                  @click.stop="handleToggleFavorite"
+                  class="material-symbols-outlined link-info p-2"
+                  :class="localIsFavorite ? 'fill-symbol' : 'none'"
+                >
+                  favorite
+                </span>
               </div>
             </div>
           </div>
