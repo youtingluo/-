@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/utils/firebase'
 import { convertToObjects } from '../../utils/coverArray'
@@ -14,9 +14,8 @@ const sheetId = import.meta.env.VITE_APP_SHEETID
 const isLoading = ref(false)
 const userId = ref(null)
 const hotpot = ref([])
-const companys = ref(favoriteStore.favorites)
-const filterFav = ref([])
 async function getSheetData() {
+  console.log('執行getSheetData')
   isLoading.value = true
   const range = `全部`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
@@ -24,17 +23,11 @@ async function getSheetData() {
     const response = await axios.get(url)
     const values = await response.data.values
     hotpot.value = convertToObjects(values)
-    getLike()
   } catch (error) {
     isLoading.value = false
     console.error('Error fetching values:', error)
   }
 }
-const getLike = () => {
-  const filteredHotpot = hotpot.value.filter((item) => companys.value.includes(item['廠商']))
-  filterFav.value = merge(filteredHotpot)
-}
-
 const merge = (arr) => {
   const mergedData = {}
   arr.forEach((obj) => {
@@ -62,7 +55,16 @@ const merge = (arr) => {
 
   return mergeArray
 }
+const processData = (data) => {
+  console.log('執行getLike')
 
+  const result = merge(data.filter((item) => favoriteStore.favorites.includes(item['廠商'])))
+  console.log(result)
+  return result
+}
+const computedData = computed(() => {
+  return processData(hotpot.value)
+})
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userId.value = user.uid
@@ -79,16 +81,16 @@ function goCompany(industry) {
     }
   })
 }
-onMounted(async () => {
-  await getSheetData()
-  await favoriteStore.loadFavorites()
+onMounted(() => {
+  getSheetData()
 })
 </script>
 <template>
   <div class="container py-3">
     <h1 class="mb-4 text-center">收藏項目</h1>
+    {{ favoriteStore.favorites }} {{ favoriteStore.isInitialized }}
     <div class="row g-3">
-      <div class="col-6 col-lg-3" v-for="item in filterFav" :key="item">
+      <div class="col-6 col-lg-3" v-for="item in computedData" :key="item">
         <IndustryComponent
           @go-company="goCompany"
           :company="item"
