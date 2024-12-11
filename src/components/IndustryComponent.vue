@@ -10,8 +10,6 @@ const props = defineProps({
 })
 const localIsFavorite = ref(favoriteStore.isFavorite(props.company['廠商']))
 const isLoading = ref(false)
-//console.log(props.company['廠商'])
-
 const handleToggleFavorite = async () => {
   // 防止重複點擊
   if (isLoading.value) return

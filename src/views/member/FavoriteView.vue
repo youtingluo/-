@@ -15,7 +15,6 @@ const isLoading = ref(false)
 const userId = ref(null)
 const hotpot = ref([])
 async function getSheetData() {
-  console.log('執行getSheetData')
   isLoading.value = true
   const range = `全部`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
@@ -56,10 +55,7 @@ const merge = (arr) => {
   return mergeArray
 }
 const processData = (data) => {
-  console.log('執行getLike')
-
   const result = merge(data.filter((item) => favoriteStore.favorites.includes(item['廠商'])))
-  console.log(result)
   return result
 }
 const computedData = computed(() => {
@@ -88,7 +84,6 @@ onMounted(() => {
 <template>
   <div class="container py-3">
     <h1 class="mb-4 text-center">收藏項目</h1>
-    {{ favoriteStore.favorites }} {{ favoriteStore.isInitialized }}
     <div class="row g-3">
       <div class="col-6 col-lg-3" v-for="item in computedData" :key="item">
         <IndustryComponent

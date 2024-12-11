@@ -3,8 +3,6 @@ import { useAuthStore } from '@/store/auth'
 import { inject, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Dropdown from 'bootstrap/js/dist/dropdown'
-import { useFavoriteStore } from '@/store/favorite'
-const favoriteStore = useFavoriteStore()
 const router = useRouter()
 const route = useRoute()
 const toast = inject('$toast')
@@ -22,12 +20,12 @@ const handleLogoClick = () => {
 const handleLogout = async () => {
   try {
     await authStore.logout()
-    await favoriteStore.loadFavorites()
     toast.fire({
       icon: 'success',
       title: '登出成功'
     })
-    router.push('/')
+    await router.push('/')
+    router.go(0)
   } catch (error) {
     console.error('登出失敗:', error)
   }
@@ -103,7 +101,7 @@ watch(router.currentRoute, () => {
             </ul>
           </div>
           <div v-else>
-            <RouterLink class="btn btn-primary" to="login">登入/註冊</RouterLink>
+            <RouterLink class="btn btn-primary" to="/login">登入/註冊</RouterLink>
           </div>
         </div>
       </div>

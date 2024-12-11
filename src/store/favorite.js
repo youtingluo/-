@@ -73,18 +73,13 @@ export const useFavoriteStore = defineStore('favorite', {
     async loadFavorites() {
       // 避免重複載入
       if (this.isInitialized) return false
-      console.log('執行')
       const db = getFirestore()
       const user = auth.currentUser
-      console.log('執行2')
-      console.log(user)
-
       if (!user) {
         this.isInitialized = true
-        //this.favorites = []
+        this.favorites = []
         return
       }
-      console.log('執行3')
 
       try {
         const favoritesRef = collection(db, 'users', user.uid, 'favorites')
@@ -99,8 +94,6 @@ export const useFavoriteStore = defineStore('favorite', {
     },
     // 新增初始化方法
     async initializeFavorites() {
-      console.log('收藏初始化')
-
       await this.loadFavorites()
     }
   }
