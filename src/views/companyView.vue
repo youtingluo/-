@@ -44,13 +44,13 @@ async function getReview() {
     console.error('Error fetching values:', error)
   }
 }
-let localIsFavorite = false
+let localIsFavorite = ref(false)
 const matchReviewResult = ref([])
 function getCompany() {
   const id = route.params.id
   const filter = hotpot.value.filter((item) => id.split(',').includes(item['編號']))
   company.value = filter[0]
-  localIsFavorite = favoriteStore.isFavorite(company.value['廠商'])
+  localIsFavorite.value = favoriteStore.isFavorite(company.value['廠商'])
   const reviewResult = review.value.filter((item) => item['廠商'] === company.value['廠商'])
   matchReviewResult.value = reviewResult
 }
@@ -58,12 +58,12 @@ function getCompany() {
 const handleToggleFavorite = async () => {
   try {
     // 立即更新本地狀態
-    localIsFavorite = !localIsFavorite
+    localIsFavorite.value = !localIsFavorite.value
     // 等待 store 完成操作
     await favoriteStore.toggleFavorite(company.value['廠商'])
   } catch (error) {
     // 如果操作失敗，回復本地狀態
-    localIsFavorite = favoriteStore.isFavorite(company.value['廠商'])
+    localIsFavorite.value = favoriteStore.isFavorite(company.value['廠商'])
     console.error(error)
   }
 }
