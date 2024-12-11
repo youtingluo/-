@@ -3,7 +3,6 @@ import { useAuthStore } from '@/store/auth'
 import { inject, ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Dropdown from 'bootstrap/js/dist/dropdown'
-import 'bootstrap/dist/js/bootstrap.bundle'
 const router = useRouter()
 const route = useRoute()
 const toast = inject('$toast')
@@ -25,7 +24,8 @@ const handleLogout = async () => {
       icon: 'success',
       title: '登出成功'
     })
-    router.push('/')
+    await router.push('/')
+    router.go(0)
   } catch (error) {
     console.error('登出失敗:', error)
   }
@@ -91,6 +91,9 @@ watch(router.currentRoute, () => {
               <li>
                 <RouterLink class="dropdown-item" to="/userprofile">會員中心</RouterLink>
               </li>
+              <li>
+                <RouterLink class="dropdown-item" to="/favorite">我的收藏</RouterLink>
+              </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
                 <a class="dropdown-item" @click.prevent="handleLogout">登出</a>
@@ -98,7 +101,7 @@ watch(router.currentRoute, () => {
             </ul>
           </div>
           <div v-else>
-            <RouterLink class="btn btn-primary" to="login">登入/註冊</RouterLink>
+            <RouterLink class="btn btn-primary" to="/login">登入/註冊</RouterLink>
           </div>
         </div>
       </div>

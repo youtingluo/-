@@ -50,6 +50,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      name: 'favorite',
+      path: '/favorite',
+      component: () => import('../views/member/FavoriteView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       component: () => import('../views/NotFoundView.vue')
     }

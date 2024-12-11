@@ -25,7 +25,8 @@ const loginUser = async () => {
         icon: 'success',
         title: '登入成功'
       })
-      router.push('/')
+      await router.push('/')
+      router.go(0) // 直接重新載入整個頁面
     }
   } catch (error) {
     if (error.code === 'auth/invalid-credential') {
@@ -73,6 +74,8 @@ const handleGoogleLogin = async () => {
   errorMessage.value = ''
   try {
     await authStore.loginWithGoogle()
+    await router.push('/')
+    router.go(0) // 直接重新載入整個頁面
   } catch (err) {
     errorMessage.value = err.message
   }

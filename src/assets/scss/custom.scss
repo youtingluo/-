@@ -1,19 +1,3 @@
-body {
-  background-color: $body;
-  color: #666;
-}
-ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-.cursor-pointer {
-  cursor: pointer;
-}
-.review-btn.active {
-  background-color: $info;
-  color: $primary;
-  border-color: $primary;
-}
 .btn-custom {
   &.active {
     color: $secondary;
@@ -27,19 +11,28 @@ ul {
   }
 }
 .bedge-custom {
-  cursor: pointer;
-  padding: 5px 10px;
   background-color: #cdcdcd; //$secondary;
   color: #fff; //$primary;
+  &:hover {
+    background-color: $primary;
+    color: $secondary;
+  }
   &.active {
     color: $secondary;
     background-color: $primary;
+    &:hover {
+      background-color: darken($primary, 10%);
+    }
   }
 }
 @media (hover: none) {
-  .bedge-custom {
-    background-color: $secondary;
-    color: $primary;
+  .bedge-custom:hover {
+    background-color: #cdcdcd; //$secondary;
+    color: #fff; //$primary;
+    &.active:hover {
+      color: $secondary;
+      background-color: $primary;
+    }
   }
 }
 
