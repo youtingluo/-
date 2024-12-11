@@ -10,6 +10,7 @@ import {
   getDocs
 } from 'firebase/firestore'
 import { auth } from '@/utils/firebase'
+import { swal } from '@/plugins/sweetalert2'
 export const useFavoriteStore = defineStore('favorite', {
   state: () => ({
     favorites: [], // 存儲收藏的店家名稱
@@ -30,6 +31,10 @@ export const useFavoriteStore = defineStore('favorite', {
       const user = auth.currentUser
 
       if (!user) {
+        swal.fire({
+          title: '請先登入',
+          icon: 'error'
+        })
         throw new Error('請先登入')
       }
 
