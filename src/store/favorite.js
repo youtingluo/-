@@ -13,7 +13,8 @@ import { auth } from '@/utils/firebase'
 export const useFavoriteStore = defineStore('favorite', {
   state: () => ({
     favorites: [], // 存儲收藏的店家名稱
-    isProcessing: false // 新增處理狀態追蹤
+    isProcessing: false, // 新增處理狀態追蹤
+    isInitialized: false // 新增初始化狀態
   }),
 
   actions: {
@@ -70,24 +71,37 @@ export const useFavoriteStore = defineStore('favorite', {
     },
 
     async loadFavorites() {
+      // 避免重複載入
+      if (this.isInitialized) return false
       console.log('執行')
-
       const db = getFirestore()
       const user = auth.currentUser
+      console.log('執行2')
+      console.log(user)
 
       if (!user) {
-        this.favorites = []
+        this.isInitialized = true
+        //this.favorites = []
         return
       }
+      console.log('執行3')
 
       try {
         const favoritesRef = collection(db, 'users', user.uid, 'favorites')
         const snapshot = await getDocs(favoritesRef)
 
         this.favorites = snapshot.docs.map((doc) => doc.data().storeName)
+        // 標記已初始化
+        this.isInitialized = true
       } catch (error) {
         console.error('載入收藏失敗', error)
       }
+    },
+    // 新增初始化方法
+    async initializeFavorites() {
+      console.log('收藏初始化')
+
+      await this.loadFavorites()
     }
   }
 })

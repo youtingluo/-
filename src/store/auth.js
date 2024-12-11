@@ -34,6 +34,8 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     // 初始化 Firebase 認證監聽
     async initializeAuth() {
+      console.log('初始化檢查登入')
+
       return new Promise((resolve) => {
         onAuthStateChanged(auth, (user) => {
           this.isInitialized = true
