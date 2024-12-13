@@ -10,7 +10,7 @@ import {
   getDocs
 } from 'firebase/firestore'
 import { auth } from '@/utils/firebase'
-import { swal } from '@/plugins/sweetalert2'
+import { swal, Toast } from '@/plugins/sweetalert2'
 export const useFavoriteStore = defineStore('favorite', {
   state: () => ({
     favorites: [], // 存儲收藏的店家名稱
@@ -57,6 +57,12 @@ export const useFavoriteStore = defineStore('favorite', {
 
           // 立即更新本地狀態
           this.favorites.push(storeName)
+          Toast.fire({
+            title: '新增收藏成功',
+            timer: 1000,
+            timerProgressBar: false,
+            icon: 'success'
+          })
         } else {
           // 刪除收藏
           querySnapshot.forEach(async (doc) => {
@@ -65,9 +71,21 @@ export const useFavoriteStore = defineStore('favorite', {
 
           // 立即更新本地狀態
           this.favorites = this.favorites.filter((name) => name !== storeName)
+          Toast.fire({
+            title: '移除收藏成功',
+            timer: 1000,
+            timerProgressBar: false,
+            icon: 'success'
+          })
         }
       } catch (error) {
         console.error('收藏操作失敗', error)
+        Toast.fire({
+          title: '收藏操作失敗',
+          timer: 1000,
+          timerProgressBar: false,
+          icon: 'error'
+        })
         throw error
       } finally {
         // 重置處理狀態
