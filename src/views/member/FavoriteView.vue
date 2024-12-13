@@ -1,8 +1,6 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref, computed } from 'vue'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '@/utils/firebase'
 import { convertToObjects, merge } from '../../utils/coverArray'
 import IndustryComponent from '@/components/IndustryComponent.vue'
 import { useRouter } from 'vue-router'
@@ -13,7 +11,6 @@ const router = useRouter()
 const apiKey = import.meta.env.VITE_APP_APIKEY
 const sheetId = import.meta.env.VITE_APP_SHEETID
 const isLoading = ref(false)
-const userId = ref(null)
 const hotpot = ref([])
 async function getSheetData() {
   isLoading.value = true
@@ -37,11 +34,7 @@ const processData = (data) => {
 const computedData = computed(() => {
   return processData(hotpot.value)
 })
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    userId.value = user.uid
-  }
-})
+
 function goCompany(industry) {
   router.push({
     path: `company/${industry}`,
