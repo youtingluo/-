@@ -2,7 +2,7 @@
 <template>
   <div class="container py-3">
     <div v-if="authStore.user">
-      <h1 class="mb-4">會員中心</h1>
+      <h1 class="mb-4 text-center">會員中心</h1>
       <div class="card">
         <div class="card-body">
           <p class="card-title h5 text-primary">個人資料</p>

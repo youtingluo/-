@@ -363,7 +363,7 @@ watch(
                 v-if="filterType.length > 8"
                 @click.prevent="showAll = !showAll"
               >
-                {{ showAll ? '收起－' : '更多' }}
+                {{ showAll ? '收起－' : '更多+' }}
               </a>
             </li>
           </ul>

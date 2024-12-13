@@ -48,6 +48,7 @@ onMounted(async () => {
 </script>
 <template>
   <a
+    :title="company['廠商']"
     class="text-decoration-none cursor-pointer"
     @click.prevent="$emit('goCompany', company['編號'])"
   >
@@ -66,6 +67,7 @@ onMounted(async () => {
           > -->
           <a
             @click.stop
+            :title="`${company['廠商']}官網`"
             :href="company['網址']"
             target="_blank"
             class="link link-primary d-inline-block text-decoration-none py-2"
@@ -78,6 +80,7 @@ onMounted(async () => {
           >
           <div>
             <span
+              :title="localIsFavorite ? '移除收藏' : '加入收藏'"
               @click.stop="handleToggleFavorite"
               class="material-symbols-outlined link-info p-2"
               :class="localIsFavorite ? 'fill-symbol' : 'none'"

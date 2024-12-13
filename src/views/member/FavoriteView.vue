@@ -70,7 +70,7 @@ onMounted(() => {
       </template>
       <template v-else>
         <div class="text-center">
-          <img class="text-center" src="@/assets/Empty.png" alt="" />
+          <img class="text-center" src="@/assets/Empty.png" alt="尚無資料" />
         </div>
       </template>
     </div>
