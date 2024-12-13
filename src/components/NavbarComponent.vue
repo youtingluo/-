@@ -90,14 +90,26 @@ watch(router.currentRoute, () => {
 
             <ul class="dropdown-menu">
               <li>
-                <RouterLink class="dropdown-item" to="/userprofile">會員中心</RouterLink>
+                <RouterLink class="dropdown-item" to="/userprofile">
+                  <span class="material-symbols-outlined d-inline-block align-middle me-1">
+                    face </span
+                  >會員中心</RouterLink
+                >
               </li>
               <li>
-                <RouterLink class="dropdown-item" to="/favorite">我的收藏</RouterLink>
+                <RouterLink class="dropdown-item" to="/favorite">
+                  <span class="material-symbols-outlined d-inline-block align-middle me-1">
+                    collections_bookmark </span
+                  >我的收藏</RouterLink
+                >
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <a class="dropdown-item" @click.prevent="handleLogout">登出</a>
+                <a class="dropdown-item" @click.prevent="handleLogout">
+                  <span class="material-symbols-outlined d-inline-block align-middle me-1">
+                    logout </span
+                  >登出</a
+                >
               </li>
             </ul>
           </div>

@@ -3,13 +3,17 @@
     color: $secondary;
     background-color: $primary;
   }
-}
-@media (any-hover: hover) {
-  .btn-custom:hover {
+  &:hover {
     background-color: $primary;
     color: $secondary;
   }
 }
+// @media (any-hover: hover) {
+//   .btn-custom:hover {
+//     background-color: $primary;
+//     color: $secondary;
+//   }
+// }
 .bedge-custom {
   background-color: #cdcdcd; //$secondary;
   color: #fff; //$primary;
