@@ -4,7 +4,7 @@ import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import Loading from 'vue-loading-overlay'
 import { useRoute, useRouter } from 'vue-router'
 import _ from 'lodash'
-import { convertToObjects, covertAllObjects, extractMatchingKeys } from '../utils/coverArray'
+import { convertToObjects, covertAllObjects, extractMatchingKeys, merge } from '../utils/coverArray'
 import IndustryComponent from '@/components/IndustryComponent.vue'
 import IndustryListComponent from '@/components/IndustryListComponent.vue'
 const router = useRouter()
@@ -187,31 +187,7 @@ const searchCompanyFn = (value) => {
     )
     return hasAllValues
   })
-
-  const mergedData = {}
-  arr.forEach((obj) => {
-    const vendor = obj['廠商']
-    if (!mergedData[vendor]) {
-      mergedData[vendor] = {}
-    }
-    for (const key in obj) {
-      if (key === '廠商') continue // 跳過 "廠商" 鍵
-      if (mergedData[vendor][key]) {
-        const newValues = obj[key].split(',').map((item) => item.trim())
-        const existingValues = mergedData[vendor][key].split(',').map((item) => item.trim())
-        const mergedValues = Array.from(new Set([...existingValues, ...newValues])).join(',')
-        mergedData[vendor][key] = mergedValues
-      } else {
-        mergedData[vendor][key] = obj[key]
-      }
-    }
-  })
-
-  const mergeArray = Object.keys(mergedData).map((vendor) => ({
-    廠商: vendor,
-    ...mergedData[vendor]
-  }))
-  return mergeArray
+  return merge(arr)
 }
 // 多選類型
 const MultipleTypeArray = ref([])

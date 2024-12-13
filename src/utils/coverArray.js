@@ -43,5 +43,31 @@ const extractMatchingKeys = (dataArray, searchArray) => {
   })
   return [...new Set(extractedKeys)]
 }
+const merge = (arr) => {
+  const mergedData = {}
+  arr.forEach((obj) => {
+    const vendor = obj['廠商']
+    if (!mergedData[vendor]) {
+      mergedData[vendor] = {}
+    }
+    for (const key in obj) {
+      if (key === '廠商') continue // 跳過 "廠商" 鍵
+      if (mergedData[vendor][key]) {
+        const newValues = obj[key].split(',').map((item) => item.trim())
+        const existingValues = mergedData[vendor][key].split(',').map((item) => item.trim())
+        const mergedValues = Array.from(new Set([...existingValues, ...newValues])).join(',')
+        mergedData[vendor][key] = mergedValues
+      } else {
+        mergedData[vendor][key] = obj[key]
+      }
+    }
+  })
 
-export { convertToObjects, covertAllObjects, extractMatchingKeys }
+  const mergeArray = Object.keys(mergedData).map((vendor) => ({
+    廠商: vendor,
+    ...mergedData[vendor]
+  }))
+
+  return mergeArray
+}
+export { convertToObjects, covertAllObjects, extractMatchingKeys, merge }
