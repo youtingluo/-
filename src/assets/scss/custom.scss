@@ -1,4 +1,6 @@
 .btn-custom {
+  background-color: transparent;
+  color: rgb(33, 37, 41);
   &.active {
     color: $secondary;
     background-color: $primary;
@@ -8,12 +10,16 @@
     color: $secondary;
   }
 }
-// @media (any-hover: hover) {
-//   .btn-custom:hover {
-//     background-color: $primary;
-//     color: $secondary;
-//   }
-// }
+@media (hover: none) {
+  .btn-custom:hover {
+    background-color: transparent;
+    color: rgb(33, 37, 41);
+    &.active:hover {
+      color: $secondary;
+      background-color: $primary;
+    }
+  }
+}
 .bedge-custom {
   background-color: #cdcdcd; //$secondary;
   color: #fff; //$primary;
