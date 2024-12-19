@@ -15,7 +15,8 @@ const sheetId = import.meta.env.VITE_APP_SHEETID
 const isLoading = ref(false)
 const hotpot = ref([])
 const review = ref([])
-
+const companyIntroduce = ref([])
+const intro = ref({})
 async function getSheetData() {
   isLoading.value = true
   const range = `全部`
@@ -24,9 +25,23 @@ async function getSheetData() {
     const response = await axios.get(url)
     const values = await response.data.values
     hotpot.value = convertToObjects(values)
+    await getCompanyData()
     await getReview()
   } catch (error) {
     isLoading.value = false
+    console.error('Error fetching values:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+async function getCompanyData() {
+  const range = `公司大綱`
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
+  try {
+    const response = await axios.get(url)
+    const values = await response.data.values
+    companyIntroduce.value = convertToObjects(values)
+  } catch (error) {
     console.error('Error fetching values:', error)
   }
 }
@@ -49,7 +64,13 @@ const matchReviewResult = ref([])
 function getCompany() {
   const id = route.params.id
   const filter = hotpot.value.filter((item) => id.split(',').includes(item['編號']))
+
   company.value = filter[0]
+  const companyIntro = companyIntroduce.value.filter(
+    (item) => item['廠商'] === company.value['廠商']
+  )
+  intro.value = companyIntro[0]
+
   localIsFavorite.value = favoriteStore.isFavorite(company.value['廠商'])
   const reviewResult = review.value.filter((item) => item['廠商'] === company.value['廠商'])
   matchReviewResult.value = reviewResult
@@ -99,10 +120,17 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div>
+          <div class="mb-3" v-if="company['公司簡介']">
             <h3 class="mt-3 fs-6">公司介紹</h3>
-            <p v-if="!isLoading" class="placeholder-glow">
+            <p v-if="!isLoading" class="placeholder-glow text-justify">
               <span :class="isLoading ? placeholder : ''">{{ company['公司簡介'] }}</span>
+            </p>
+          </div>
+          <hr />
+          <div v-if="intro['公司大綱']">
+            <h3 class="mt-3 fs-6">supply0 評價</h3>
+            <p v-if="!isLoading" class="placeholder-glow">
+              <span :class="isLoading ? placeholder : ''">{{ intro['公司大綱'] }}</span>
             </p>
           </div>
         </div>
