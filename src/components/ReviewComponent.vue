@@ -5,11 +5,11 @@ defineProps({
     default: () => []
   }
 })
-// let rating = 1
+// let rating = 2.5
 // const fullStar = Math.floor(rating) // 3
 // const halfStar = rating % 1 !== 0 // true
 // const nullStar = 5 - fullStar - halfStar
-// console.log(nullStar)
+// console.log(fullStar, halfStar, nullStar)
 </script>
 <template>
   <div v-if="reviewContent.length">
@@ -24,14 +24,21 @@ defineProps({
       </div>
       <div class="review pt-2 pb-3" v-for="item in reviewContent" :key="item['品項']">
         <p class="star-null fs-5 d-flex align-items-center mb-1">
-          <span class="text-info">{{ item['星級'] }} </span>
+          <span class="text-info text-center" style="width: 30px">{{ item['星級'] }} </span>
           <span
-            v-for="index in 5"
+            v-for="index in Math.floor(item['星級'])"
             :key="index"
-            :class="{
-              'material-symbols-outlined fill-symbol text-info': index <= item['星級'],
-              'material-symbols-outlined fill-symbol': index > item['星級']
-            }"
+            class="material-symbols-outlined fill-symbol text-info"
+          >
+            star
+          </span>
+          <span v-if="item['星級'] % 1 !== 0" class="material-symbols-outlined text-info">
+            star_half
+          </span>
+          <span
+            v-for="index in 5 - Math.floor(item['星級']) - (item['星級'] % 1 !== 0)"
+            :key="index"
+            class="material-symbols-outlined fill-symbol"
           >
             star
           </span>
