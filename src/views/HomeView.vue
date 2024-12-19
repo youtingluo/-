@@ -125,6 +125,7 @@ const toScroll = () => {
   if (isInputZh.value) return
   handleSearchChange(searchContent.value)
 }
+
 const debouncedSearch = _.debounce(toScroll, 600)
 const scrollToTop = () => {
   window.scrollTo(0, 0)
@@ -133,6 +134,12 @@ const scrollToTop = () => {
   matchTypeArray.value = []
   searchCompany.value = []
   router.replace({ query: {} })
+}
+const scrollTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
 }
 watch(
   matchkeyword,
@@ -239,13 +246,34 @@ function goCompany(industry) {
     }
   })
 }
+const elTop = ref(0)
+const isShow = ref(false)
 
+const scrolling = () => {
+  // 捲軸距離視窗頂部的距離
+  const scrolltoTop = window.scrollY
+
+  // 捲軸滾動的距離
+  const scrollLength = scrolltoTop - elTop.value
+
+  // 更新: 滾動前,捲軸距離視窗頂部的距離
+  elTop.value = scrolltoTop
+
+  // 判斷想要什麼高度讓按鈕出現
+  if (scrollLength < 0 && elTop.value < 300) {
+    isShow.value = false
+  } else {
+    isShow.value = true
+  }
+}
 onMounted(() => {
   getSheetData(selectedindustry.value)
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
     return
   }
+  const debouncedScrolling = _.debounce(scrolling, 120)
+  window.addEventListener('scroll', debouncedScrolling)
 })
 watch(
   () => selectedindustry.value,
@@ -259,26 +287,41 @@ watch(
     <div class="loader"></div>
   </Loading>
   <div class="container py-3">
+    <Transition name="fade">
+      <div
+        @click="scrollTop"
+        v-if="isShow"
+        class="scroll-top-btn d-flex justify-content-center align-items-center cursor-pointer"
+      >
+        <span class="material-symbols-outlined"> arrow_upward </span>
+      </div>
+    </Transition>
     <div class="input-group mb-3 search-bar shadow-sm">
-      <button class="btn btn-light btn-sm rounded-0" type="button" @click="scrollToTop">
-        <span class="material-symbols-outlined d-inline-block align-middle">
-          chevron_backward
-        </span>
-      </button>
-      <input
-        ref="input"
-        type="text"
-        class="form-control border-0"
-        placeholder="搜尋食材/廠商"
-        v-model="searchContent"
-        @input="debouncedSearch"
-        @compositionstart="compositionstart"
-        @compositionend="compositionend"
-      />
-
-      <button class="btn btn-dark btn-sm rounded-0" type="button">
-        <span class="material-symbols-outlined"> search </span>
-      </button>
+      <div class="position-relative flex-grow-1">
+        <div class="position-absolute start-10 bottom-0">
+          <span class="material-symbols-outlined d-inline-block align-baseline"> search </span>
+        </div>
+        <input
+          ref="input"
+          type="text"
+          class="form-control border-0 ps-5"
+          placeholder="搜尋食材/廠商"
+          v-model="searchContent"
+          @input="debouncedSearch"
+          @compositionstart="compositionstart"
+          @compositionend="compositionend"
+        />
+      </div>
+      <div>
+        <button
+          v-if="searchContent"
+          @click="scrollToTop"
+          class="btn btn-dark btn-sm rounded-0"
+          type="button"
+        >
+          <span class="material-symbols-outlined"> close </span>
+        </button>
+      </div>
     </div>
     <div class="border-bottom border-2 mb-4">
       <div class="mb-4">
@@ -454,8 +497,8 @@ watch(
   </div>
 </template>
 <style scoped>
-.search-bar {
-  position: sticky;
-  top: 54.66px;
+.search-icon {
+  width: 1rem;
+  height: 1rem;
 }
 </style>
