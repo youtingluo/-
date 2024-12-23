@@ -250,6 +250,7 @@ onMounted(() => {
     getSheetData(route.query.selectedindustry)
     return
   }
+  getSheetData(selectedindustry.value)
 })
 watch(
   () => selectedindustry.value,
