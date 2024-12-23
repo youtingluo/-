@@ -7,6 +7,7 @@ import _ from 'lodash'
 import { convertToObjects, covertAllObjects, extractMatchingKeys, merge } from '../utils/coverArray'
 import IndustryComponent from '@/components/IndustryComponent.vue'
 import IndustryListComponent from '@/components/IndustryListComponent.vue'
+import ScrollToTop from '@/components/ScrollToTop.vue'
 const router = useRouter()
 const route = useRoute()
 const apiKey = import.meta.env.VITE_APP_APIKEY
@@ -135,12 +136,7 @@ const scrollToTop = () => {
   searchCompany.value = []
   router.replace({ query: {} })
 }
-const scrollTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  })
-}
+
 watch(
   matchkeyword,
   () => {
@@ -246,34 +242,12 @@ function goCompany(industry) {
     }
   })
 }
-const elTop = ref(0)
-const isShow = ref(false)
-
-const scrolling = () => {
-  // 捲軸距離視窗頂部的距離
-  const scrolltoTop = window.scrollY
-
-  // 捲軸滾動的距離
-  const scrollLength = scrolltoTop - elTop.value
-
-  // 更新: 滾動前,捲軸距離視窗頂部的距離
-  elTop.value = scrolltoTop
-
-  // 判斷想要什麼高度讓按鈕出現
-  if (scrollLength < 0 && elTop.value < 300) {
-    isShow.value = false
-  } else {
-    isShow.value = true
-  }
-}
 onMounted(() => {
   getSheetData(selectedindustry.value)
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
     return
   }
-  const debouncedScrolling = _.debounce(scrolling, 120)
-  window.addEventListener('scroll', debouncedScrolling)
 })
 watch(
   () => selectedindustry.value,
@@ -286,16 +260,8 @@ watch(
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
+  <ScrollToTop />
   <div class="container py-3">
-    <Transition name="fade">
-      <div
-        @click="scrollTop"
-        v-if="isShow"
-        class="scroll-top-btn d-flex justify-content-center align-items-center cursor-pointer"
-      >
-        <span class="material-symbols-outlined"> arrow_upward </span>
-      </div>
-    </Transition>
     <div class="input-group mb-3 search-bar shadow-sm">
       <div class="position-relative flex-grow-1">
         <div class="position-absolute start-10 bottom-0">

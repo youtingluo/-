@@ -6,8 +6,8 @@ import Loading from 'vue-loading-overlay'
 import { convertToObjects } from '../utils/coverArray'
 import ReviewComponent from '@/components/ReviewComponent.vue'
 import { useFavoriteStore } from '@/store/favorite'
+import ScrollToTop from '@/components/ScrollToTop.vue'
 const favoriteStore = useFavoriteStore()
-
 const route = useRoute()
 const company = ref({})
 const apiKey = import.meta.env.VITE_APP_APIKEY
@@ -25,8 +25,8 @@ async function getSheetData() {
     const response = await axios.get(url)
     const values = await response.data.values
     hotpot.value = convertToObjects(values)
-    await getCompanyData()
     await getReview()
+    await getCompanyData()
   } catch (error) {
     isLoading.value = false
     console.error('Error fetching values:', error)
@@ -41,6 +41,7 @@ async function getCompanyData() {
     const response = await axios.get(url)
     const values = await response.data.values
     companyIntroduce.value = convertToObjects(values)
+    getCompanyIntro()
   } catch (error) {
     console.error('Error fetching values:', error)
   }
@@ -52,6 +53,7 @@ async function getReview() {
     const response = await axios.get(url)
     const values = await response.data.values
     review.value = convertToObjects(values)
+
     getCompany()
     isLoading.value = false
   } catch (error) {
@@ -64,18 +66,18 @@ const matchReviewResult = ref([])
 function getCompany() {
   const id = route.params.id
   const filter = hotpot.value.filter((item) => id.split(',').includes(item['編號']))
-
   company.value = filter[0]
-  const companyIntro = companyIntroduce.value.filter(
-    (item) => item['廠商'] === company.value['廠商']
-  )
-  intro.value = companyIntro[0]
-
   localIsFavorite.value = favoriteStore.isFavorite(company.value['廠商'])
   const reviewResult = review.value.filter((item) => item['廠商'] === company.value['廠商'])
   matchReviewResult.value = reviewResult
 }
+const getCompanyIntro = () => {
+  const companyIntro = companyIntroduce.value.filter(
+    (item) => item['廠商'] === company.value['廠商']
+  )
 
+  intro.value = companyIntro[0]
+}
 const handleToggleFavorite = async () => {
   try {
     // 立即更新本地狀態
@@ -96,6 +98,7 @@ onMounted(() => {
   <Loading v-model:active="isLoading">
     <div class="loader"></div>
   </Loading>
+  <ScrollToTop />
   <div class="container py-3">
     <div class="row justify-content-center">
       <div class="col-lg-9">
@@ -122,15 +125,16 @@ onMounted(() => {
           </div>
           <div class="mb-3" v-if="company['公司簡介']">
             <h3 class="mt-3 fs-6">公司介紹</h3>
+
             <p v-if="!isLoading" class="placeholder-glow text-justify">
               <span :class="isLoading ? placeholder : ''">{{ company['公司簡介'] }}</span>
             </p>
           </div>
           <hr />
           <div v-if="intro['公司大綱']">
-            <h3 class="mt-3 fs-6">supply0 評價</h3>
+            <h3 class="mt-3 fs-6">SUPPLY0 評價</h3>
             <p v-if="!isLoading" class="placeholder-glow">
-              <span :class="isLoading ? placeholder : ''">{{ intro['公司大綱'] }}</span>
+              <span :class="isLoading ? placeholder : ''">{{ intro?.['公司大綱'] }}</span>
             </p>
           </div>
         </div>
