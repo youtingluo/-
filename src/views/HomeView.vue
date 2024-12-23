@@ -16,8 +16,6 @@ const isLoading = ref(false)
 const hotpot = ref([])
 const allIndustryData = ref([])
 async function getSheetData(industry = '全部') {
-  console.log('執行')
-
   isMatched = false
   isLoading.value = true
   selectedindustry.value = industry
@@ -57,25 +55,19 @@ const industryKey = ref([])
 const keys = ref([])
 // 篩選廠商
 const selected = ref([])
-const filterCompany = computed(() => {
-  if (!selected.value.length) {
-    return hotpot.value.filter((item) => {
-      return MultipleTypeArray.value.every((type) => item[type])
-    })
-  } else {
-    return hotpot.value.filter((item) => {
-      // 檢查所有指定的 key 是否有值
-      const hasAllKeysWithValue = MultipleTypeArray.value.every(
-        (key) => item[key] && item[key].length > 0
-      )
 
-      // 檢查指定的 key 是否包含所有指定的 value
-      const hasAllValues = MultipleTypeArray.value.some((key) =>
-        selected.value.every((value) => item[key] && item[key].includes(value))
-      )
-      return hasAllKeysWithValue && hasAllValues
-    })
-  }
+const filterCompany = computed(() => {
+  return hotpot.value.filter((item) => {
+    // 檢查所有指定的 key 是否有值
+    const hasAllKeysWithValue = MultipleTypeArray.value.every(
+      (key) => item[key] && item[key].length > 0
+    )
+    // 檢查指定的 key 是否包含所有指定的 value
+    const hasAllValues = selected.value.every((value) =>
+      MultipleTypeArray.value.some((key) => item[key] && item[key].includes(value))
+    )
+    return hasAllKeysWithValue && hasAllValues
+  })
 })
 
 // 搜尋相關功能
@@ -220,8 +212,6 @@ const filterType = ref([])
 const showAll = ref(false)
 // 多選種類
 const addMultipleItem = (item) => {
-  console.log(filterCompany.value)
-
   const index = selected.value.indexOf(item)
   if (index > -1) {
     selected.value.splice(index, 1)
@@ -360,7 +350,6 @@ watch(
           />
         </ul>
       </div>
-      {{ MultipleTypeArray }}
       <div class="row gx-2 mb-4" v-if="!(selectedindustry === '全部')">
         <div class="col">
           <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
@@ -392,7 +381,6 @@ watch(
           </ul>
         </div>
       </div>
-      {{ selected }}
       <div class="row mb-4" v-if="MultipleTypeArray.length || selected.length">
         <div class="col">
           <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
