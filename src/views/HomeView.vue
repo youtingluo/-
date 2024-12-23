@@ -44,6 +44,7 @@ async function getSheetData(industry = '全部') {
     MultipleTypeArray.value = route.query.MultipleTypeArray
       ? JSON.parse(route.query.MultipleTypeArray)
       : []
+    selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
     getType()
   } catch (error) {
     isLoading.value = false
@@ -55,25 +56,19 @@ const industryKey = ref([])
 const keys = ref([])
 // 篩選廠商
 const selected = ref([])
-const filterCompany = computed(() => {
-  if (!selected.value.length) {
-    return hotpot.value.filter((item) => {
-      return MultipleTypeArray.value.every((type) => item[type])
-    })
-  } else {
-    return hotpot.value.filter((item) => {
-      // 檢查所有指定的 key 是否有值
-      const hasAllKeysWithValue = MultipleTypeArray.value.every(
-        (key) => item[key] && item[key].length > 0
-      )
 
-      // 檢查指定的 key 是否包含所有指定的 value
-      const hasAllValues = MultipleTypeArray.value.some((key) =>
-        selected.value.every((value) => item[key] && item[key].includes(value))
-      )
-      return hasAllKeysWithValue && hasAllValues
-    })
-  }
+const filterCompany = computed(() => {
+  return hotpot.value.filter((item) => {
+    // 檢查所有指定的 key 是否有值
+    const hasAllKeysWithValue = MultipleTypeArray.value.every(
+      (key) => item[key] && item[key].length > 0
+    )
+    // 檢查指定的 key 是否包含所有指定的 value
+    const hasAllValues = selected.value.every((value) =>
+      MultipleTypeArray.value.some((key) => item[key] && item[key].includes(value))
+    )
+    return hasAllKeysWithValue && hasAllValues
+  })
 })
 
 // 搜尋相關功能
@@ -202,7 +197,15 @@ const addMultipleType = (item) => {
     MultipleTypeArray.value.push(item)
   }
   getType()
+  let result = selected.value.filter((e) => {
+    return filterType.value.indexOf(e) > -1
+  })
+  selected.value = result
 }
+
+// 合併陣列
+const filterType = ref([])
+const showAll = ref(false)
 // 多選種類
 const addMultipleItem = (item) => {
   const index = selected.value.indexOf(item)
@@ -212,18 +215,18 @@ const addMultipleItem = (item) => {
     selected.value.push(item)
   }
 }
-// 合併陣列
-const filterType = ref([])
-const showAll = ref(false)
 const getType = () => {
   const type = []
   hotpot.value.forEach((item) => {
     MultipleTypeArray.value.forEach((industryItem) => {
       // 要合併每個物件的陣列
-      type.push(item[industryItem])
+      if (item[industryItem]) {
+        type.push(item[industryItem])
+      }
     })
   })
-  selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
+
+  //selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
   // 移除重複陣列資料
   filterType.value = [...new Set(type.filter(Boolean).join().split(','))]
 }
@@ -243,7 +246,6 @@ function goCompany(industry) {
   })
 }
 onMounted(() => {
-  getSheetData(selectedindustry.value)
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
     return
@@ -331,6 +333,7 @@ watch(
                 >全部</a
               >
             </li>
+
             <li class="me-2" v-for="objKey in industryKey" :key="objKey">
               <a
                 href="#"
@@ -343,7 +346,7 @@ watch(
           </ul>
         </div>
       </div>
-      <div class="row mb-4" v-if="MultipleTypeArray.length">
+      <div class="row mb-4" v-if="MultipleTypeArray.length || selected.length">
         <div class="col">
           <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
           <ul class="d-flex flex-wrap fs-3">
@@ -381,6 +384,7 @@ watch(
     </div>
     <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
     <!-- 搜尋結果 -->
+
     <div v-if="route.query.search" ref="scrollbox">
       <p class="h5">
         以下為 <span class="text-danger">{{ route.query.search }} </span> 的搜尋結果
@@ -423,6 +427,7 @@ watch(
     </div>
     <!-- end -->
     <!-- 單獨廠商 -->
+
     <div class="row g-3" v-else-if="selectedindustry !== '全部' && !route.query.search">
       <template v-if="filterCompany.length">
         <div class="col-xxs-6 col-lg-3" v-for="company in filterCompany" :key="company['編號']">
