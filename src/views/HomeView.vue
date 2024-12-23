@@ -16,6 +16,8 @@ const isLoading = ref(false)
 const hotpot = ref([])
 const allIndustryData = ref([])
 async function getSheetData(industry = '全部') {
+  console.log('執行')
+
   isMatched = false
   isLoading.value = true
   selectedindustry.value = industry
@@ -43,6 +45,7 @@ async function getSheetData(industry = '全部') {
     MultipleTypeArray.value = route.query.MultipleTypeArray
       ? JSON.parse(route.query.MultipleTypeArray)
       : []
+    selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
     getType()
   } catch (error) {
     isLoading.value = false
@@ -206,9 +209,19 @@ const addMultipleType = (item) => {
     MultipleTypeArray.value.push(item)
   }
   getType()
+  let result = selected.value.filter((e) => {
+    return filterType.value.indexOf(e) > -1
+  })
+  selected.value = result
 }
+
+// 合併陣列
+const filterType = ref([])
+const showAll = ref(false)
 // 多選種類
 const addMultipleItem = (item) => {
+  console.log(filterCompany.value)
+
   const index = selected.value.indexOf(item)
   if (index > -1) {
     selected.value.splice(index, 1)
@@ -216,18 +229,18 @@ const addMultipleItem = (item) => {
     selected.value.push(item)
   }
 }
-// 合併陣列
-const filterType = ref([])
-const showAll = ref(false)
 const getType = () => {
   const type = []
   hotpot.value.forEach((item) => {
     MultipleTypeArray.value.forEach((industryItem) => {
       // 要合併每個物件的陣列
-      type.push(item[industryItem])
+      if (item[industryItem]) {
+        type.push(item[industryItem])
+      }
     })
   })
-  selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
+
+  //selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
   // 移除重複陣列資料
   filterType.value = [...new Set(type.filter(Boolean).join().split(','))]
 }
@@ -267,11 +280,11 @@ const scrolling = () => {
   }
 }
 onMounted(() => {
-  getSheetData(selectedindustry.value)
   if (route.query.selectedindustry !== '全部' && route.query.selectedindustry) {
     getSheetData(route.query.selectedindustry)
     return
   }
+  getSheetData(selectedindustry.value)
   const debouncedScrolling = _.debounce(scrolling, 120)
   window.addEventListener('scroll', debouncedScrolling)
 })
@@ -347,6 +360,7 @@ watch(
           />
         </ul>
       </div>
+      {{ MultipleTypeArray }}
       <div class="row gx-2 mb-4" v-if="!(selectedindustry === '全部')">
         <div class="col">
           <h3 class="fs-6 text-black text-opacity-50">原物料種類</h3>
@@ -365,6 +379,7 @@ watch(
                 >全部</a
               >
             </li>
+
             <li class="me-2" v-for="objKey in industryKey" :key="objKey">
               <a
                 href="#"
@@ -377,7 +392,8 @@ watch(
           </ul>
         </div>
       </div>
-      <div class="row mb-4" v-if="MultipleTypeArray.length">
+      {{ selected }}
+      <div class="row mb-4" v-if="MultipleTypeArray.length || selected.length">
         <div class="col">
           <h3 class="fs-6 text-black text-opacity-50">類別細項</h3>
           <ul class="d-flex flex-wrap fs-3">
@@ -415,6 +431,7 @@ watch(
     </div>
     <h3 class="fs-6 text-black text-opacity-50" v-if="selectedindustry !== '全部'">廠商</h3>
     <!-- 搜尋結果 -->
+
     <div v-if="route.query.search" ref="scrollbox">
       <p class="h5">
         以下為 <span class="text-danger">{{ route.query.search }} </span> 的搜尋結果
@@ -457,6 +474,7 @@ watch(
     </div>
     <!-- end -->
     <!-- 單獨廠商 -->
+
     <div class="row g-3" v-else-if="selectedindustry !== '全部' && !route.query.search">
       <template v-if="filterCompany.length">
         <div class="col-xxs-6 col-lg-3" v-for="company in filterCompany" :key="company['編號']">
