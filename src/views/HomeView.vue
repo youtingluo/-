@@ -41,10 +41,11 @@ async function getSheetData(industry = '全部') {
       matchTypeArray.value = []
       matchkeyword.value = []
     }
+
     MultipleTypeArray.value = route.query.MultipleTypeArray
-      ? JSON.parse(route.query.MultipleTypeArray)
+      ? route.query.MultipleTypeArray.split(',')
       : []
-    selected.value = route.query.selected ? JSON.parse(route.query.selected) : []
+    selected.value = route.query.selected ? route.query.selected.split(',') : []
     getType()
   } catch (error) {
     isLoading.value = false
@@ -88,7 +89,11 @@ const compositionend = () => {
 // 子元件切換廠商類別
 const industries = ['火鍋', '飲料', '剉冰', '燒烤', '烘焙', '早餐', '牛排']
 const handleIndustryChange = (industry) => {
-  router.push({ query: {} })
+  router.push({
+    query: {
+      selectedindustry: industry
+    }
+  })
   selectedindustry.value = industry
   searchContent.value = ''
 }
@@ -196,6 +201,12 @@ const addMultipleType = (item) => {
   } else {
     MultipleTypeArray.value.push(item)
   }
+  router.push({
+    query: {
+      selectedindustry: route.query.selectedindustry,
+      MultipleTypeArray: MultipleTypeArray.value.join()
+    }
+  })
   getType()
   let result = selected.value.filter((e) => {
     return filterType.value.indexOf(e) > -1
@@ -214,6 +225,13 @@ const addMultipleItem = (item) => {
   } else {
     selected.value.push(item)
   }
+  router.push({
+    query: {
+      selectedindustry: route.query.selectedindustry,
+      MultipleTypeArray: MultipleTypeArray.value.join(),
+      selected: selected.value.join()
+    }
+  })
 }
 const getType = () => {
   const type = []
@@ -237,12 +255,7 @@ const displayedType = computed(() => {
 function goCompany(industry) {
   router.push({
     path: `company/${industry}`,
-    query: {
-      search: searchContent.value,
-      selectedindustry: selectedindustry.value,
-      MultipleTypeArray: JSON.stringify(MultipleTypeArray.value),
-      selected: JSON.stringify(selected.value)
-    }
+    query: route.query
   })
 }
 onMounted(() => {

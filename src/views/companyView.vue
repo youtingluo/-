@@ -90,6 +90,10 @@ const handleToggleFavorite = async () => {
     console.error(error)
   }
 }
+defineProps({
+  id: { type: String, required: true },
+  query: { type: Object }
+})
 onMounted(() => {
   getSheetData()
 })

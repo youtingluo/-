@@ -35,7 +35,8 @@ const router = createRouter({
     {
       name: 'company',
       path: '/company/:id',
-      component: () => import('../views/companyView.vue')
+      component: () => import('../views/companyView.vue'),
+      props: (route) => ({ id: route.params.id, query: route.query })
     },
     {
       name: 'contribute',
@@ -65,26 +66,6 @@ const router = createRouter({
   }
 })
 router.beforeEach((to, from, next) => {
-  if (to.path === '/' && from.path.includes('/company/')) {
-    // 如果目標路徑是首頁，且沒有 search 參數
-    if (to.path === '/' && Object.keys(from.query).length > 0) {
-      // 檢查是否已經處理過 query（避免無限重定向）
-      if (to.query && Object.keys(to.query).length > 0) {
-        next() // 如果目標路由已經有 query，直接通過
-      } else {
-        // 複製當前的 query 到首頁
-        next({
-          path: '/',
-          query: {
-            selectedindustry: from.query.selectedindustry,
-            MultipleTypeArray: from.query.MultipleTypeArray,
-            selected: from.query.selected
-          }
-        })
-      }
-    }
-    return
-  }
   const authStore = useAuthStore()
   const checkAuth = () => {
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
