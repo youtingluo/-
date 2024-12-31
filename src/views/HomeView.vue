@@ -338,10 +338,16 @@ watch(
                 href="#"
                 class="btn btn-custom border-0"
                 :class="{ active: !MultipleTypeArray.length }"
-                @click="
+                @click.prevent="
                   () => {
                     MultipleTypeArray = []
                     selected = []
+                    router.push({
+                      query: {
+                        selectedindustry: route.query.selectedindustry,
+                        MultipleTypeArray: MultipleTypeArray
+                      }
+                    })
                   }
                 "
                 >全部</a
@@ -369,7 +375,18 @@ watch(
                 href="#"
                 class="btn btn-custom border-0"
                 :class="{ active: !selected.length }"
-                @click="selected = []"
+                @click.prevent="
+                  () => {
+                    selected = []
+                    router.push({
+                      query: {
+                        selectedindustry: route.query.selectedindustry,
+                        MultipleTypeArray: MultipleTypeArray.join(),
+                        selected: selected
+                      }
+                    })
+                  }
+                "
                 >全部</a
               >
             </li>
