@@ -166,6 +166,7 @@ const MatchkeywordFn = () => {
 }
 let isMatched = true
 const handleMatchKeywordArray = (keyword) => {
+  // 點擊搜尋後的關鍵字使全部反選
   if (!isMatched) {
     matchkeyword.value = []
     isMatched = true
@@ -498,9 +499,3 @@ watch(
     </template>
   </div>
 </template>
-<style scoped>
-.search-icon {
-  width: 1rem;
-  height: 1rem;
-}
-</style>

@@ -110,7 +110,11 @@ onMounted(() => {
           <div class="d-flex justify-content-between align-items-center">
             <h2 class="fs-3 d-flex align-items-center mb-0" v-if="!isLoading">
               {{ company['廠商'] }}
-              <a :href="company['網址']" target="_blank" class="d-inline-block link-gray"
+              <a
+                :href="company['網址']"
+                target="_blank"
+                :title="`${company['廠商']}官網`"
+                class="d-inline-block link-gray"
                 ><span class="material-symbols-outlined px-2 py-3"> language </span></a
               >
             </h2>
@@ -118,6 +122,7 @@ onMounted(() => {
             <div>
               <div class="d-inline-block cursor-pointer">
                 <span
+                  :title="localIsFavorite ? '移除收藏' : '加入收藏'"
                   @click.stop="handleToggleFavorite"
                   class="material-symbols-outlined link-info p-2"
                   :class="localIsFavorite ? 'fill-symbol' : 'none'"

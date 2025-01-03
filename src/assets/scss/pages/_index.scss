@@ -13,8 +13,8 @@
   right: 40px;
   width: 40px;
   height: 40px;
-  background-color: #3e7f41;
-  color: #fff;
+  background-color: $primary;
+  color: $white;
 }
 @media screen and (max-width: 768px) {
   .scroll-top-btn {
