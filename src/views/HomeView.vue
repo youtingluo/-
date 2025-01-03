@@ -96,6 +96,8 @@ const handleIndustryChange = (industry) => {
   })
   selectedindustry.value = industry
   searchContent.value = ''
+  MultipleTypeArray.value = []
+  selected.value = []
 }
 const handleSearchChange = async (newSearchContent) => {
   searchContent.value = newSearchContent
@@ -213,6 +215,15 @@ const addMultipleType = (item) => {
     return filterType.value.indexOf(e) > -1
   })
   selected.value = result
+  if (result.length) {
+    router.push({
+      query: {
+        selectedindustry: route.query.selectedindustry,
+        MultipleTypeArray: MultipleTypeArray.value.join(),
+        selected: selected.value.join()
+      }
+    })
+  }
 }
 
 // 合併陣列
