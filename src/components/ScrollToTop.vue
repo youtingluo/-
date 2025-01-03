@@ -10,17 +10,10 @@ const scrollTop = () => {
   })
 }
 const scrolling = () => {
-  // 捲軸距離視窗頂部的距離
-  const scrolltoTop = window.scrollY
-
-  // 捲軸滾動的距離
-  const scrollLength = scrolltoTop - elTop.value
-
-  // 更新: 滾動前,捲軸距離視窗頂部的距離
-  elTop.value = scrolltoTop
+  elTop.value = window.scrollY
 
   // 判斷想要什麼高度讓按鈕出現
-  if (scrollLength <= 0 && elTop.value < 300) {
+  if (elTop.value < 200) {
     isShow.value = false
   } else {
     isShow.value = true
@@ -46,17 +39,3 @@ onUnmounted(() => {
     </div>
   </Transition>
 </template>
-
-<style scoped>
-.scroll-top-btn {
-  position: fixed;
-  border-radius: 50%;
-  text-align: center;
-  bottom: 20px;
-  right: 40px;
-  width: 40px;
-  height: 40px;
-  background-color: #3e7f41;
-  color: #fff;
-}
-</style>
