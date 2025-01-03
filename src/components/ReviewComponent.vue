@@ -44,9 +44,21 @@ defineProps({
           </span>
         </p>
         <p class="fs-4 text-primary">{{ item['品項'] }}</p>
-        <p>
-          {{ item['實際評測'] }}
-        </p>
+        <div class="d-flex flex-wrap flex-xxs-nowrap justify-content-center">
+          <a :href="item['影片']" target="_blank">
+            <img
+              v-if="item['圖片']"
+              class="object-cover rounded-3"
+              width="150"
+              height="auto"
+              :src="item['圖片']"
+              :alt="item['品項']"
+            />
+          </a>
+          <p class="ms-2">
+            {{ item['實際評測'] }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
