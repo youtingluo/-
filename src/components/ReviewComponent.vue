@@ -24,7 +24,7 @@ defineProps({
       </div>
       <div class="review pt-2 pb-3" v-for="item in reviewContent" :key="item['品項']">
         <p class="star-null fs-5 d-flex align-items-center mb-1">
-          <span class="text-info text-center" style="width: 30px">{{ item['星級'] }} </span>
+          <span class="text-info text-center pe-1">{{ item['星級'] }} </span>
           <span
             v-for="index in Math.floor(item['星級'])"
             :key="index"
@@ -44,18 +44,17 @@ defineProps({
           </span>
         </p>
         <p class="fs-4 text-primary">{{ item['品項'] }}</p>
-        <div class="d-flex flex-wrap flex-xxs-nowrap justify-content-center">
-          <a :href="item['影片']" target="_blank">
+        <div class="d-flex flex-wrap flex-md-nowrap justify-content-center">
+          <a class="mb-2 mb-md-0" :href="item['影片']" target="_blank">
             <img
               v-if="item['圖片']"
-              class="object-cover rounded-3"
-              width="150"
-              height="auto"
+              class="object-cover rounded-3 shadow-sm"
               :src="item['圖片']"
               :alt="item['品項']"
+              width="150"
             />
           </a>
-          <p class="ms-2">
+          <p class="ms-md-2">
             {{ item['實際評測'] }}
           </p>
         </div>
