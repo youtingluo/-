@@ -45,10 +45,10 @@ defineProps({
         </p>
         <p class="fs-4 text-primary">{{ item['品項'] }}</p>
         <div class="d-flex flex-wrap flex-md-nowrap justify-content-center">
-          <a class="mb-2 mb-md-0" :href="item['影片']" target="_blank">
+          <a class="mb-2 mb-md-0 review-img" :href="item['影片']" target="_blank">
             <img
               v-if="item['圖片']"
-              class="object-cover rounded-3 shadow-sm"
+              class="object-cover rounded-3"
               :src="item['圖片']"
               :alt="item['品項']"
               width="150"
@@ -71,6 +71,14 @@ defineProps({
   border-bottom: 2px solid rgba(205, 205, 205, 0.3);
   &:last-child {
     border-bottom: none;
+  }
+}
+
+.review-img img {
+  transition: 0.3s;
+  &:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 0 0.225rem 0.225rem #00000013;
   }
 }
 </style>
