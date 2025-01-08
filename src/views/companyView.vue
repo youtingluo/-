@@ -35,7 +35,7 @@ async function getSheetData() {
   }
 }
 async function getCompanyData() {
-  const range = `公司大綱`
+  const range = `Supply0介紹`
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`
   try {
     const response = await axios.get(url)
@@ -53,7 +53,6 @@ async function getReview() {
     const response = await axios.get(url)
     const values = await response.data.values
     review.value = convertToObjects(values)
-
     getCompany()
     isLoading.value = false
   } catch (error) {
@@ -103,6 +102,7 @@ onMounted(() => {
     <div class="loader"></div>
   </Loading>
   <ScrollToTop />
+  <!-- <MouseFollowing /> -->
   <div class="container py-3">
     <div class="row justify-content-center">
       <div class="col-lg-9">
