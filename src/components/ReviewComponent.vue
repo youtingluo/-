@@ -44,7 +44,9 @@ defineProps({
           </span>
         </p>
         <p class="fs-4 text-primary">{{ item['品項'] }}</p>
-        <div class="d-flex flex-wrap flex-md-nowrap justify-content-center">
+        <div
+          class="d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start"
+        >
           <a class="mb-2 mb-md-0 review-img" :href="item['影片']" target="_blank">
             <img
               v-if="item['圖片']"
